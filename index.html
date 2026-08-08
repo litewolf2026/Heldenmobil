@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v11</title>
+<title>HeldenMobil – HLD PoC v12</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -21,7 +21,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 .panel{background:rgba(23,26,31,.94);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 45px rgba(0,0,0,.2)}
 .loader{padding:22px}.drop{border:1px dashed #5b6574;border-radius:12px;padding:28px 18px;text-align:center;background:#12151a;transition:.15s}.drop.drag{border-color:var(--accent);background:#181712}.drop strong{display:block;font-size:1.05rem;margin-bottom:7px}.drop p{margin:0 0 16px;color:var(--muted);font-size:.9rem}.filebtn{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#17130c;border:0;border-radius:9px;padding:10px 14px;font-weight:750;cursor:pointer}.filebtn:hover{background:var(--accent2)}#fileInput{display:none}.privacy{margin-top:13px;color:#84909f;font-size:.78rem}
 .status{display:none;margin-top:13px;padding:10px 12px;border-radius:9px;background:#12151a;color:var(--muted);font-size:.85rem}.status.error{display:block;color:#ffd0d0;border:1px solid #613838}.status.ok{display:block;color:#bceacb;border:1px solid #345b42}
-.workspace{display:none;margin-top:18px}.toolbar{padding:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.toolbar label{font-size:.78rem;color:var(--muted)}.hero-select{min-width:260px;max-width:100%;background:#111419;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 11px}.fileinfo{margin-left:auto;color:var(--muted);font-size:.8rem}.readonly{padding:9px 14px;border-top:1px solid var(--line);color:#dec791;font-size:.8rem;background:#191811;border-radius:0 0 14px 14px}
+.workspace{display:block;margin-top:18px}.workspace:not(.has-hero) .hero-only,.workspace:not(.has-hero) .hero-data-only{display:none}.tab:disabled{opacity:.42;cursor:not-allowed}.toolbar{padding:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.toolbar label{font-size:.78rem;color:var(--muted)}.hero-select{min-width:260px;max-width:100%;background:#111419;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 11px}.fileinfo{margin-left:auto;color:var(--muted);font-size:.8rem}.readonly{padding:9px 14px;border-top:1px solid var(--line);color:#dec791;font-size:.8rem;background:#191811;border-radius:0 0 14px 14px}
 .herohead{margin-top:18px;padding:20px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start}.herohead h2{font-size:1.6rem;margin:0 0 6px}.meta{color:var(--muted);font-size:.92rem}.apbox{display:grid;grid-template-columns:repeat(2,minmax(90px,1fr));gap:8px}.metric{background:#111419;border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:right}.metric .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.metric .value{font-size:1.18rem;font-weight:750;margin-top:2px}
 .tabs{margin-top:18px;display:flex;gap:7px;overflow-x:auto;padding:4px 2px 8px}.tab{border:1px solid var(--line);background:#15181d;color:var(--muted);border-radius:9px;padding:9px 12px;cursor:pointer;white-space:nowrap}.tab.active{background:#28251e;color:var(--accent2);border-color:#6f5f3e}
 .content{margin-top:4px}.section{display:none}.section.active{display:block}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 2px 10px}.section-title h3{margin:0;font-size:1rem}.count{color:var(--muted);font-size:.8rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px}.attr-name{font-size:.8rem;color:var(--muted)}.attr-value{font-size:1.65rem;font-weight:760;margin-top:3px}.attr-raw{font-size:.72rem;color:#808a98;margin-top:2px}
@@ -46,7 +46,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 
 
 
-/* v11 OneDrive / Microsoft Graph beta */
+/* v12 OneDrive / Microsoft Graph beta */
 .cloud-loader{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#13161b}.cloud-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.cloud-head strong{color:var(--accent2)}.cloud-state{display:inline-flex;align-items:center;gap:6px;border:1px solid #515967;border-radius:999px;padding:4px 8px;font-size:.68rem;color:#b8c1cc;background:#181c22}.cloud-state.ok{border-color:#365b4a;color:#a8dfbd;background:#142019}.cloud-state.warn{border-color:#665735;color:#e5cb87;background:#282318}.cloud-state.error{border-color:#633b3b;color:#efb1b1;background:#281919}.cloud-dot{width:7px;height:7px;border-radius:50%;background:currentColor}.cloud-config{margin-top:8px}.cloud-config summary{cursor:pointer;color:#c7b47f;font-size:.78rem}.cloud-config-body{margin-top:10px}.cloud-url{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.67rem;word-break:break-all;color:#9aa6b5}.cloud-browser{margin-top:10px;border:1px solid #343b46;border-radius:10px;background:#111419;overflow:hidden}.cloud-browser-head{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #2d333c}.cloud-browser-head strong{flex:1;font-size:.8rem}.cloud-items{max-height:320px;overflow:auto}.cloud-item{display:flex;align-items:center;gap:9px;width:100%;border:0;border-bottom:1px solid #272c34;background:transparent;color:var(--text);text-align:left;padding:9px 10px;cursor:pointer}.cloud-item:last-child{border-bottom:0}.cloud-item:hover{background:#1b2027}.cloud-item .cloud-icon{width:22px;text-align:center}.cloud-item .cloud-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cloud-item .cloud-meta{font-size:.65rem;color:var(--muted);white-space:nowrap}.cloud-selected{margin-top:8px;padding:9px 10px;border:1px solid #3b4655;border-radius:9px;background:#151a20;font-size:.76rem}.cloud-syncbox{display:flex;flex-direction:column;gap:9px}.cloud-syncrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cloud-check{display:inline-flex;gap:6px;align-items:center;font-size:.75rem;color:var(--muted)}.cloud-check input{accent-color:#d7aa55}.cloud-message{min-height:1.2em;font-size:.72rem;color:var(--muted)}.cloud-message.ok{color:#9edab5}.cloud-message.warn{color:#e5cb87}.cloud-message.error{color:#efaaaa}.cloud-conflict{padding:9px 10px;border:1px solid #6e5338;background:#281f17;border-radius:9px}.cloud-conflict strong{color:#efc77e}.protocol-warning{margin-top:8px;padding:8px 10px;border:1px solid #694040;background:#2a1818;border-radius:8px;color:#efb0b0;font-size:.73rem}.cloud-hidden{display:none!important}
 @media(max-width:650px){.cloud-head{align-items:flex-start;flex-direction:column}.cloud-item .cloud-meta{display:none}}
 
@@ -55,50 +55,12 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v11</div></div></div>
-  <div class="badge">Proof of Concept v11</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v12</div></div></div>
+  <div class="badge">Proof of Concept v12</div>
 </header>
 
-<section class="panel loader">
-  <div class="drop" id="dropzone">
-    <strong>Heldendatei öffnen</strong>
-    <p>Eine <code>.hld</code>- bzw. ZIP-Datei der Helden-Software auswählen oder hier ablegen.</p>
-    <label class="filebtn" for="fileInput">Datei auswählen</label>
-    <input id="fileInput" type="file" accept=".hld,.ok,.zip,application/zip">
-    <div class="privacy">Die Datei wird nur in diesem Browser verarbeitet und nicht hochgeladen.</div>
-  </div>
-  <div id="loadStatus" class="status"></div>
-
-  <div class="cloud-loader" id="cloudLoader">
-    <div class="cloud-head"><strong>Oder direkt aus OneDrive</strong><span id="cloudAuthBadge" class="cloud-state"><span class="cloud-dot"></span> nicht verbunden</span></div>
-    <div class="subtle">Die HLD bleibt an ihrem bestehenden Ort und wird ausschließlich gelesen. HeldenMobil speichert nur seine eigenen JSON-Begleitdaten im OneDrive-App-Ordner.</div>
-    <div id="cloudProtocolWarning" class="protocol-warning cloud-hidden"></div>
-    <details class="cloud-config" id="cloudConfigDetails">
-      <summary>Einmalige Microsoft-Konfiguration</summary>
-      <div class="cloud-config-body form-grid">
-        <div class="field wide"><label>Application (Client) ID</label><input id="cloudClientId" autocomplete="off" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
-        <div class="field"><label>Tenant</label><input id="cloudTenant" value="common" placeholder="common"></div>
-        <div class="field full"><label>Redirect URI (als SPA in Entra eintragen)</label><div id="cloudRedirectUri" class="cloud-url"></div></div>
-      </div>
-      <div class="toolbar-row"><button class="action-btn" id="cloudSaveConfig">Konfiguration speichern</button><span class="small-note">Benötigte delegierte Graph-Rechte: <strong>Files.Read</strong> + <strong>Files.ReadWrite.AppFolder</strong>.</span></div>
-    </details>
-    <div class="toolbar-row">
-      <button class="action-btn primary" id="cloudConnect">Mit Microsoft verbinden</button>
-      <button class="action-btn cloud-hidden" id="cloudDisconnect">Verbindung trennen</button>
-      <button class="action-btn cloud-hidden" id="cloudChooseHld">HLD in OneDrive wählen</button>
-      <button class="action-btn cloud-hidden" id="cloudReloadHld">Gespeicherte HLD laden</button>
-    </div>
-    <div id="cloudSelectedHld" class="cloud-selected cloud-hidden"></div>
-    <div id="cloudBrowse" class="cloud-browser cloud-hidden">
-      <div class="cloud-browser-head"><button class="mini-btn" id="cloudBrowseBack">←</button><strong id="cloudBrowseTitle">OneDrive</strong><button class="mini-btn" id="cloudBrowseClose">×</button></div>
-      <div id="cloudBrowseItems" class="cloud-items"></div>
-    </div>
-    <div id="cloudLoaderMessage" class="cloud-message"></div>
-  </div>
-</section>
-
 <section class="workspace" id="workspace">
-  <div class="panel">
+  <div class="panel hero-only">
     <div class="toolbar">
       <div><label for="heroSelect">Held</label><br><select id="heroSelect" class="hero-select"></select></div>
       <div class="fileinfo" id="fileInfo"></div>
@@ -106,7 +68,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="readonly">Nur Lesen: Dieser Prototyp verändert die HLD-Datei nicht.</div>
   </div>
 
-  <div class="panel herohead">
+  <div class="panel herohead hero-only">
     <div><h2 id="heroName">–</h2><div class="meta" id="heroMeta"></div></div>
     <div class="apbox">
       <div class="metric"><div class="label">AP gesamt</div><div class="value" id="apTotal">–</div></div>
@@ -115,21 +77,21 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
   </div>
 
   <nav class="tabs" aria-label="Charakterbereiche">
-    <button class="tab active" data-tab="overview">Übersicht</button>
-    <button class="tab" data-tab="talents">Talente</button>
-    <button class="tab" data-tab="spells">Zauber</button>
-    <button class="tab" data-tab="combat">Kampf</button>
-    <button class="tab" data-tab="sf">Sonderfertigkeiten</button>
-    <button class="tab" data-tab="vt">Vor-/Nachteile</button>
-    <button class="tab" data-tab="status">Spielstand</button>
-    <button class="tab" data-tab="adventures">Abenteuer</button>
-    <button class="tab" data-tab="advancement">Steigerung</button>
-    <button class="tab" data-tab="inventory">Inventar</button>
-    <button class="tab" data-tab="data">Daten</button>
+    <button class="tab active" data-tab="data">Daten</button>
+    <button class="tab" data-tab="overview" disabled>Übersicht</button>
+    <button class="tab" data-tab="talents" disabled>Talente</button>
+    <button class="tab" data-tab="spells" disabled>Zauber</button>
+    <button class="tab" data-tab="combat" disabled>Kampf</button>
+    <button class="tab" data-tab="sf" disabled>Sonderfertigkeiten</button>
+    <button class="tab" data-tab="vt" disabled>Vor-/Nachteile</button>
+    <button class="tab" data-tab="status" disabled>Spielstand</button>
+    <button class="tab" data-tab="adventures" disabled>Abenteuer</button>
+    <button class="tab" data-tab="advancement" disabled>Steigerung</button>
+    <button class="tab" data-tab="inventory" disabled>Inventar</button>
   </nav>
 
   <main class="content">
-    <section id="overview" class="section active">
+    <section id="overview" class="section">
       <div class="overview-group">
         <div class="section-title"><h3>Eigenschaften</h3><span class="count" id="attrCount"></span></div>
         <div id="attributes" class="grid"></div>
@@ -187,7 +149,10 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     </section>
 
     <section id="sf" class="section"><div class="section-title"><h3>Sonderfertigkeiten</h3><input class="search" id="sfSearch" placeholder="Sonderfertigkeiten filtern …"></div><div class="count" id="sfCount" style="margin:0 2px 9px"></div><div class="sf-groups" id="sfGroups"></div></section>
-    <section id="vt" class="section"><div class="section-title"><h3>Vor- und Nachteile</h3><span class="count" id="vtCount"></span></div><div class="chips" id="vtList"></div></section>
+    <section id="vt" class="section">
+      <div class="overview-group"><div class="section-title"><h3>Vorteile</h3><span class="count" id="advCount"></span></div><div class="chips" id="advList"></div></div>
+      <div class="overview-group" style="margin-top:18px"><div class="section-title"><h3>Nachteile</h3><span class="count" id="disadvCount"></span></div><div class="chips" id="disadvList"></div></div>
+    </section>
 
     <section id="status" class="section">
       <div class="section-title"><h3>Spieltischzustand</h3><span class="count">HeldenMobil-Daten</span></div>
@@ -238,17 +203,55 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
       <div id="inventoryGroups" class="inv-groups"></div>
     </section>
 
-    <section id="data" class="section">
+    <section id="data" class="section active">
       <div class="section-title"><h3>Daten & Synchronisation</h3><span id="cloudSyncBadge" class="sync-state"><span class="sync-dot"></span> lokal</span></div>
-      <div class="comp-grid">
+
+      <div class="panel loader" style="margin-bottom:12px">
+        <div class="drop" id="dropzone">
+          <strong>Heldendatei öffnen</strong>
+          <p>Eine <code>.hld</code>- bzw. ZIP-Datei der Helden-Software lokal auswählen oder hier ablegen.</p>
+          <label class="filebtn" for="fileInput">Datei auswählen</label>
+          <input id="fileInput" type="file" accept=".hld,.ok,.zip,application/zip">
+          <div class="privacy">Die Datei wird nur in diesem Browser verarbeitet und nicht hochgeladen.</div>
+        </div>
+        <div id="loadStatus" class="status"></div>
+
+        <div class="cloud-loader" id="cloudLoader">
+          <div class="cloud-head"><strong>Oder direkt aus OneDrive</strong><span id="cloudAuthBadge" class="cloud-state"><span class="cloud-dot"></span> nicht verbunden</span></div>
+          <div class="subtle">Die HLD bleibt an ihrem bestehenden Ort und wird ausschließlich gelesen. HeldenMobil speichert nur seine eigenen JSON-Begleitdaten im OneDrive-App-Ordner.</div>
+          <div id="cloudProtocolWarning" class="protocol-warning cloud-hidden"></div>
+          <details class="cloud-config" id="cloudConfigDetails">
+            <summary>Microsoft-Verbindung</summary>
+            <div class="cloud-config-body">
+              <div class="small-note"><strong>HeldenMobil-App-ID ist fest integriert.</strong> Du musst die Client-ID nicht mehr eingeben.</div>
+              <div class="field full" style="margin-top:8px"><label>Redirect URI</label><div id="cloudRedirectUri" class="cloud-url"></div></div>
+              <div class="small-note" style="margin-top:8px">Delegierte Graph-Rechte: <strong>Files.Read</strong> + <strong>Files.ReadWrite.AppFolder</strong>.</div>
+            </div>
+          </details>
+          <div class="toolbar-row">
+            <button class="action-btn primary" id="cloudConnect">Mit Microsoft verbinden</button>
+            <button class="action-btn cloud-hidden" id="cloudDisconnect">Verbindung trennen</button>
+            <button class="action-btn cloud-hidden" id="cloudChooseHld">HLD in OneDrive wählen</button>
+            <button class="action-btn cloud-hidden" id="cloudReloadHld">Gespeicherte HLD laden</button>
+          </div>
+          <div id="cloudSelectedHld" class="cloud-selected cloud-hidden"></div>
+          <div id="cloudBrowse" class="cloud-browser cloud-hidden">
+            <div class="cloud-browser-head"><button class="mini-btn" id="cloudBrowseBack">←</button><strong id="cloudBrowseTitle">OneDrive</strong><button class="mini-btn" id="cloudBrowseClose">×</button></div>
+            <div id="cloudBrowseItems" class="cloud-items"></div>
+          </div>
+          <div id="cloudLoaderMessage" class="cloud-message"></div>
+        </div>
+      </div>
+
+      <div class="comp-grid hero-data-only">
         <div class="comp-card"><h4>Begleitdaten dieses Helden</h4><p class="subtle">Die HLD bleibt read-only. Abenteuer, Spielstand, Inventar, Geld und Steigerungswünsche liegen in einem separaten, versionierten JSON-Datensatz.</p><div class="toolbar-row"><button class="action-btn primary" id="exportCompanion">JSON exportieren</button><label class="action-btn" for="importCompanion">JSON importieren</label><input id="importCompanion" type="file" accept="application/json,.json" hidden><button class="danger-btn" id="resetCompanion">Begleitdaten zurücksetzen</button></div><div id="dataMeta" class="data-box"></div></div>
-        <div class="comp-card"><h4>OneDrive</h4><div class="cloud-syncbox"><p class="subtle" style="margin:0">Die HLD wird nur gelesen. Die JSON-Begleitdaten dieses Helden liegen im App-Ordner von HeldenMobil und werden mit der lokalen Arbeitskopie abgeglichen.</p><div id="cloudDataState" class="data-box"><strong>Noch nicht verbunden</strong></div><div class="cloud-syncrow"><button class="action-btn" id="cloudDataChooseHld">Andere HLD wählen</button><button class="action-btn" id="cloudLoadData">Aus OneDrive laden</button><button class="action-btn primary" id="cloudSaveData">Jetzt speichern</button><label class="cloud-check"><input id="cloudAutoSync" type="checkbox" checked> automatisch speichern</label></div><div id="cloudSyncMessage" class="cloud-message"></div><div id="cloudConflict" class="cloud-conflict cloud-hidden"><strong>Synchronisationskonflikt</strong><div class="small-note" style="margin-top:4px">Die OneDrive-Datei hat sich seit dem letzten Laden geändert. Nichts wird automatisch überschrieben.</div><div class="toolbar-row"><button class="action-btn" id="cloudConflictLoad">OneDrive-Version laden</button><button class="danger-btn" id="cloudConflictOverwrite">Lokale Version überschreiben</button></div></div></div></div>
+        <div class="comp-card"><h4>OneDrive-Speicher</h4><div class="cloud-syncbox"><p class="subtle" style="margin:0">Die HLD wird nur gelesen. Die JSON-Begleitdaten dieses Helden liegen im App-Ordner von HeldenMobil und werden mit der lokalen Arbeitskopie abgeglichen.</p><div id="cloudDataState" class="data-box"><strong>Noch nicht verbunden</strong></div><div class="cloud-syncrow"><button class="action-btn" id="cloudDataChooseHld">Andere HLD wählen</button><button class="action-btn" id="cloudLoadData">Aus OneDrive laden</button><button class="action-btn primary" id="cloudSaveData">Jetzt speichern</button><label class="cloud-check"><input id="cloudAutoSync" type="checkbox" checked> automatisch speichern</label></div><div id="cloudSyncMessage" class="cloud-message"></div><div id="cloudConflict" class="cloud-conflict cloud-hidden"><strong>Synchronisationskonflikt</strong><div class="small-note" style="margin-top:4px">Die OneDrive-Datei hat sich seit dem letzten Laden geändert. Nichts wird automatisch überschrieben.</div><div class="toolbar-row"><button class="action-btn" id="cloudConflictLoad">OneDrive-Version laden</button><button class="danger-btn" id="cloudConflictOverwrite">Lokale Version überschreiben</button></div></div></div></div>
       </div>
     </section>
 
   </main>
 </section>
-<footer>HeldenMobil PoC v11 · HLD read-only · Begleitdaten + OneDrive-Sync (Beta)</footer>
+<footer>HeldenMobil PoC v12 · HLD read-only · Begleitdaten + OneDrive-Sync (Beta)</footer>
 </div>
 
 <script>
@@ -300,11 +303,47 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     'Hakendolch': {ini:0, wm:[0,2], bf:-2},
     'Linkhand': {ini:1, wm:[0,2], bf:0}
   };
+  const Z=(kopf,brust,ruecken,bauch,linkerarm,rechterarm,linkesbein,rechtesbein)=>({kopf,brust,ruecken,bauch,linkerarm,rechterarm,linkesbein,rechtesbein});
+  // Standardwerte des DSA-4.1-Zonensystems. Die HLD liefert Set-Zuordnung und
+  // individuelle Änderungen; XML-Werte überschreiben diese Referenzdaten.
   const ARMOR_REF = {
-    'Brigantina': {rs:5, be:2, zones:{kopf:4,brust:5,ruecken:5,bauch:5,linkerarm:4,rechterarm:4,linkesbein:4,rechtesbein:4}},
-    'Dicke Kleidung': {rs:1, be:1, zones:{kopf:0,brust:1,ruecken:1,bauch:1,linkerarm:1,rechterarm:1,linkesbein:1,rechtesbein:1}},
-    'Hohe Stiefel': {rs:0, be:0, zones:{kopf:0,brust:0,ruecken:0,bauch:0,linkerarm:0,rechterarm:0,linkesbein:1,rechtesbein:1}}
+    'Dicke Kleidung': {zones:Z(0,1,1,1,1,1,1,1),stars:0,partial:false},
+    'Lederhose': {zones:Z(0,0,0,1,0,0,1,1),stars:0,partial:true},
+    'Pelzweste': {zones:Z(0,1,1,1,0,0,0,0),stars:0,partial:false},
+    'Hohe Stiefel': {zones:Z(0,0,0,0,0,0,1,1),stars:0,partial:true},
+    'Gambeson': {zones:Z(0,2,2,2,1,1,1,1),stars:0,partial:false},
+    'Tuchrüstung': {zones:Z(0,2,2,2,0,0,0,0),stars:0,partial:false},
+    'Unterzeug mit Kettenteilen': {zones:Z(0,2,2,1,2,2,1,1),stars:0,partial:false},
+    'Wattierte Kappe': {zones:Z(1,0,0,0,0,0,0,0),stars:0,partial:true},
+    'Wattiertes Unterzeug': {zones:Z(0,1,1,1,1,1,1,1),stars:0,partial:false},
+    'Armschienen (Paar), Leder': {zones:Z(0,0,0,0,1,1,0,0),stars:0,partial:true},
+    'Armschiene (links), Leder': {zones:Z(0,0,0,0,1,0,0,0),stars:0,partial:true},
+    'Armschiene (rechts), Leder': {zones:Z(0,0,0,0,0,1,0,0),stars:0,partial:true},
+    'Beinschienen (Paar), Leder': {zones:Z(0,0,0,0,0,0,1,1),stars:0,partial:true},
+    'Beinschiene (links), Leder': {zones:Z(0,0,0,0,0,0,1,0),stars:0,partial:true},
+    'Beinschiene (rechts), Leder': {zones:Z(0,0,0,0,0,0,0,1),stars:0,partial:true},
+    'Brustplatte, Leder': {zones:Z(0,2,0,1,0,0,0,0),stars:0,partial:false},
+    'Iryanrüstung': {zones:Z(0,3,2,2,0,0,1,1),stars:1,partial:false},
+    'Krötenhaut': {zones:Z(0,3,2,2,1,1,0,0),stars:1,partial:false},
+    'Lederharnisch': {zones:Z(0,3,3,3,0,0,0,0),stars:0,partial:false},
+    'Lederhelm': {zones:Z(2,0,0,0,0,0,0,0),stars:0,partial:true},
+    'Brigantina': {zones:Z(0,5,4,4,2,2,0,0),stars:0,partial:false},
+    'Kettenhaube': {zones:Z(3,1,1,0,0,0,0,0),stars:0,partial:true},
+    'Kettenhemd, Lang': {zones:Z(0,4,4,4,3,3,2,2),stars:1,partial:false},
+    'Kettenmantel': {zones:Z(0,4,4,4,3,3,3,3),stars:1,partial:false},
+    'Kettenkragen': {zones:Z(2,1,1,0,0,0,0,0),stars:1,partial:true},
+    'Armschienen (Paar), Stahl': {zones:Z(0,0,0,0,3,3,0,0),stars:0,partial:true},
+    'Beinschienen (Paar), Stahl': {zones:Z(0,0,0,0,0,0,3,3),stars:0,partial:true},
+    'Garether Platte': {zones:Z(0,6,5,6,5,5,4,4),stars:1,partial:false},
+    'Kürass': {zones:Z(0,5,1,2,0,0,0,0),stars:1,partial:false},
+    'Leichte Platte': {zones:Z(0,5,4,5,0,0,2,2),stars:1,partial:false},
+    'Panzerhandschuhe (Paar)': {zones:Z(0,0,0,0,2,2,0,0),stars:0,partial:true},
+    'Schaller': {zones:Z(4,0,0,0,0,0,0,0),stars:1,partial:true},
+    'Stechhelm / Visierhelm': {zones:Z(5,0,0,0,0,0,0,0),stars:0,partial:true},
+    'Sturmhaube': {zones:Z(3,0,0,0,0,0,0,0),stars:1,partial:true},
+    'Tellerhelm': {zones:Z(2,0,0,0,0,0,0,0),stars:0,partial:true}
   };
+  const ARMOR_ZONE_WEIGHTS={kopf:2,brust:4,ruecken:4,bauch:4,linkerarm:1,rechterarm:1,linkesbein:2,rechtesbein:2};
   const COMBAT_META = {
     'Anderthalbhänder':{abbr:'An',ebe:'BE-2',offset:2}, 'Armbrust':{abbr:'Ar',ebe:'BE-5',offset:5},
     'Belagerungswaffen':{abbr:'Bw',ebe:'BE-5',offset:5}, 'Bogen':{abbr:'Bo',ebe:'BE-3',offset:3},
@@ -329,6 +368,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     ['Handwerk', new Set(['Abrichten','Ackerbau','Alchimie','Bergbau','Boote fahren','Brauer','Fahrzeug lenken','Feinmechanik','Feuersteinbearbeitung','Fleischer','Gerber/Kürschner','Glaskunst','Grobschmied','Handel','Hauswirtschaft','Heilkunde: Gift','Heilkunde: Krankheiten','Heilkunde: Seele','Heilkunde: Wunden','Holzbearbeitung','Kochen','Kristallzucht','Lederarbeiten','Malen/Zeichnen','Maurer','Metallguss','Musizieren','Schlösser knacken','Schnaps brennen','Schneidern','Seefahrt','Steinmetz','Steinschneider/Juwelier','Stellmacher','Stoffe färben','Tätowieren','Töpfern','Viehzucht','Webkunst','Winzer','Zimmermann'])]
   ];
   const GROUP_ORDER = ['Gaben','Kampf','Körperlich','Gesellschaftlich','Natur','Wissen','Sprachen','Schriften','Handwerk','Ritual-/Liturgiekenntnis','Sonstige'];
+
+  const DISADVANTAGE_NAMES = new Set([
+    'Aberglaube','Angst vor (seltener Auslöser)','Angst vor Menschenmassen','Arroganz','Artefaktgebunden','Astraler Block','Autoritätsgläubig','Behäbig','Dunkelangst','Einarmig','Einbildungen','Eingeschränkter Sinn','Einhändig','Eitelkeit','Farbenblind','Feind','Feste Gewohnheit','Fettleibig','Geiz','Gesucht','Goldgier','Größenwahn','Höhenangst','Impulsiv','Jähzorn','Kleinwüchsig','Krankheitsanfällig','Kälteempfindlichkeit','Lichtscheu','Meeresangst','Mondsüchtig','Moralkodex','Nahrungsrestriktion','Neid','Neugier','Niedrige Lebenskraft','Niedrige Magieresistenz','Pechmagnet','Platzangst','Prinzipientreue','Rachsucht','Randgruppe','Schlafstörungen','Schlechter Ruf','Schulden','Schwacher Astralkörper','Selbstgespräche','Sensibler Geruchssinn','Speisegebote','Spielsucht','Stubenhocker','Sucht','Totenangst','Unangenehme Stimme','Unansehnlich','Unstet','Verpflichtungen','Verschwendungssucht','Vorurteile','Wahrer Name','Wilde Magie','Zwergenwuchs','Zögerlicher Zauberer'
+  ]);
+  function isDisadvantage(name){return DISADVANTAGE_NAMES.has(name)||name.startsWith('Angst vor ')||name.startsWith('Unfähigkeit für ')||name.startsWith('Vorurteile gegen')||name.startsWith('Weltfremd bzgl.');}
 
   const COMBAT_SF = new Set(['Aufmerksamkeit','Kampfreflexe','Kampfgespür','Klingentänzer','Ausweichen I','Ausweichen II','Ausweichen III','Linkhand','Parierwaffen I','Parierwaffen II','Meisterparade','Niederwerfen','Rüstungsgewöhnung I','Rüstungsgewöhnung II','Rüstungsgewöhnung III','Schildkampf I','Schildkampf II','Beidhändiger Kampf I','Beidhändiger Kampf II','Waffenloser Kampfstil: Bornländisch','Wuchtschlag']);
   const MANEUVER_SF = new Set(['Auspendeln','Biss','Block','Fußfeger','Griff','Halten','Klammer','Knie','Kopfstoß','Niederringen','Schmutzige Tricks','Schwitzkasten','Tritt','Wurf','Würgegriff']);
@@ -438,7 +482,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       heroes.sort((a,b)=>a.name.localeCompare(b.name,'de'));
       state.heroes=heroes; state.fileName=file.name; state.source=sourceMeta.source||'local'; state.cloudHld=sourceMeta.cloudHld||null;
       $('#heroSelect').innerHTML=heroes.map(h=>`<option value="${esc(h.key)}">${esc(h.name)}</option>`).join('');
-      $('#workspace').style.display='block';
       $('#fileInfo').textContent=`${file.name} · ${heroes.length} Helden · ${(file.size/1024).toFixed(0)} KB${state.source==='onedrive'?' · OneDrive':''}`;
       status(`${heroes.length} Helden erkannt. Datei wurde nicht verändert.`,'ok');
       const requested=new URLSearchParams(location.search).get('hero');
@@ -473,7 +516,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const vtRoot=direct(held,'vt');
     const vorteile=directAll(vtRoot,'vorteil');
     const meisterhandwerke=new Set(vorteile.filter(v=>attr(v,'name')==='Meisterhandwerk').map(v=>cleanName(attr(v,'value'))).filter(Boolean));
-    const vt=vorteile.map(v=>{const val=attr(v,'value');return attr(v,'name')+(val?`: ${val}`:'');});
+    const vtEntries=vorteile.map(v=>{const name=attr(v,'name'),val=attr(v,'value');return {name,label:name+(val?`: ${val}`:'')};});
+    const vt=vtEntries.map(v=>v.label);
+    const advantages=vtEntries.filter(v=>!isDisadvantage(v.name)).map(v=>v.label);
+    const disadvantages=vtEntries.filter(v=>isDisadvantage(v.name)).map(v=>v.label);
     const vtNames=new Set(vorteile.map(v=>attr(v,'name')));
     const vtValues=new Map(vorteile.map(v=>[attr(v,'name'),attr(v,'value')]));
 
@@ -519,7 +565,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       culture:attr(kultur,'string',attr(kultur,'name')),
       profession:[attr(ausb,'string',attr(ausb,'name')),attr(variante,'name')].filter(Boolean).join(' · '),
       ap:num(attr(direct(basis,'abenteuerpunkte'),'value')),freeAp:num(attr(direct(basis,'freieabenteuerpunkte'),'value')),
-      props,talents,spells,combat,combatMap,sf,sfEntries,sfSet,vt,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
+      props,talents,spells,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
       staffItems:items.filter(i=>/magierstab/i.test(`${i.base} ${i.display}`))
     };
   }
@@ -539,7 +585,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       nk:nk?{tp:tp?[num(attr(tp,'mul'),1),num(attr(tp,'w'),6),num(attr(tp,'sum'),0)]:null,tpkk:tpkk?[num(attr(tpkk,'kk')),num(attr(tpkk,'schrittweite'))]:null,wm:wm?[num(attr(wm,'at')),num(attr(wm,'pa'))]:null,ini:nki?num(attr(nki,'ini')):null,bf:bf?num(attr(bf,'akt')):null}:null,
       fk:!!direct(g,'Fernkampfwaffe'),
       shield:sh?{wm:swm?[num(attr(swm,'at')),num(attr(swm,'pa'))]:null,ini:shi?num(attr(shi,'ini')):null,bf:sbf?num(attr(sbf,'akt')):null,bfmin:sbf?num(attr(sbf,'min')):null}:null,
-      armor:ru?{rs:direct(ru,'rs')?num(attr(direct(ru,'rs'),'value')):null,zones:armorZones}:null
+      armor:ru?{
+        rs:direct(ru,'rs')?num(attr(direct(ru,'rs'),'value')):null,
+        gesRs:direct(ru,'geszors')?num(attr(direct(ru,'geszors'),'value')):null,
+        gesBe:direct(ru,'gesbe')?num(attr(direct(ru,'gesbe'),'value')):null,
+        stars:direct(ru,'sterne')?num(attr(direct(ru,'sterne'),'value')):null,
+        parts:direct(ru,'teile')?num(attr(direct(ru,'teile'),'value')):null,
+        zones:armorZones
+      }:null
     };
   }
 
@@ -572,9 +625,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function renderHero(hero){
     state.current=parseHero(hero);state.combatSet=0;
     const h=state.current;
+    $('#workspace').classList.add('has-hero');$$('.tab[data-tab]').forEach(b=>{if(b.dataset.tab!=='data')b.disabled=false;});
     $('#heroName').textContent=h.name;$('#heroMeta').textContent=[h.race,h.culture,h.profession].filter(Boolean).join(' · ');
     $('#apTotal').textContent=h.ap.toLocaleString('de-DE');$('#apFree').textContent=h.freeAp.toLocaleString('de-DE');
-    renderAttributes();renderBasis();renderAttributeStrips();renderTalents();renderSpells();renderCombat();renderSonderfertigkeiten();renderChips('#vtList','#vtCount',h.vt);
+    renderAttributes();renderBasis();renderAttributeStrips();renderTalents();renderSpells();renderCombat();renderSonderfertigkeiten();renderChips('#advList','#advCount',h.advantages);renderChips('#disadvList','#disadvCount',h.disadvantages);
     loadCompanionForHero();
   }
   function renderAttributes(){
@@ -618,21 +672,27 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     $('#sfGroups').innerHTML=SF_GROUP_ORDER.map(g=>{const rows=groups.get(g)||[];if(!rows.length)return '';rows.sort((a,b)=>a.label.localeCompare(b.label,'de'));return `<div class="sf-group"><div class="sf-group-head"><h4>${esc(g)}</h4><span>${rows.length}</span></div><div class="chips">${rows.map(x=>`<span class="chip sf-chip">${x.kind?`<span class="sf-kind">${esc(x.kind)}</span>`:''}${esc(x.label)}</span>`).join('')}</div></div>`;}).join('')||'<div class="empty">Keine Treffer</div>';
   }
 
+  function armorWeighted(zones){let sum=0;for(const [k,w] of Object.entries(ARMOR_ZONE_WEIGHTS))sum+=num(zones?.[k],0)*w;return sum/20;}
+  function armorPieceBE(ref,zones,stars){const grs=armorWeighted(zones);return ref.partial&&stars>0?grs/2:Math.max(0,grs-stars);}
   function setArmor(set){
-    const entries=set.entries.filter(e=>e.type==='armor'),zoneKeys=['kopf','brust','ruecken','bauch','linkerarm','rechterarm','linkesbein','rechtesbein'];
-    const zones=Object.fromEntries(zoneKeys.map(k=>[k,0]));let rs=0,be=0;
+    const entries=set.entries.filter(e=>e.type==='armor'),zoneKeys=Object.keys(ARMOR_ZONE_WEIGHTS);
+    const zones=Object.fromEntries(zoneKeys.map(k=>[k,0]));let rawBE=0;const unknown=[];
     const pieces=entries.map(e=>{
-      const ref=ARMOR_REF[e.base]||{};const xml=e.item?.armor||{};const z={...ref.zones,...xml.zones};
-      for(const k of zoneKeys)zones[k]+=num(z?.[k],0);
-      const itemRs=xml.rs??ref.rs??null,itemBe=ref.be??null;if(itemRs!=null)rs+=itemRs;if(itemBe!=null)be+=itemBe;
-      return {...e,rs:itemRs,be:itemBe,zones:z};
+      const ref=ARMOR_REF[e.base]||{},xml=e.item?.armor||{},hasRef=!!ref.zones,hasXmlZones=Object.keys(xml.zones||{}).length>0;
+      if(!hasRef&&!hasXmlZones)unknown.push(e.name||e.base);
+      const z={...(ref.zones||Z(0,0,0,0,0,0,0,0)),...(xml.zones||{})};
+      for(const k of zoneKeys)zones[k]+=num(z[k],0);
+      const stars=xml.stars??ref.stars??0,pieceGrs=armorWeighted(z),pieceGbe=armorPieceBE(ref,z,stars);rawBE+=pieceGbe;
+      const itemRs=xml.gesRs??xml.rs??(pieceGrs?Math.round(pieceGrs):0),itemBe=xml.gesBe??Math.round(pieceGbe);
+      return {...e,rs:itemRs,be:itemBe,zones:z,stars,rawRS:pieceGrs,rawBE:pieceGbe};
     });
+    const rawRS=armorWeighted(zones),rs=Math.round(rawRS),baseBE=Math.round(rawBE);
     let reduction=0;
     if(state.current.sfSet.has('Rüstungsgewöhnung III')) reduction=2;
     else if(state.current.sfSet.has('Rüstungsgewöhnung II')) reduction=1;
     else if(state.current.rg1?.length && pieces.some(p=>state.current.rg1.some(r=>p.base===r||p.name===r||p.name.includes(r)||r.includes(p.name)))) reduction=1;
-    const effective=Math.max(0,be-reduction);
-    return {pieces,zones,rs,baseBE:be,be:effective,beReduction:reduction};
+    const effective=Math.max(0,baseBE-reduction);
+    return {pieces,zones,rs,rawRS,baseBE,rawBE,be:effective,beReduction:reduction,unknown};
   }
   function advantageNumber(name,defaultWhenPresent=1){
     if(!state.current.vtValues?.has(name))return 0;const raw=state.current.vtValues.get(name);return String(raw??'').trim()===''?defaultWhenPresent:num(raw,defaultWhenPresent);
@@ -749,7 +809,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const summary=[
       {l:'AT-Basis',v:currentAttr(pm,'at')},{l:'PA-Basis',v:currentAttr(pm,'pa')},{l:'FK-Basis',v:currentAttr(pm,'fk')},
       {l:'INI-Basis',v:currentAttr(pm,'ini')},{l:'INI aktuell',v:iniShown,n:iniDetail},
-      {l:'GS',v:speed.value,n:speed.parts.join(' · ')},{l:'BE',v:armor.be,n:armor.beReduction?`Rüstungsgewöhnung: −${armor.beReduction} BE`:'effektive BE'}
+      {l:'GS',v:speed.value,n:speed.parts.join(' · ')},{l:'BE',v:armor.be,n:`gBE ${armor.baseBE}${armor.beReduction?` · Rüstungsgewöhnung −${armor.beReduction}`:''}`}
     ];
     $('#combatSummary').innerHTML=summary.map(x=>`<div class="combat-metric"><span>${x.l}</span><strong>${x.v}</strong>${x.n?`<small>${esc(x.n)}</small>`:''}</div>`).join('');
 
@@ -777,8 +837,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const energy=['LeP','AuP','AsP','KaP'].filter(n=>emap.has(n)).map(n=>{const v=emap.get(n);return `<tr><td>${n}</td><td class="num hot">${v}</td><td class="num">${Math.floor(v/2)}</td><td class="num">${Math.floor(v/3)}</td><td class="num">${Math.floor(v/4)}</td></tr>`;}).join('');
     $('#energyBody').innerHTML=energy||'<tr><td colspan="5" class="empty">–</td></tr>';$('#woundThreshold').textContent=wd.threshold;
 
-    const z=armor.zones;$('#zoneBody').innerHTML=`<tr><td>${z.kopf}</td><td>${z.brust}</td><td>${z.ruecken}</td><td>${z.bauch}</td><td>${z.linkerarm}</td><td>${z.rechterarm}</td><td>${z.linkesbein}</td><td>${z.rechtesbein}</td><td class="hot">${armor.rs}</td><td class="hot">${armor.be}</td></tr>`;
-    $('#armorBody').innerHTML=armor.pieces.map(p=>`<tr><td>${esc(p.name)}</td><td class="num">${p.rs??'–'}</td><td class="num">${p.be??'–'}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Keine Rüstung</td></tr>';
+    const z=armor.zones;$('#zoneBody').innerHTML=`<tr><td>${z.kopf}</td><td>${z.brust}</td><td>${z.ruecken}</td><td>${z.bauch}</td><td>${z.linkerarm}</td><td>${z.rechterarm}</td><td>${z.linkesbein}</td><td>${z.rechtesbein}</td><td class="hot">${armor.rs}</td><td class="hot">${armor.be}</td></tr>${armor.unknown.length?`<tr><td colspan="10" class="empty">Keine Referenzdaten für: ${esc(armor.unknown.join(', '))}</td></tr>`:''}`;
+    $('#armorBody').innerHTML=armor.pieces.map(p=>`<tr><td>${esc(p.name)}${p.stars?`<div class="cell-sub">${'★'.repeat(Math.min(5,p.stars))}</div>`:''}</td><td class="num">${p.rs??'–'}</td><td class="num">${p.be??'–'}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Keine Rüstung</td></tr>';
 
     const combatSf=h.sf.filter(x=>COMBAT_SF.has(x)),man=h.sf.filter(x=>MANEUVER_SF.has(x));
     const specs=[];for(const [tal,list] of h.talentSpecs.entries())if(COMBAT_META[tal])for(const s of list)specs.push(`${tal} (${s})`);
@@ -896,11 +956,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   async function importCompanion(file){if(!file)return;try{const raw=await file.text(),d=JSON.parse(raw);if(d.heroKey&&d.heroKey!==state.current.key&&!confirm(`Die Datei gehört zu „${d.heroName||'einem anderen Helden'}“. Trotzdem für ${state.current.name} importieren?`))return;companionState.data=normalizeCompanion(d);saveCompanion();renderCompanionAll();}catch(e){alert('JSON konnte nicht importiert werden: '+e.message);}}
 
 
-  // ---- OneDrive / Microsoft Graph (v11 Beta) -----------------------------
+  // ---- OneDrive / Microsoft Graph (v12 Beta) -----------------------------
   // Die HLD bleibt außerhalb des App-Ordners und wird mit Files.Read nur gelesen.
   // Eigene Begleitdaten werden ausschließlich unter /special/approot gespeichert.
   // Authentifizierung: OAuth 2.0 Authorization Code Flow mit PKCE für eine SPA.
   const CLOUD_CONFIG_KEY='heldenmobil:onedrive:config:v1';
+  const HELDENMOBIL_CLIENT_ID='b60fad5c-ad67-4f93-b93f-adafd8c976c1';
+  const HELDENMOBIL_TENANT='common';
   const CLOUD_HLD_KEY='heldenmobil:onedrive:hld:v1';
   const CLOUD_TOKEN_KEY='heldenmobil:onedrive:tokens:v1';
   const CLOUD_PENDING_KEY='heldenmobil:onedrive:pkce:v1';
@@ -911,17 +973,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function cloudCapable(){return location.protocol==='https:'||(location.protocol==='http:'&&['localhost','127.0.0.1','::1'].includes(location.hostname));}
   function cloudRedirectUri(){return cloudCapable()?`${location.origin}${location.pathname}`:'';}
   function cloudLoadStored(){
-    try{cloudState.config=JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||'null');}catch(_){cloudState.config=null;}
+    cloudState.config={clientId:HELDENMOBIL_CLIENT_ID,tenant:HELDENMOBIL_TENANT};localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(cloudState.config));
     try{cloudState.tokens=JSON.parse(sessionStorage.getItem(CLOUD_TOKEN_KEY)||'null');}catch(_){cloudState.tokens=null;}
     try{cloudState.hldRef=JSON.parse(localStorage.getItem(CLOUD_HLD_KEY)||'null');}catch(_){cloudState.hldRef=null;}
     const auto=localStorage.getItem(CLOUD_AUTOSYNC_KEY);if(auto!==null)$('#cloudAutoSync').checked=auto==='1';
-    $('#cloudClientId').value=cloudState.config?.clientId||'';$('#cloudTenant').value=cloudState.config?.tenant||'common';$('#cloudRedirectUri').textContent=cloudRedirectUri()||'Nicht verfügbar bei file:// – für OneDrive über HTTPS oder http://localhost öffnen.';
+    $('#cloudRedirectUri').textContent=cloudRedirectUri()||'Nicht verfügbar bei file:// – für OneDrive über HTTPS oder http://localhost öffnen.';
   }
-  function cloudSaveConfig(){
-    const clientId=$('#cloudClientId').value.trim(),tenant=$('#cloudTenant').value.trim()||'common';
-    if(!clientId){cloudMessage('Bitte zuerst die Application (Client) ID eintragen.','error');return false;}
-    cloudState.config={clientId,tenant};localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(cloudState.config));cloudRenderState();cloudMessage('Microsoft-Konfiguration gespeichert.','ok');return true;
-  }
+  function cloudSaveConfig(){cloudState.config={clientId:HELDENMOBIL_CLIENT_ID,tenant:HELDENMOBIL_TENANT};return true;}
   function cloudIsConnected(){return !!cloudState.tokens?.accessToken||!!cloudState.tokens?.refreshToken;}
   function cloudTokenEndpoint(){const t=encodeURIComponent(cloudState.config?.tenant||'common');return `https://login.microsoftonline.com/${t}/oauth2/v2.0/token`;}
   function cloudAuthorizeEndpoint(){const t=encodeURIComponent(cloudState.config?.tenant||'common');return `https://login.microsoftonline.com/${t}/oauth2/v2.0/authorize`;}
@@ -1049,7 +1107,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $('#exportCompanion').addEventListener('click',exportCompanion);$('#importCompanion').addEventListener('change',e=>importCompanion(e.target.files[0]));
   $('#resetCompanion').addEventListener('click',()=>{if(!confirm(`Begleitdaten für ${state.current?.name||'diesen Helden'} wirklich vollständig zurücksetzen?`))return;localStorage.removeItem(companionStorageKey());localStorage.removeItem(companionStorageKey(2));localStorage.removeItem(companionStorageKey(1));companionState.data=emptyCompanion();saveCompanion();renderCompanionAll();});
 
-  $('#cloudSaveConfig').addEventListener('click',cloudSaveConfig);
   $('#cloudConnect').addEventListener('click',cloudConnect);$('#cloudDisconnect').addEventListener('click',cloudDisconnect);
   $('#cloudChooseHld').addEventListener('click',()=>cloudOpenBrowser(null));$('#cloudReloadHld').addEventListener('click',()=>cloudLoadHld());
   $('#cloudBrowseBack').addEventListener('click',cloudBrowseBack);$('#cloudBrowseClose').addEventListener('click',()=>$('#cloudBrowse').classList.add('cloud-hidden'));
@@ -1061,7 +1118,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $('#fileInput').addEventListener('change',e=>openFile(e.target.files[0],{source:'local'}));
   $('#heroSelect').addEventListener('change',e=>{const h=state.heroes.find(x=>x.key===e.target.value);if(h)renderHero(h);});
   $('#talentSearch').addEventListener('input',renderTalents);$('#spellSearch').addEventListener('input',renderSpells);$('#sfSearch').addEventListener('input',renderSonderfertigkeiten);$('#addStaffSlot').addEventListener('click',addStaffSlot);
-  $$('.tab').forEach(btn=>btn.addEventListener('click',()=>{$$('.tab').forEach(b=>b.classList.toggle('active',b===btn));$$('.section').forEach(s=>s.classList.toggle('active',s.id===btn.dataset.tab));}));
+  $$('.tab').forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled)return;$$('.tab').forEach(b=>b.classList.toggle('active',b===btn));$$('.section').forEach(s=>s.classList.toggle('active',s.id===btn.dataset.tab));}));
   const dz=$('#dropzone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>openFile(e.dataTransfer.files[0],{source:'local'}));
   cloudInit();
   const demo=new URLSearchParams(location.search).get('demo');if(demo&&!new URLSearchParams(location.search).has('code')){fetch(demo).then(r=>{if(!r.ok)throw new Error('Demo-Datei nicht erreichbar');return r.blob();}).then(b=>openFile(new File([b],demo.split('/').pop()||'helden.hld'),{source:'demo'})).catch(err=>status('Demo-Fehler: '+err.message,'error'));}
