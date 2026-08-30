@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v18.0.1</title>
+<title>HeldenMobil – HLD PoC v19.0</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -56,6 +56,10 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 .artifact-card{margin-top:12px}.artifact-form{margin-top:10px}.artifact-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}.artifact-item{border:1px solid #4c4432;background:linear-gradient(180deg,#1a1b20,#15171b);border-radius:11px;padding:11px}.artifact-item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.artifact-item-title{font-weight:800;color:#f0d58d}.artifact-item-meta{font-size:.69rem;color:var(--muted);margin-top:3px}.artifact-effects{display:flex;flex-direction:column;gap:7px;margin-top:9px}.artifact-effect{border:1px solid #303744;background:#12161b;border-radius:9px;padding:9px}.artifact-effect-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.artifact-effect-name{font-weight:760}.artifact-effect-meta{font-size:.69rem;color:var(--muted);margin-top:3px;line-height:1.4}.artifact-effect-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.magic-pill{border-color:#675486!important;color:#d7c2ff!important;background:#211a2c!important}.charge-badge{display:inline-block;border:1px solid #536746;color:#bde2a7;background:#172116;border-radius:999px;padding:2px 7px;font-size:.64rem;white-space:nowrap}.charge-badge.empty{border-color:#6b4141;color:#eca7a7;background:#271717}.artifact-kind{display:inline-block;border:1px solid #625639;color:#e7cc86;background:#252117;border-radius:999px;padding:2px 7px;font-size:.64rem;margin-left:6px}.artifact-empty-effect{color:var(--muted);font-size:.76rem;padding:7px 0}.dashboard-magic-section-title{margin:9px 0 6px;color:#d9bd79;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.artifact-manage-row{margin-top:8px}
 @media(max-width:650px){.artifact-item-head,.artifact-effect-head{flex-direction:column}.artifact-effect-actions .action-btn,.artifact-effect-actions .danger-btn{padding:6px 8px}}
 
+
+
+/* v19 Geweihte / Liturgien */
+.liturgy-knowledge-card,.liturgy-list-card{margin-bottom:12px}.liturgy-toolbar{margin-bottom:10px}.liturgy-table{min-width:520px}.liturgy-table th:first-child,.liturgy-table td:first-child{width:42px;text-align:center}.liturgy-grade{display:inline-block;border:1px solid #625639;color:#e7cc86;background:#252117;border-radius:999px;padding:2px 7px;font-size:.66rem;white-space:nowrap}.liturgy-grade.base{border-color:#46505d;color:#aeb9c8;background:#15191f}.liturgy-knowledge-list{display:flex;flex-direction:column;gap:8px}.liturgy-knowledge-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid #303744;background:#12161b;border-radius:9px;padding:10px}.liturgy-knowledge-title{font-weight:800;color:#f0d58d}.liturgy-knowledge-meta{font-size:.72rem;color:var(--muted);margin-top:3px}.liturgy-knowledge-value{display:flex;align-items:center;gap:8px}.liturgy-knowledge-value strong{font-size:1.18rem;color:#f0d58d}.liturgy-kap{display:inline-block;border:1px solid #5b4f78;color:#d9c8ff;background:#201a2a;border-radius:999px;padding:3px 8px;font-size:.7rem;margin-left:6px}.liturgy-name{font-weight:720}.liturgy-name .roll-mark{margin-left:4px}@media(max-width:600px){.liturgy-knowledge-row{grid-template-columns:1fr}.liturgy-knowledge-value{justify-content:flex-start}.liturgy-table{min-width:430px}}
 
 /* v12 OneDrive / Microsoft Graph beta */
 .cloud-loader{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#13161b}.cloud-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.cloud-head strong{color:var(--accent2)}.cloud-state{display:inline-flex;align-items:center;gap:6px;border:1px solid #515967;border-radius:999px;padding:4px 8px;font-size:.68rem;color:#b8c1cc;background:#181c22}.cloud-state.ok{border-color:#365b4a;color:#a8dfbd;background:#142019}.cloud-state.warn{border-color:#665735;color:#e5cb87;background:#282318}.cloud-state.error{border-color:#633b3b;color:#efb1b1;background:#281919}.cloud-dot{width:7px;height:7px;border-radius:50%;background:currentColor}.cloud-config{margin-top:8px}.cloud-config summary{cursor:pointer;color:#c7b47f;font-size:.78rem}.cloud-config-body{margin-top:10px}.cloud-url{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.67rem;word-break:break-all;color:#9aa6b5}.cloud-browser{margin-top:10px;border:1px solid #343b46;border-radius:10px;background:#111419;overflow:hidden}.cloud-browser-head{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #2d333c}.cloud-browser-head strong{flex:1;font-size:.8rem}.cloud-items{max-height:320px;overflow:auto}.cloud-item{display:flex;align-items:center;gap:9px;width:100%;border:0;border-bottom:1px solid #272c34;background:transparent;color:var(--text);text-align:left;padding:9px 10px;cursor:pointer}.cloud-item:last-child{border-bottom:0}.cloud-item:hover{background:#1b2027}.cloud-item .cloud-icon{width:22px;text-align:center}.cloud-item .cloud-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cloud-item .cloud-meta{font-size:.65rem;color:var(--muted);white-space:nowrap}.cloud-selected{margin-top:8px;padding:9px 10px;border:1px solid #3b4655;border-radius:9px;background:#151a20;font-size:.76rem}.cloud-syncbox{display:flex;flex-direction:column;gap:9px}.cloud-syncrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cloud-check{display:inline-flex;gap:6px;align-items:center;font-size:.75rem;color:var(--muted)}.cloud-check input{accent-color:#d7aa55}.cloud-message{min-height:1.2em;font-size:.72rem;color:var(--muted)}.cloud-message.ok{color:#9edab5}.cloud-message.warn{color:#e5cb87}.cloud-message.error{color:#efaaaa}.cloud-conflict{padding:9px 10px;border:1px solid #6e5338;background:#281f17;border-radius:9px}.cloud-conflict strong{color:#efc77e}.protocol-warning{margin-top:8px;padding:8px 10px;border:1px solid #694040;background:#2a1818;border-radius:8px;color:#efb0b0;font-size:.73rem}.cloud-hidden{display:none!important}
@@ -206,6 +210,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <button class="tab" data-tab="overview" disabled>Übersicht</button>
     <button class="tab" data-tab="talents" disabled>Talente</button>
     <button class="tab" data-tab="spells" disabled>Zauber</button>
+    <button class="tab hidden" data-tab="liturgies" disabled>Liturgien</button>
     <button class="tab" data-tab="combat" disabled>Kampf</button>
     <button class="tab" data-tab="sf" disabled>Sonderfertigkeiten</button>
     <button class="tab" data-tab="vt" disabled>Vor-/Nachteile</button>
@@ -236,6 +241,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
           <div class="comp-card dashboard-combat-card"><h4>Aktuelle Kampfkombination</h4><div id="dashboardCombat"></div></div>
           <div class="comp-card"><h4>Lieblingstalente</h4><div id="dashboardFavorites"></div></div>
           <div class="comp-card hidden" id="dashboardSpellFavoritesCard"><h4>Lieblingszauber</h4><div id="dashboardSpellFavorites"></div></div>
+          <div class="comp-card hidden" id="dashboardLiturgyFavoritesCard"><h4>Lieblingsliturgien</h4><div id="dashboardLiturgyFavorites"></div></div>
           <div class="comp-card"><h4>Geld</h4><div id="dashboardMoney"></div></div>
           <div class="comp-card"><h4>Magische Speicher</h4><div id="dashboardMagic"></div></div>
         </div>
@@ -282,6 +288,25 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
           <div id="staffStorageList" class="storage-list"></div>
         </div>
       </div>
+    </section>
+
+
+    <section id="liturgies" class="section">
+      <div class="section-title"><h3>Liturgien</h3><span class="count" id="liturgyCount"></span></div>
+      <div class="comp-card liturgy-knowledge-card">
+        <h4>Liturgiekenntnis</h4>
+        <div id="liturgyKnowledge"></div>
+      </div>
+      <div class="comp-card liturgy-list-card">
+        <h4><span>Segnungen</span><span class="count" id="blessingCount"></span></h4>
+        <div class="liturgy-toolbar"><input class="search" id="liturgySearch" placeholder="Liturgien und Segnungen filtern …"></div>
+        <div class="tablewrap"><table class="liturgy-table"><thead><tr><th></th><th>Segnung</th><th>Grad</th></tr></thead><tbody id="blessingBody"></tbody></table></div>
+      </div>
+      <div class="comp-card liturgy-list-card">
+        <h4><span>Liturgien</span><span class="count" id="liturgyProperCount"></span></h4>
+        <div class="tablewrap"><table class="liturgy-table"><thead><tr><th></th><th>Liturgie</th><th>Grad</th></tr></thead><tbody id="liturgyBody"></tbody></table></div>
+      </div>
+      <div class="hld-note">Grade werden ausschließlich aus der HLD übernommen. Eine unnummerierte Fassung wird als Grundgrad angezeigt; zusätzliche gelernte Grade stehen in der Heldensoftware als römische Zahl im Namen.</div>
     </section>
 
     <section id="combat" class="section">
@@ -742,6 +767,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }catch(err){ console.error(err); status('Fehler: '+(err?.message||err),'error'); }
   }
 
+
+  const BASIC_BLESSING_NAMES=new Set(['Eidsegen','Feuersegen','Geburtssegen','Glückssegen','Grabsegen','Harmoniesegen','Heilungssegen','Märtyrersegen','Objektsegen','Schutzsegen','Speisesegen','Tranksegen','Weisheitssegen']);
+  function parseLiturgySfName(raw,index=0){
+    const full=String(raw||'').replace(/^Liturgie:\s*/,'').trim(),m=/^(.*?)\s+\(([IVX]+)\)$/.exec(full),name=(m?m[1]:full).trim(),grade=m?m[2]:'';
+    return {raw:String(raw||''),name,grade,gradeLabel:grade?`Grad ${grade}`:'Grundgrad',blessing:BASIC_BLESSING_NAMES.has(name),key:`${String(raw||'')}␟${index}`};
+  }
+  function liturgyKnowledgeDeity(t){const m=/^Liturgiekenntnis\s*\((.*?)\)\s*$/.exec(String(t?.name||''));return m?m[1]:String(t?.name||'').replace(/^Liturgiekenntnis\s*/,'').trim()||'Geweiht';}
+  function primaryLiturgyKnowledge(){return state.current?.liturgyKnowledges?.[0]||null;}
+
   function parseHero(hero){
     const held=hero.doc.querySelector('helden > held');
     const basis=direct(held,'basis');
@@ -792,6 +826,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const sf=sfEls.map(s=>attr(s,'name')).filter(Boolean);
     const sfEntries=sfEls.map(sfEntryFromElement).filter(Boolean);
     const sfSet=new Set(sf);
+    const liturgyKnowledges=talents.filter(t=>/^Liturgiekenntnis\s*\(/.test(t.name));
+    const liturgies=sfEls.map((el,i)=>({el,name:attr(el,'name'),i})).filter(x=>/^Liturgie:\s*/.test(x.name)).map(x=>parseLiturgySfName(x.name,x.i));
+    const karmal=liturgyKnowledges.length>0||liturgies.length>0||props.some(x=>x.name==='Karmaenergie'&&(Number(x.mod||0)!==0||Number(x.value||0)!==0))||sfSet.has('Karmalqueste');
     const talentSpecs=new Map(), spellSpecs=[];
     for(const s of sfEls){
       const name=attr(s,'name');
@@ -829,7 +866,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       culture:attr(kultur,'string',attr(kultur,'name')),
       profession:[attr(ausb,'string',attr(ausb,'name')),attr(variante,'name')].filter(Boolean).join(' · '),
       ap:num(attr(direct(basis,'abenteuerpunkte'),'value')),freeAp:num(attr(direct(basis,'freieabenteuerpunkte'),'value')),
-      props,talents,spells,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
+      props,talents,spells,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
       staffItems:items.filter(i=>/magierstab/i.test(`${i.base} ${i.display}`))
     };
   }
@@ -890,9 +927,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     state.current=parseHero(hero);state.combatSet=0;rollRegistry.clear();
     const h=state.current;
     $('#workspace').classList.add('has-hero');$$('.tab[data-tab]').forEach(b=>{if(b.dataset.tab!=='data')b.disabled=false;});
+    const litTab=$('.tab[data-tab="liturgies"]');if(litTab){litTab.classList.toggle('hidden',!h.karmal);litTab.disabled=!h.karmal;if(!h.karmal&&litTab.classList.contains('active'))$('.tab[data-tab="overview"]')?.click();}
     $('#heroName').textContent=h.name;$('#heroMeta').textContent=[h.race,h.culture,h.profession].filter(Boolean).join(' · ');
     $('#apTotal').textContent=h.ap.toLocaleString('de-DE');$('#apFree').textContent=h.freeAp.toLocaleString('de-DE');
-    renderAttributes();renderBasis();renderAttributeStrips();renderTalents();renderSpells();renderCombat();renderSonderfertigkeiten();renderChips('#advList','#advCount',h.advantages);renderChips('#disadvList','#disadvCount',h.disadvantages);
+    renderAttributes();renderBasis();renderAttributeStrips();renderTalents();renderSpells();renderLiturgies();renderCombat();renderSonderfertigkeiten();renderChips('#advList','#advCount',h.advantages);renderChips('#disadvList','#disadvCount',h.disadvantages);
     loadCompanionForHero();
   }
   function registerRoll(key,payload){rollRegistry.set(key,payload);return key;}
@@ -915,8 +953,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const tags=[];if(t.meta)tags.push('<span class="tag meta">META</span>');if(t.mh)tags.push('<span class="tag mh">MH</span>');if(t.se)tags.push('<span class="tag">SE</span>');for(const sp of t.specs)tags.push(`<span class="tag spec">Spez.: ${esc(sp)}</span>`);return tags.join('');
   }
   function rollPayloadForThreePart(name,probe,value,kind){
-    const attrs=probeAttributes(probe),pm=propMap(state.current.props),vals=attrs.map(a=>currentAttr(pm,a));
-    return {type:'check3',title:name,subtitle:`${kind==='spell'?'Zauberprobe':'Talentprobe'} · ${probe||'Probe nicht angegeben'}`,attrs,values:vals,skill:Number(value||0),skillLabel:kind==='spell'?'ZfW':'TaW',resultLabel:kind==='spell'?'ZfP*':'TaP*'};
+    const attrs=probeAttributes(probe),pm=propMap(state.current.props),vals=attrs.map(a=>currentAttr(pm,a)),spell=kind==='spell',liturgy=kind==='liturgy';
+    return {type:'check3',title:name,subtitle:`${spell?'Zauberprobe':liturgy?'Liturgiekenntnisprobe':'Talentprobe'} · ${probe||'Probe nicht angegeben'}`,attrs,values:vals,skill:Number(value||0),skillLabel:spell?'ZfW':liturgy?'LkW':'TaW',resultLabel:spell?'ZfP*':liturgy?'LkP*':'TaP*'};
   }
   const TALENT_COLLAPSE_KEY='heldenmobil:ui:collapsed-talents:v1',INVENTORY_COLLAPSE_KEY='heldenmobil:ui:collapsed-inventory:v1',MONEY_HISTORY_COLLAPSE_KEY='heldenmobil:ui:money-history-collapsed:v1';
   function uiSetFromStorage(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return new Set(Array.isArray(value)?value:[]);}catch(_){return new Set();}}
@@ -927,7 +965,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function spellLegacyFavoriteKey(z){return `${z.name}␟${z.rep||''}`;}
   function spellFavoriteKey(z,index){return `${spellLegacyFavoriteKey(z)}␟${index}`;}
   function favoriteSpellKeys(){const d=companionState.data,raw=new Set(d&&d.heroKey===state.current?.key?(d.favorites?.spells||[]):[]),out=new Set(raw);if(state.current?.spells)state.current.spells.forEach((z,i)=>{if(raw.has(spellLegacyFavoriteKey(z)))out.add(spellFavoriteKey(z,i));});return out;}
-  function toggleFavoriteSpell(key){const d=companionState.data;if(!d||d.heroKey!==state.current?.key)return;d.favorites=d.favorites||{talents:[],spells:[]};const set=new Set(d.favorites.spells||[]),parts=String(key).split('␟');if(parts.length>=3){const legacy=parts.slice(0,-1).join('␟');if(set.has(legacy)){set.delete(legacy);state.current?.spells?.forEach((z,i)=>{if(spellLegacyFavoriteKey(z)===legacy)set.add(spellFavoriteKey(z,i));});}}if(set.has(key))set.delete(key);else set.add(key);d.favorites.spells=[...set];saveCompanion();renderSpells();}
+  function toggleFavoriteSpell(key){const d=companionState.data;if(!d||d.heroKey!==state.current?.key)return;d.favorites=d.favorites||{talents:[],spells:[],liturgies:[]};const set=new Set(d.favorites.spells||[]),parts=String(key).split('␟');if(parts.length>=3){const legacy=parts.slice(0,-1).join('␟');if(set.has(legacy)){set.delete(legacy);state.current?.spells?.forEach((z,i)=>{if(spellLegacyFavoriteKey(z)===legacy)set.add(spellFavoriteKey(z,i));});}}if(set.has(key))set.delete(key);else set.add(key);d.favorites.spells=[...set];saveCompanion();renderSpells();}
+  function favoriteLiturgyKeys(){const d=companionState.data;return new Set(d&&d.heroKey===state.current?.key?(d.favorites?.liturgies||[]):[]);}
+  function toggleFavoriteLiturgy(key){const d=companionState.data;if(!d||d.heroKey!==state.current?.key)return;d.favorites=d.favorites||{talents:[],spells:[],liturgies:[]};const set=new Set(d.favorites.liturgies||[]);if(set.has(key))set.delete(key);else set.add(key);d.favorites.liturgies=[...set];saveCompanion();renderLiturgies();}
   function shortRepresentation(rep){const raw=String(rep||'').trim();if(!raw)return '–';if(raw.length<=5)return raw;const n=raw.toLocaleLowerCase('de');const map=[[/gildenmag|magier|magisch/,'Mag'],[/hex/,'Hex'],[/elf/,'Elf'],[/druid/,'Dru'],[/geod/,'Geo'],[/schelm/,'Sch'],[/scharlat/,'Srl'],[/kristall|achaz/,'Ach'],[/borbarad/,'Bor']];for(const [rx,label] of map)if(rx.test(n))return label;return raw.slice(0,4)+'.';}
   function renderTalents(){
     const q=$('#talentSearch').value.trim().toLocaleLowerCase('de');
@@ -943,6 +983,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if($('#spellCount'))$('#spellCount').textContent=q?`${arr.length} / ${state.current.spells.length}`:`${state.current.spells.length} Zauber`;
     $('#spellBody').innerHTML=arr.map(z=>{const idx=state.current.spells.indexOf(z),ref=registerRoll(`spell:${idx}`,rollPayloadForThreePart(z.name,z.probe,z.value,'spell')),key=spellFavoriteKey(z,idx),isFav=fav.has(key);return `<tr class="rollable-row" tabindex="0" data-roll-ref="${ref}" title="${esc(z.name)} würfeln"><td><button type="button" class="favorite-star ${isFav?'active':''}" data-favorite-spell="${esc(key)}" title="${isFav?'Von Lieblingszaubern entfernen':'Zu Lieblingszaubern hinzufügen'}">${isFav?'★':'☆'}</button>${esc(z.name)} <span class="roll-mark">◆</span> ${z.house?'<span class="house">★ Hauszauber</span>':''}</td><td>${esc(z.probe)}</td><td>${esc(z.rep)}</td><td>${esc(z.column)}</td><td class="num hot">${z.value}</td><td><div class="tagrow">${z.specs.map(sp=>`<span class="tag spec">Spez.: ${esc(sp)}</span>`).join('')}</div></td></tr>`;}).join('')||'<tr><td colspan="6" class="empty">Keine Treffer</td></tr>';
     $$('#spellBody .favorite-star').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();toggleFavoriteSpell(b.dataset.favoriteSpell);}));
+  }
+
+
+  function renderLiturgies(){
+    const h=state.current,knowledgeHost=$('#liturgyKnowledge'),blessingBody=$('#blessingBody'),liturgyBody=$('#liturgyBody');if(!h||!knowledgeHost||!blessingBody||!liturgyBody)return;
+    const q=($('#liturgySearch')?.value||'').trim().toLocaleLowerCase('de'),fav=favoriteLiturgyKeys(),active=companionState.data?.heroKey===h.key?activeAdventure():null,maxKaP=new Map(deriveBasis(h.props).map(x=>[x.name,x.value])).get('KaP'),curKaP=active?.status?.kap;
+    knowledgeHost.innerHTML=`<div class="liturgy-knowledge-list">${h.liturgyKnowledges.map((t,i)=>{const ref=registerRoll(`liturgy:knowledge:${i}`,rollPayloadForThreePart(t.name,t.probe,t.value,'liturgy'));return `<div class="liturgy-knowledge-row"><div tabindex="0" role="button" class="rollable" data-roll-ref="${ref}"><div class="liturgy-knowledge-title">${esc(liturgyKnowledgeDeity(t))} <span class="roll-mark">◆</span></div><div class="liturgy-knowledge-meta">${esc(t.probe||'Probe nicht angegeben')}</div></div><div class="liturgy-knowledge-value"><span>LkW</span><strong>${t.value}</strong>${maxKaP!=null?`<span class="liturgy-kap">KaP ${curKaP!=null?`${curKaP} / `:''}${maxKaP}</span>`:''}</div></div>`;}).join('')||'<div class="empty-comp">Keine Liturgiekenntnis in der HLD gefunden.</div>'}</div>`;
+    const rows=h.liturgies.filter(l=>!q||(`${l.name} ${l.gradeLabel}`).toLocaleLowerCase('de').includes(q)),blessings=rows.filter(l=>l.blessing),proper=rows.filter(l=>!l.blessing),primary=primaryLiturgyKnowledge();
+    const rowHtml=l=>{const isFav=fav.has(l.key),ref=primary?registerRoll(`liturgy:${l.key}`,rollPayloadForThreePart(`${l.name} · ${l.gradeLabel}`,primary.probe,primary.value,'liturgy')):'';return `<tr${ref?` class="rollable-row" tabindex="0" data-roll-ref="${ref}" title="${esc(l.name)} würfeln"`:''}><td><button type="button" class="favorite-star ${isFav?'active':''}" data-favorite-liturgy="${esc(l.key)}" title="${isFav?'Von Lieblingsliturgien entfernen':'Zu Lieblingsliturgien hinzufügen'}">${isFav?'★':'☆'}</button></td><td><span class="liturgy-name">${esc(l.name)}${ref?' <span class="roll-mark">◆</span>':''}</span></td><td><span class="liturgy-grade ${l.grade?'':'base'}">${esc(l.gradeLabel)}</span></td></tr>`;};
+    blessingBody.innerHTML=blessings.map(rowHtml).join('')||'<tr><td colspan="3" class="empty">Keine Segnungen gefunden.</td></tr>';
+    liturgyBody.innerHTML=proper.map(rowHtml).join('')||'<tr><td colspan="3" class="empty">Keine Liturgien gefunden.</td></tr>';
+    $('#blessingCount').textContent=`${blessings.length}`;$('#liturgyProperCount').textContent=`${proper.length}`;$('#liturgyCount').textContent=q?`${rows.length} / ${h.liturgies.length}`:`${h.liturgies.length} Einträge`;
+    $$('#liturgies [data-favorite-liturgy]').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();toggleFavoriteLiturgy(b.dataset.favoriteLiturgy);});
   }
 
   function renderSonderfertigkeiten(){
@@ -1182,7 +1235,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   // ---- HeldenMobil-Begleitdaten ------------------------------------------
   const companionState={data:null,localExists:false};
   const ENERGY_EVENT_WINDOW_MS=25000,expandedEventAdventures=new Set();
-  const COMP_SCHEMA=7;
+  const COMP_SCHEMA=8;
   const uid=(p='id')=>`${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
   const WOUND_ZONE_KEYS=['kopf','brust','ruecken','bauch','linkerarm','rechterarm','linkesbein','rechtesbein'];
   function blankWoundZones(){return {kopf:0,brust:0,ruecken:0,bauch:0,linkerarm:0,rechterarm:0,linkesbein:0,rechtesbein:0,unassigned:0};}
@@ -1203,7 +1256,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function emptyCompanion(){
     const h=state.current;
     return {schemaVersion:COMP_SCHEMA,heroKey:h.key,heroName:h.name,updatedAt:new Date().toISOString(),activeAdventureId:null,
-      adventures:[],advancement:[],favorites:{talents:[],spells:[]},inventory:{locations:[{id:'loc_person',name:'Am Mann',parentId:null},{id:'loc_pack',name:'Rucksack',parentId:'loc_person'},{id:'loc_wagon',name:'Wagen',parentId:null},{id:'loc_home',name:'Zuhause',parentId:null}],items:[]},money:{transactions:[]},magic:{staffSlots:[]}};
+      adventures:[],advancement:[],favorites:{talents:[],spells:[],liturgies:[]},inventory:{locations:[{id:'loc_person',name:'Am Mann',parentId:null},{id:'loc_pack',name:'Rucksack',parentId:'loc_person'},{id:'loc_wagon',name:'Wagen',parentId:null},{id:'loc_home',name:'Zuhause',parentId:null}],items:[]},money:{transactions:[]},magic:{staffSlots:[]}};
   }
   function magicOptionalInt(v){if(v===null||v===undefined||v==='')return null;const n=Math.floor(Number(v));return Number.isFinite(n)?Math.max(0,n):null;}
   function magicOptionalNumber(v){if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null;}
@@ -1221,15 +1274,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     delete x.status;
     x.inventory.locations=Array.isArray(x.inventory.locations)&&x.inventory.locations.length?x.inventory.locations:base.inventory.locations;
     x.inventory.items=Array.isArray(x.inventory.items)?x.inventory.items.map(normalizeInventoryMagic):[];
-    x.money.transactions=Array.isArray(x.money.transactions)?x.money.transactions:[];x.magic.staffSlots=Array.isArray(x.magic.staffSlots)?x.magic.staffSlots:[];x.favorites.talents=Array.isArray(x.favorites.talents)?[...new Set(x.favorites.talents.map(String).filter(Boolean))]:[];x.favorites.spells=Array.isArray(x.favorites.spells)?[...new Set(x.favorites.spells.map(String).filter(Boolean))]:[];delete x.magic.artifacts;
+    x.money.transactions=Array.isArray(x.money.transactions)?x.money.transactions:[];x.magic.staffSlots=Array.isArray(x.magic.staffSlots)?x.magic.staffSlots:[];x.favorites.talents=Array.isArray(x.favorites.talents)?[...new Set(x.favorites.talents.map(String).filter(Boolean))]:[];x.favorites.spells=Array.isArray(x.favorites.spells)?[...new Set(x.favorites.spells.map(String).filter(Boolean))]:[];x.favorites.liturgies=Array.isArray(x.favorites.liturgies)?[...new Set(x.favorites.liturgies.map(String).filter(Boolean))]:[];delete x.magic.artifacts;
     return x;
   }
   function saveCompanion(opts={}){if(!companionState.data)return;if(opts.touch!==false)companionState.data.updatedAt=new Date().toISOString();localStorage.setItem(companionStorageKey(),JSON.stringify(companionState.data));companionState.localExists=true;renderDataMeta();renderDashboard();if(!opts.skipCloud)cloudScheduleSave();}
   function loadCompanionForHero(){
-    let d=null,migrated=false,raw=null;try{raw=localStorage.getItem(companionStorageKey());if(!raw){for(const v of [6,5,4,3,2,1]){raw=localStorage.getItem(companionStorageKey(v));if(raw){migrated=true;break;}}}if(raw)d=JSON.parse(raw);}catch(e){console.warn('Begleitdaten unlesbar',e);}
+    let d=null,migrated=false,raw=null;try{raw=localStorage.getItem(companionStorageKey());if(!raw){for(const v of [7,6,5,4,3,2,1]){raw=localStorage.getItem(companionStorageKey(v));if(raw){migrated=true;break;}}}if(raw)d=JSON.parse(raw);}catch(e){console.warn('Begleitdaten unlesbar',e);}
     companionState.localExists=!!raw;companionState.data=normalizeCompanion(d);if(migrated)saveCompanion({skipCloud:true});renderTalents();renderCompanionAll();cloudOnHeroChanged();
   }
-  function renderCompanionAll(){renderStatus();renderAdventures();renderAdvancement();renderInventory();renderMoney();renderMagic();renderDataMeta();refreshAdventureSelectors();refreshWishTargets();if(state.current)renderCombat();renderDashboard();}
+  function renderCompanionAll(){renderStatus();renderAdventures();renderAdvancement();renderInventory();renderMoney();renderMagic();renderDataMeta();refreshAdventureSelectors();refreshWishTargets();if(state.current){renderCombat();renderLiturgies();}renderDashboard();}
   function energyMaxMap(){return new Map(deriveBasis(state.current.props).map(x=>[x.name,x.value]));}
   function statusKeyFor(label){return {LeP:'lep',AuP:'aup',AsP:'asp',KaP:'kap'}[label];}
   function energyEventText(label,from,to){const delta=Number(to)-Number(from),signed=delta>0?`+${delta}`:`${delta}`;return `${label} ${signed} · ${from} → ${to}`;}
@@ -1480,7 +1533,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v18.0.1`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v19.0`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
@@ -1561,6 +1614,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const host=$('#dashboardSpellFavorites'),card=$('#dashboardSpellFavoritesCard');if(!host||!card||!state.current)return;const fav=favoriteSpellKeys(),rows=state.current.spells.filter((z,i)=>fav.has(spellFavoriteKey(z,i)));card.classList.toggle('hidden',!rows.length);if(!rows.length){host.innerHTML='';return;}
     host.innerHTML=`<div class="dashboard-fav-list">${rows.map(z=>{const idx=state.current.spells.indexOf(z),ref=registerRoll(`dashboard:spellfav:${idx}`,rollPayloadForThreePart(z.name,z.probe,z.value,'spell')),key=spellFavoriteKey(z,idx),specs=z.specs.map(sp=>`<span class="tag spec">Spez.: ${esc(sp)}</span>`).join('');return `<div class="dashboard-fav-row"><button type="button" class="favorite-star active dashboard-spell-fav-remove" data-favorite-spell="${esc(key)}" title="Entfernen">★</button><div class="dashboard-fav-roll" tabindex="0" role="button" data-roll-ref="${ref}"><div class="dashboard-fav-name">${esc(z.name)} <span class="roll-mark">◆</span></div><div class="dashboard-fav-probe">Rep. ${esc(shortRepresentation(z.rep))}${z.probe?` · ${esc(z.probe)}`:''}</div>${specs?`<div class="tagrow dashboard-fav-tags">${specs}</div>`:''}</div><div class="dashboard-fav-value"><span class="dashboard-fav-unit">ZfW</span>${z.value}</div></div>`;}).join('')}</div>`;host.querySelectorAll('.dashboard-spell-fav-remove').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();toggleFavoriteSpell(b.dataset.favoriteSpell);});
   }
+
+  function renderDashboardLiturgyFavorites(){
+    const host=$('#dashboardLiturgyFavorites'),card=$('#dashboardLiturgyFavoritesCard'),h=state.current;if(!host||!card||!h)return;const fav=favoriteLiturgyKeys(),rows=h.liturgies.filter(l=>fav.has(l.key)),knowledge=primaryLiturgyKnowledge();card.classList.toggle('hidden',!rows.length);if(!rows.length){host.innerHTML='';return;}
+    host.innerHTML=`<div class="dashboard-fav-list">${rows.map(l=>{const ref=knowledge?registerRoll(`dashboard:liturgy:${l.key}`,rollPayloadForThreePart(`${l.name} · ${l.gradeLabel}`,knowledge.probe,knowledge.value,'liturgy')):'';return `<div class="dashboard-fav-row"><button type="button" class="favorite-star active dashboard-liturgy-fav-remove" data-favorite-liturgy="${esc(l.key)}" title="Entfernen">★</button><div class="dashboard-fav-roll" ${ref?`tabindex="0" role="button" data-roll-ref="${ref}"`:''}><div class="dashboard-fav-name">${esc(l.name)}${ref?' <span class="roll-mark">◆</span>':''}</div><div class="dashboard-fav-probe">${esc(l.gradeLabel)}${knowledge?` · ${esc(knowledge.probe)}`:''}</div></div><div class="dashboard-fav-value"><span class="dashboard-fav-unit">LkW</span>${knowledge?.value??'–'}</div></div>`;}).join('')}</div>`;host.querySelectorAll('.dashboard-liturgy-fav-remove').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();toggleFavoriteLiturgy(b.dataset.favoriteLiturgy);});
+  }
   function renderDashboardMoney(){const host=$('#dashboardMoney');if(!host||!companionState.data)return;host.innerHTML=`<div class="dashboard-money-total">${esc(moneyTextFromTotal(moneyTotalK(),true))}</div><button type="button" id="dashboardMoneyBook" class="action-btn">Buchung öffnen</button>`;$('#dashboardMoneyBook').onclick=()=>{const tab=$('.tab[data-tab="inventory"]');tab?.click();setTimeout(()=>$('.money-card')?.scrollIntoView({behavior:'smooth',block:'center'}),30);};}
   function renderDashboardMagic(){
     const host=$('#dashboardMagic'),d=companionState.data;if(!host||!d)return;const slots=[...(d.magic?.staffSlots||[])].sort((a,b)=>(a.slot||0)-(b.slot||0)),hasStorage=state.current?.sfSet?.has('Stabzauber: Zauberspeicher');
@@ -1572,7 +1630,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function renderDashboard(){
-    if(!$('#dashboard')||!state.current||!companionState.data||companionState.data.heroKey!==state.current.key)return;const a=activeAdventure();$('#dashboardAdventureState').textContent=a?`Aktiv: ${a.title||'Abenteuer'}`:'kein aktives Abenteuer';renderDashboardAttributes();renderDashboardBody();renderDashboardCombat();renderDashboardFavorites();renderDashboardSpellFavorites();renderDashboardMoney();renderDashboardMagic();
+    if(!$('#dashboard')||!state.current||!companionState.data||companionState.data.heroKey!==state.current.key)return;const a=activeAdventure();$('#dashboardAdventureState').textContent=a?`Aktiv: ${a.title||'Abenteuer'}`:'kein aktives Abenteuer';renderDashboardAttributes();renderDashboardBody();renderDashboardCombat();renderDashboardFavorites();renderDashboardSpellFavorites();renderDashboardLiturgyFavorites();renderDashboardMoney();renderDashboardMagic();
   }
 
 
@@ -1852,7 +1910,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   $('#fileInput').addEventListener('change',e=>openFile(e.target.files[0],{source:'local'}));
   $('#heroSelect').addEventListener('change',e=>{const h=state.heroes.find(x=>x.key===e.target.value);if(h)renderHero(h);});
-  $('#talentSearch').addEventListener('input',renderTalents);$('#spellSearch').addEventListener('input',renderSpells);$('#sfSearch').addEventListener('input',renderSonderfertigkeiten);$('#addStaffSlot').addEventListener('click',addStaffSlot);
+  $('#talentSearch').addEventListener('input',renderTalents);$('#spellSearch').addEventListener('input',renderSpells);$('#liturgySearch')?.addEventListener('input',renderLiturgies);$('#sfSearch').addEventListener('input',renderSonderfertigkeiten);$('#addStaffSlot').addEventListener('click',addStaffSlot);
   $$('.tab').forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled||$('.tabs').classList.contains('sort-mode'))return;$$('.tab').forEach(b=>b.classList.toggle('active',b===btn));$$('.section').forEach(s=>s.classList.toggle('active',s.id===btn.dataset.tab));if(btn.dataset.tab==='dashboard')renderDashboard();}));
   document.addEventListener('click',e=>{const el=e.target.closest('[data-roll-ref]');if(!el)return;const req=rollRegistry.get(el.dataset.rollRef);if(req){e.preventDefault();openDice(req);}});document.addEventListener('keydown',e=>{const el=e.target.closest?.('[data-roll-ref]');if(el&&(e.key==='Enter'||e.key===' ')){const req=rollRegistry.get(el.dataset.rollRef);if(req){e.preventDefault();openDice(req);}}});
   $$('#globalDiceBar [data-global-roll]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.globalRoll;if(k==='d20')openDice({type:'d20',title:'1W20'});else if(k==='3d20')openDice({type:'3d20',title:'3W20'});else if(k==='d6')openDice({type:'d6',title:'1W6'});else if(k==='xd6')openDice({type:'pool',title:'W6-Pool',count:2});else if(k==='zone')openDice({type:'zone',title:'Trefferzonenwürfel',subtitle:'Humanoide Trefferzone'});}));
