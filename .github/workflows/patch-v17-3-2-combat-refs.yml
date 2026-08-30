@@ -1,0 +1,32 @@
+name: Apply HeldenMobil v17.3.2 combat refs
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.head_commit.message == 'Run HeldenMobil v17.3.2 combat reference patch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch and JavaScript syntax check
+        run: python3 tools/apply_v17_3_2.py
+      - name: Verify combat reference contract
+        run: |
+          grep -q "HeldenMobil – HLD PoC v17.3.2" index.html
+          grep -q "const MELEE_REF" index.html
+          grep -q "const RANGED_REF" index.html
+          grep -q "RANGED_TALENT_ZERO" index.html
+          grep -q "SHIELD_MELEE" index.html
+          ! grep -q "WEAPON_REF\\[" index.html
+      - name: Commit patch and clean one-shot tooling
+        run: |
+          git config user.name "HeldenMobil Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git rm tools/apply_v17_3_2.py .github/workflows/patch-v17-3-2-combat-refs.yml
+          git add index.html
+          git commit -m "v17.3.2: normalize DSA 4.1 combat references [skip ci]"
+          git push
