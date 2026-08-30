@@ -1,0 +1,59 @@
+name: Apply HeldenMobil v17
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  apply-v17:
+    if: ${{ github.event.head_commit.message == 'Run HeldenMobil v17 migration' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Materialize Spieltisch images
+        run: |
+          base64 -d assets/body-male-384.webp.b64 > assets/body-male.webp
+          base64 -d assets/body-female-384.webp.b64 > assets/body-female.webp
+          file assets/body-male.webp assets/body-female.webp
+
+      - name: Apply v17 migration
+        run: python tools/apply_v17.py
+
+      - name: JavaScript syntax check
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          source = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', source, re.S | re.I)
+          if not scripts:
+              raise SystemExit('No inline scripts found')
+          Path('/tmp/heldenmobil-v17.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil-v17.js
+
+      - name: Verify v17 contract
+        run: |
+          grep -q 'HLD PoC v17' index.html
+          grep -q 'data-tab="dashboard"' index.html
+          grep -q 'id="dashboardBodyMap"' index.html
+          grep -q "'LeP','AuP','AsP','KaP'" index.html
+          grep -q '<span class="dashboard-foot-label">GS</span>' index.html
+          grep -q 'body-female.webp' index.html
+          grep -q 'body-male.webp' index.html
+          grep -q 'woundZones' index.html
+
+      - name: Commit v17 release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-v17-spieltisch.yml tools/apply_v17.py
+          git rm assets/body-male-384.webp.b64 assets/body-female-384.webp.b64 assets/body-male.webp.b64
+          git add index.html assets/body-male.webp assets/body-female.webp
+          git commit -m "v17: add Spieltisch dashboard"
+          git push
