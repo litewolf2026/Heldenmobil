@@ -1,0 +1,42 @@
+name: Apply HeldenMobil v17.3.1 audit cleanup
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.head_commit.message == 'Run HeldenMobil v17.3.1 audit cleanup'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index.html
+        run: python tools/patch_v17_3_1.py
+      - name: JavaScript syntax check
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          a=s.rfind('<script>')+len('<script>')
+          b=s.rfind('</script>')
+          Path('/tmp/heldenmobil.js').write_text(s[a:b], encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil.js
+      - name: Verify audit cleanup contract
+        run: |
+          grep -F "HLD PoC v17.3.1" index.html
+          grep -F "qualityInternalEquipmentRecord" index.html
+          grep -F "qualityEquipmentName" index.html
+          grep -F "qualityDedupeIssues" index.html
+          grep -F "issues:cleanIssues" index.html
+      - name: Commit patch and clean one-shot tooling
+        run: |
+          git config user.name "HeldenMobil Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git rm tools/patch_v17_3_1.py .github/workflows/patch-v17-3-1-audit-cleanup.yml
+          git commit -m "v17.3.1: reduce HLD audit noise [skip ci]"
+          git push
