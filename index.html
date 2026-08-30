@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17.2</title>
+<title>HeldenMobil – HLD PoC v17.2.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -146,6 +146,12 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 .dashboard-fav-value{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;line-height:1.05}
 .dashboard-fav-unit{font-size:.55rem;color:#8994a2;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:2px}
 
+/* v17.2.1 compact adventure event log */
+.event-energy-label{color:#f0c979;font-weight:850}
+.event-energy-range{color:#d4dae3}
+.event-list-more{display:flex;justify-content:center;padding:8px 0 2px;border-top:1px solid #272d35;margin-top:4px}
+.event-list-more .mini-btn{min-width:150px}
+
 /* v17.1.3 final optical alignment */
 /* Bauch: minimal nach oben und links; vorhandener v17.1.1-Y-Offset bleibt erhalten. */
 .dashboard-zone[data-zone="bauch"]{
@@ -162,8 +168,8 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.2</div></div></div>
-  <div class="badge">Beta v17.2</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.2.1</div></div></div>
+  <div class="badge">Beta v17.2.1</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -1098,6 +1104,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   // ---- HeldenMobil-Begleitdaten ------------------------------------------
   const companionState={data:null,localExists:false};
+  const ENERGY_EVENT_WINDOW_MS=25000,expandedEventAdventures=new Set();
   const COMP_SCHEMA=6;
   const uid=(p='id')=>`${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
   const WOUND_ZONE_KEYS=['kopf','brust','ruecken','bauch','linkerarm','rechterarm','linkesbein','rechtesbein'];
@@ -1127,7 +1134,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const x={...base,...d,favorites:{...base.favorites,...(d.favorites||{})},inventory:{...base.inventory,...(d.inventory||{})},money:{...base.money,...(d.money||{})},magic:{...base.magic,...(d.magic||{})}};
     x.heroKey=state.current.key;x.heroName=state.current.name;x.schemaVersion=COMP_SCHEMA;
     x.adventures=Array.isArray(x.adventures)?x.adventures:[];x.advancement=Array.isArray(x.advancement)?x.advancement:[];
-    x.adventures=x.adventures.map(a=>{const status={...freshAdventureStatus(),...(a.status||{})};normalizeStatusWounds(status);return {...a,events:Array.isArray(a.events)?a.events:[],learning:Array.isArray(a.learning)?a.learning:[],combatBySet:(a.combatBySet&&typeof a.combatBySet==='object')?a.combatBySet:{},status};});
+    x.adventures=x.adventures.map(a=>{const status={...freshAdventureStatus(),...(a.status||{})};normalizeStatusWounds(status);return {...a,events:normalizeAdventureEvents(a.events),learning:Array.isArray(a.learning)?a.learning:[],combatBySet:(a.combatBySet&&typeof a.combatBySet==='object')?a.combatBySet:{},status};});
     if(legacyStatus&&x.adventures.length){const target=x.adventures.find(a=>a.id===x.activeAdventureId)||x.adventures[0];target.status={...target.status,...legacyStatus};normalizeStatusWounds(target.status);if(!x.activeAdventureId)x.activeAdventureId=target.id;}
     delete x.status;
     x.inventory.locations=Array.isArray(x.inventory.locations)&&x.inventory.locations.length?x.inventory.locations:base.inventory.locations;
@@ -1143,12 +1150,39 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function renderCompanionAll(){renderStatus();renderAdventures();renderAdvancement();renderInventory();renderMoney();renderMagic();renderDataMeta();refreshAdventureSelectors();refreshWishTargets();if(state.current)renderCombat();renderDashboard();}
   function energyMaxMap(){return new Map(deriveBasis(state.current.props).map(x=>[x.name,x.value]));}
   function statusKeyFor(label){return {LeP:'lep',AuP:'aup',AsP:'asp',KaP:'kap'}[label];}
+  function energyEventText(label,from,to){const delta=Number(to)-Number(from),signed=delta>0?`+${delta}`:`${delta}`;return `${label} ${signed} · ${from} → ${to}`;}
+  function parseLegacyEnergyEvent(raw){
+    if(!raw||typeof raw!=='object')return null;
+    if(raw.type==='energy'&&raw.energy&&Number.isFinite(Number(raw.from))&&Number.isFinite(Number(raw.to))){const e={...raw,from:Number(raw.from),to:Number(raw.to)};e.delta=e.to-e.from;e.startedAt=e.startedAt||e.at||e.lastAt||null;e.lastAt=e.lastAt||e.at||e.startedAt||null;e.text=energyEventText(e.energy,e.from,e.to);return e;}
+    if(raw.type!=='status')return null;
+    const m=/^(LeP|AuP|AsP|KaP)\s+[+-]?\d+:\s*(-?\d+)\s*→\s*(-?\d+)\s*$/.exec(String(raw.text||''));if(!m)return null;
+    const e={...raw,type:'energy',energy:m[1],from:Number(m[2]),to:Number(m[3])};e.delta=e.to-e.from;e.startedAt=e.at||null;e.lastAt=e.at||null;e.text=energyEventText(e.energy,e.from,e.to);return e;
+  }
+  function normalizeAdventureEvents(events){
+    const out=[],lastByEnergy=new Map();
+    for(const raw of (Array.isArray(events)?events:[])){
+      const e=parseLegacyEnergyEvent(raw);if(!e){out.push(raw);continue;}
+      const nowMs=Date.parse(e.lastAt||e.at||'')||0,prev=lastByEnergy.get(e.energy),prevMs=prev?(Date.parse(prev.lastAt||prev.at||'')||0):0;
+      if(prev&&nowMs&&prevMs&&nowMs>=prevMs&&nowMs-prevMs<=ENERGY_EVENT_WINDOW_MS&&Number(prev.to)===Number(e.from)){
+        prev.to=e.to;prev.delta=prev.to-prev.from;prev.lastAt=e.lastAt||e.at||prev.lastAt;prev.at=e.at||prev.at;prev.text=energyEventText(prev.energy,prev.from,prev.to);
+        const idx=out.indexOf(prev);if(idx>=0)out.splice(idx,1);if(prev.delta!==0){out.push(prev);lastByEnergy.set(prev.energy,prev);}else lastByEnergy.delete(prev.energy);continue;
+      }
+      if(e.delta!==0){out.push(e);lastByEnergy.set(e.energy,e);}
+    }
+    return out;
+  }
   function activeAdventure(){const d=companionState.data;return d?.adventures.find(a=>a.id===d.activeAdventureId)||null;}
   function activeAdventureStatus(){return activeAdventure()?.status||null;}
   function logEvent(text,type='note'){
     const a=activeAdventure();if(!a)return;a.events=Array.isArray(a.events)?a.events:[];a.events.push({id:uid('evt'),at:new Date().toISOString(),type,text});
   }
-  function adjustStatus(label,delta){const a=activeAdventure(),s=a?.status,k=statusKeyFor(label);if(!s||!k)return;const max=energyMaxMap().get(label);const before=Number(s[k]??max??0);let after=before+delta;if(max!=null)after=Math.min(max,after);s[k]=after;logEvent(`${label} ${delta>=0?'+':''}${delta}: ${before} → ${after}`,'status');saveCompanion();renderStatus();renderAdventures();}
+  function logEnergyEvent(label,before,after){
+    const a=activeAdventure();before=Number(before);after=Number(after);if(!a||before===after)return;a.events=Array.isArray(a.events)?a.events:[];const nowMs=Date.now(),now=new Date(nowMs).toISOString();let found=-1,event=null;
+    for(let i=a.events.length-1;i>=0;i--){const parsed=parseLegacyEnergyEvent(a.events[i]);if(!parsed||parsed.energy!==label)continue;const lastMs=Date.parse(parsed.lastAt||parsed.at||'')||0;if(lastMs&&nowMs>=lastMs&&nowMs-lastMs<=ENERGY_EVENT_WINDOW_MS&&Number(parsed.to)===before){found=i;event=parsed;}break;}
+    if(found>=0&&event){a.events.splice(found,1);event.to=after;event.delta=event.to-event.from;event.lastAt=now;event.at=now;event.text=energyEventText(label,event.from,event.to);if(event.delta!==0)a.events.push(event);return;}
+    a.events.push({id:uid('evt'),at:now,lastAt:now,startedAt:now,type:'energy',energy:label,from:before,to:after,delta:after-before,text:energyEventText(label,before,after)});
+  }
+  function adjustStatus(label,delta){const a=activeAdventure(),s=a?.status,k=statusKeyFor(label);if(!s||!k)return;const max=energyMaxMap().get(label);const before=Number(s[k]??max??0);let after=before+delta;if(max!=null)after=Math.min(max,after);if(after===before)return;s[k]=after;logEnergyEvent(label,before,after);saveCompanion();renderStatus();renderAdventures();}
   function renderStatus(){
     const d=companionState.data;if(!d)return;const a=activeAdventure(),s=a?.status,max=energyMaxMap();
     const labels=['LeP','AuP','AsP','KaP'].filter(x=>max.has(x)||(s&&s[statusKeyFor(x)]!=null));
@@ -1170,12 +1204,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function addLearning(advId,form){const d=companionState.data,a=d.adventures.find(x=>x.id===advId);if(!a)return;const type=form.querySelector('[data-role="learn-type"]').value,target=form.querySelector('[data-role="learn-target"]').value.trim(),detail=form.querySelector('[data-role="learn-detail"]').value.trim();if(!target&&!detail)return;a.learning=a.learning||[];a.learning.push({id:uid('learn'),type,target,detail});saveCompanion();renderAdventures();renderAdvancement();}
   function addManualEvent(advId,input){const a=companionState.data.adventures.find(x=>x.id===advId);const txt=input.value.trim();if(!a||!txt)return;a.events=a.events||[];a.events.push({id:uid('evt'),at:new Date().toISOString(),type:'note',text:txt});input.value='';saveCompanion();renderAdventures();}
   function editEvent(advId,eventId){const a=companionState.data.adventures.find(x=>x.id===advId),e=a?.events?.find(x=>x.id===eventId);if(!e)return;const txt=prompt('Ereignis bearbeiten',e.text||'');if(txt===null)return;const clean=txt.trim();if(!clean)return;e.text=clean;e.editedAt=new Date().toISOString();saveCompanion();renderAdventures();}
-  function deleteEvent(advId,eventId){const a=companionState.data.adventures.find(x=>x.id===advId);if(!a||!confirm('Ereignis wirklich löschen?'))return;a.events=(a.events||[]).filter(x=>x.id!==eventId);saveCompanion();renderAdventures();}
+  function automaticEvent(e){return e?.type==='energy'||e?.type==='status';}
+  function eventDisplayHtml(e){if(e?.type==='energy'&&e.energy){const delta=Number(e.delta??(Number(e.to)-Number(e.from))),signed=(delta>0?`+${delta}`:`${delta}`).replace('-', '−');return `<strong class="event-energy-label">${esc(e.energy)} ${esc(signed)}</strong><span class="event-energy-range"> · ${esc(String(e.from))} → ${esc(String(e.to))}</span>`;}return esc(e?.text||'');}
+  function deleteEvent(advId,eventId){const a=companionState.data.adventures.find(x=>x.id===advId),e=a?.events?.find(x=>x.id===eventId);if(!a||!e)return;if(!automaticEvent(e)&&!confirm('Ereignis wirklich löschen?'))return;a.events=(a.events||[]).filter(x=>x.id!==eventId);saveCompanion();renderAdventures();}
   function adventureEnergyHtml(a){const max=energyMaxMap(),s=a.status||freshAdventureStatus();return ['LeP','AuP','AsP','KaP'].filter(l=>max.has(l)||s[statusKeyFor(l)]!=null).map(l=>{const k=statusKeyFor(l),v=s[k]??max.get(l)??0,m=max.get(l);return `<span class="adv-energy-pill">${l} ${v}${m!=null?`/${m}`:''}</span>`;}).join('');}
   function renderAdventures(){
     const d=companionState.data;if(!d)return;$('#adventureCount').textContent=`${d.adventures.length} Abenteuer`;
-    $('#adventureList').innerHTML=d.adventures.map(a=>{const active=a.id===d.activeAdventureId,events=[...(a.events||[])].reverse(),learning=a.learning||[];return `<div class="adv-card" data-adv-id="${a.id}"><div class="adv-head"><div><h4>${esc(a.title)}</h4><div class="adv-meta">${esc(a.date||'ohne Datum')} · AP ${Number(a.ap||0).toLocaleString('de-DE')}</div><div class="adv-energy-summary">${adventureEnergyHtml(a)}</div></div><div>${active?'<span class="active-pill">aktiv</span>':`<button class="mini-btn set-active-adv">Aktivieren</button>`} <button class="danger-btn delete-adv">Löschen</button></div></div>${a.notes?`<div class="subtle" style="margin-top:7px">${esc(a.notes)}</div>`:''}<details class="event-details" ${active?'open':''}><summary>Ereignisse (${events.length})</summary><div class="event-list">${events.map(e=>`<div class="event event-managed" data-event-id="${e.id}"><div class="event-main"><div>${esc(e.text)}</div><div class="event-meta">${e.at?new Date(e.at).toLocaleString('de-DE'):''}${e.editedAt?' · bearbeitet':''}</div></div><div class="event-actions"><button class="mini-btn edit-event">Bearbeiten</button><button class="danger-btn delete-event">Löschen</button></div></div>`).join('')||'<div class="empty-comp">Noch keine Ereignisse.</div>'}<div class="toolbar-row"><input class="comp-input" data-role="event-text" placeholder="Ereignis hinzufügen"><button class="mini-btn add-event">+</button></div></div></details><div class="learning-list"><strong class="small-note">Lerngelegenheiten</strong>${learning.map(l=>`<div class="learning"><span class="learn-type">${esc(l.type)}</span><span><strong>${esc(l.target||'')}</strong>${l.detail?` · ${esc(l.detail)}`:''}</span></div>`).join('')||'<div class="empty-comp">Keine SE, Lehrmeister oder Quellen erfasst.</div>'}<div class="form-grid" style="margin-top:7px"><div class="field"><label>Art</label><select data-role="learn-type"><option>Spezielle Erfahrung</option><option>Lehrmeister</option><option>Buch/Thesis</option><option>Andere Lernchance</option></select></div><div class="field wide"><label>Talent / Zauber / SF</label><input data-role="learn-target" list="wishTargets"></div><div class="field wide"><label>Details</label><input data-role="learn-detail" placeholder="z. B. bis TaW 15, Ort, Bedingung"></div><div class="field"><button class="action-btn add-learning">Hinzufügen</button></div></div></div></div>`;}).join('')||'<div class="empty-comp">Noch keine Abenteuer angelegt.</div>';
-    $$('#adventureList .adv-card').forEach(card=>{const id=card.dataset.advId;card.querySelector('.set-active-adv')?.addEventListener('click',()=>setActiveAdventure(id));card.querySelector('.delete-adv')?.addEventListener('click',()=>{if(!confirm('Abenteuer wirklich löschen?'))return;d.adventures=d.adventures.filter(a=>a.id!==id);if(d.activeAdventureId===id)d.activeAdventureId=d.adventures[0]?.id||null;saveCompanion();renderStatus();renderAdventures();refreshAdventureSelectors();renderAdvancement();});card.querySelector('.add-learning')?.addEventListener('click',()=>addLearning(id,card));card.querySelector('.add-event')?.addEventListener('click',()=>addManualEvent(id,card.querySelector('[data-role="event-text"]')));card.querySelectorAll('.event-managed').forEach(er=>{const eid=er.dataset.eventId;er.querySelector('.edit-event').onclick=()=>editEvent(id,eid);er.querySelector('.delete-event').onclick=()=>deleteEvent(id,eid);});});
+    $('#adventureList').innerHTML=d.adventures.map(a=>{
+      const active=a.id===d.activeAdventureId,events=[...(a.events||[])].reverse(),expanded=expandedEventAdventures.has(a.id),shown=expanded?events:events.slice(0,10),learning=a.learning||[];
+      const eventRows=shown.map(e=>{const auto=automaticEvent(e);return `<div class="event event-managed" data-event-id="${e.id}"><div class="event-main"><div>${eventDisplayHtml(e)}</div><div class="event-meta">${e.at?new Date(e.at).toLocaleString('de-DE'):''}${e.editedAt?' · bearbeitet':''}</div></div><div class="event-actions">${auto?'':`<button class="mini-btn edit-event">Bearbeiten</button>`}<button class="danger-btn delete-event">Löschen</button></div></div>`;}).join('')||'<div class="empty-comp">Noch keine Ereignisse.</div>';
+      const more=events.length>10?`<div class="event-list-more"><button type="button" class="mini-btn toggle-events">${expanded?'Nur letzte 10 anzeigen':`Alle ${events.length} anzeigen`}</button></div>`:'';
+      return `<div class="adv-card" data-adv-id="${a.id}"><div class="adv-head"><div><h4>${esc(a.title)}</h4><div class="adv-meta">${esc(a.date||'ohne Datum')} · AP ${Number(a.ap||0).toLocaleString('de-DE')}</div><div class="adv-energy-summary">${adventureEnergyHtml(a)}</div></div><div>${active?'<span class="active-pill">aktiv</span>':`<button class="mini-btn set-active-adv">Aktivieren</button>`} <button class="danger-btn delete-adv">Löschen</button></div></div>${a.notes?`<div class="subtle" style="margin-top:7px">${esc(a.notes)}</div>`:''}<details class="event-details" ${active?'open':''}><summary>Ereignisse (${events.length})</summary><div class="event-list">${eventRows}${more}<div class="toolbar-row"><input class="comp-input" data-role="event-text" placeholder="Ereignis hinzufügen"><button class="mini-btn add-event">+</button></div></div></details><div class="learning-list"><strong class="small-note">Lerngelegenheiten</strong>${learning.map(l=>`<div class="learning"><span class="learn-type">${esc(l.type)}</span><span><strong>${esc(l.target||'')}</strong>${l.detail?` · ${esc(l.detail)}`:''}</span></div>`).join('')||'<div class="empty-comp">Keine SE, Lehrmeister oder Quellen erfasst.</div>'}<div class="form-grid" style="margin-top:7px"><div class="field"><label>Art</label><select data-role="learn-type"><option>Spezielle Erfahrung</option><option>Lehrmeister</option><option>Buch/Thesis</option><option>Andere Lernchance</option></select></div><div class="field wide"><label>Talent / Zauber / SF</label><input data-role="learn-target" list="wishTargets"></div><div class="field wide"><label>Details</label><input data-role="learn-detail" placeholder="z. B. bis TaW 15, Ort, Bedingung"></div><div class="field"><button class="action-btn add-learning">Hinzufügen</button></div></div></div></div>`;
+    }).join('')||'<div class="empty-comp">Noch keine Abenteuer angelegt.</div>';
+    $$('#adventureList .adv-card').forEach(card=>{const id=card.dataset.advId;card.querySelector('.set-active-adv')?.addEventListener('click',()=>setActiveAdventure(id));card.querySelector('.delete-adv')?.addEventListener('click',()=>{if(!confirm('Abenteuer wirklich löschen?'))return;d.adventures=d.adventures.filter(a=>a.id!==id);expandedEventAdventures.delete(id);if(d.activeAdventureId===id)d.activeAdventureId=d.adventures[0]?.id||null;saveCompanion();renderStatus();renderAdventures();refreshAdventureSelectors();renderAdvancement();});card.querySelector('.add-learning')?.addEventListener('click',()=>addLearning(id,card));card.querySelector('.add-event')?.addEventListener('click',()=>addManualEvent(id,card.querySelector('[data-role="event-text"]')));card.querySelector('.toggle-events')?.addEventListener('click',()=>{if(expandedEventAdventures.has(id))expandedEventAdventures.delete(id);else expandedEventAdventures.add(id);renderAdventures();});card.querySelectorAll('.event-managed').forEach(er=>{const eid=er.dataset.eventId;er.querySelector('.edit-event')?.addEventListener('click',()=>editEvent(id,eid));er.querySelector('.delete-event')?.addEventListener('click',()=>deleteEvent(id,eid));});});
   }
   function refreshWishTargets(){const h=state.current;if(!h)return;const type=$('#wishType')?.value||'Talent';let arr=[];if(type==='Talent')arr=h.talents.map(x=>x.name);else if(type==='Zauber')arr=h.spells.map(x=>x.name);else if(type==='Eigenschaft')arr=h.props.filter(p=>primaryNames.includes(p.name)).map(p=>p.name);else if(type==='Sonderfertigkeit')arr=h.sf;else if(type==='Basiswert')arr=deriveBasis(h.props).map(x=>x.name);$('#wishTargets').innerHTML=[...new Set(arr)].sort((a,b)=>a.localeCompare(b,'de')).map(x=>`<option value="${esc(x)}"></option>`).join('');}
   function currentTargetValue(type,target){const h=state.current,t=(target||'').trim();if(type==='Talent')return h.talents.find(x=>x.name===t)?.value??'–';if(type==='Zauber')return h.spells.find(x=>x.name===t)?.value??'–';if(type==='Eigenschaft'){const p=h.props.find(x=>x.name===t);return p?p.value+p.mod:'–';}if(type==='Sonderfertigkeit')return h.sfSet.has(t)?'vorhanden':'nicht vorhanden';if(type==='Basiswert')return deriveBasis(h.props).find(x=>x.name===t)?.value??'–';return '–';}
