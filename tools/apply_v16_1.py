@@ -66,7 +66,7 @@ if s.count(marker) != 1:
     raise RuntimeError(f'Expected init marker once, found {s.count(marker)}')
 s = s.replace(marker, js + '\n  setupCollapsibleContentBoxes();\n' + marker, 1)
 
-for heading in ['Nahkampfwaffen','Fernkampfwaffen','Waffenloser Kampf','Schilde &amp; Parierwaffen','Ausweichen','Wunden &amp; Energien','Rüstung nach Trefferzonen']:
+for heading in ['Nahkampfwaffen','Fernkampfwaffen','Waffenloser Kampf','Schilde &amp; Parierwaffen','Ausweichen','Wunden & Energien','Rüstung nach Trefferzonen']:
     if heading not in s:
         raise RuntimeError(f'Missing expected combat block: {heading}')
 
