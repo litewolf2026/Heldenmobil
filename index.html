@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17</title>
+<title>HeldenMobil – HLD PoC v17.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -94,13 +94,30 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 @media(max-width:720px){.dashboard-layout{grid-template-columns:1fr}.dashboard-body-shell{order:0}.dashboard-side{order:1}.dashboard-body-map{width:min(100%,560px)}.dashboard-attributes{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:430px){.dashboard-attr-card{padding:7px}.dashboard-attributes{gap:4px}.dashboard-attr{min-height:39px;padding:4px}.dashboard-attr strong{font-size:.95rem}.dashboard-energy-name{font-size:2.65cqw}.dashboard-energy-value{font-size:3.1cqw}.dashboard-energy-buttons button{min-width:3.7cqw;height:2.8cqw;font-size:1.65cqw}.dashboard-zone-name{font-size:2.25cqw}.dashboard-zone-rs{font-size:1.9cqw}.dashboard-foot-label{font-size:1.8cqw}.dashboard-foot-value{font-size:3.25cqw}}
 
+
+/* v17.1 Spieltisch layout polish */
+.dashboard-energy-slot:not(.special-stack){display:grid;grid-template-rows:auto auto auto;align-content:start;justify-items:center;padding:.2cqw .8cqw}
+.dashboard-energy-slot:not(.special-stack) .dashboard-energy{display:grid;grid-template-rows:minmax(2.9cqw,auto) minmax(2.35cqw,auto) minmax(1.15cqw,auto);align-content:start}
+.dashboard-energy-slot:not(.special-stack) .dashboard-energy-main{min-height:2.9cqw}
+.dashboard-energy-slot:not(.special-stack) .dashboard-energy-buttons{min-height:2.35cqw;margin-top:.35cqw}
+.dashboard-energy-slot:not(.special-stack) .dashboard-energy-thresholds{min-height:1.15cqw;margin-top:.18cqw}
+.dashboard-energy-empty{visibility:hidden}
+.dashboard-zone[data-zone="bauch"]{left:4.9%;top:43.9%;width:21%;height:10%}
+.dashboard-zone[data-zone="rechterarm"]{left:75.1%;top:42.9%;width:20.9%;height:10%}
+.dashboard-footer-overlay{align-items:stretch}
+.dashboard-footer-item{display:flex;flex-wrap:wrap;align-content:center;align-items:baseline;justify-content:center;gap:.7cqw;height:100%;padding:.2cqw .45cqw;text-align:center}
+.dashboard-foot-label{display:inline;color:#d9bd79;font-size:2.05cqw;font-weight:900;line-height:1}
+.dashboard-foot-value{display:inline;color:#fff0c9;font-size:3.2cqw;font-weight:900;line-height:1}
+.dashboard-foot-sub{display:block;flex-basis:100%;margin-top:-.15cqw;color:#aeb7c4;font-size:1.0cqw;line-height:1}
+@media(max-width:430px){.dashboard-foot-label{font-size:2.25cqw}.dashboard-foot-value{font-size:3.45cqw}.dashboard-foot-sub{font-size:1.1cqw}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17</div></div></div>
-  <div class="badge">Proof of Concept v17</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.1</div></div></div>
+  <div class="badge">Proof of Concept v17.1</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -337,7 +354,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil PoC v17 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
+<footer>HeldenMobil PoC v17.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
 </div>
 
 <script>
@@ -1214,7 +1231,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function dashboardEnergyMarkup(e,compact=false){
     if(!e)return '<div class="dashboard-energy"><div class="dashboard-energy-main"><span class="dashboard-energy-name">–</span></div></div>';
     let severity='';if(e.label==='LeP'&&e.max>0){if(e.value<=Math.floor(e.max/4))severity='critical-quarter';else if(e.value<=Math.floor(e.max/3))severity='critical-third';else if(e.value<=Math.floor(e.max/2))severity='critical-half';}
-    const thresholds=e.label==='LeP'&&e.max>0?`<div class="dashboard-energy-thresholds">½ ${Math.floor(e.max/2)} · ⅓ ${Math.floor(e.max/3)} · ¼ ${Math.floor(e.max/4)}</div>`:'';
+    const thresholds=e.label==='LeP'&&e.max>0?`<div class="dashboard-energy-thresholds">½ ${Math.floor(e.max/2)} · ⅓ ${Math.floor(e.max/3)} · ¼ ${Math.floor(e.max/4)}</div>`:'<div class="dashboard-energy-thresholds dashboard-energy-empty">&nbsp;</div>';
     return `<div class="dashboard-energy ${severity}"><div class="dashboard-energy-main"><span class="dashboard-energy-name">${e.label}</span><span class="dashboard-energy-value">${e.value}${e.max!=null?`/${e.max}`:''}</span></div><div class="dashboard-energy-buttons">${[-5,-1,1,5].map(n=>`<button type="button" data-dashboard-energy="${e.label}" data-delta="${n}" ${e.active?'':'disabled'}>${n>0?'+':''}${n}</button>`).join('')}</div>${compact?'':thresholds}</div>`;
   }
   function renderDashboardEnergies(){
@@ -1234,7 +1251,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     $('#dashboardZoneOverlay').innerHTML=DASHBOARD_ZONES.map(z=>{const wounds=Number(zones[z.key]||0),rs=Number(armor.zones?.[z.key]||0);return `<div class="dashboard-zone" data-zone="${z.key}"><div class="dashboard-zone-name">${z.label}</div><div class="dashboard-zone-rs">RS ${rs}</div><div class="dashboard-wounds">${[1,2,3].map(n=>`<button type="button" class="dashboard-wound-dot ${wounds>=n?'active':''}" data-zone-wound="${z.key}" data-wound-count="${n}" aria-label="${z.label}: ${n} Wunden" ${s?'':'disabled'}></button>`).join('')}</div></div>`;}).join('');
     $$('#dashboardZoneOverlay [data-zone-wound]').forEach(b=>b.onclick=()=>{const cur=Number(activeAdventureStatus()?.woundZones?.[b.dataset.zoneWound]||0),target=Number(b.dataset.woundCount);setZoneWounds(b.dataset.zoneWound,cur===target?target-1:target);});
     const wd=woundData(),gbe=armor.baseBE,eff=armor.be;
-    $('#dashboardFooterOverlay').innerHTML=`<div title="Gewichteter Rüstungsschutz"><span class="dashboard-foot-label">gRS</span><strong class="dashboard-foot-value">${armor.rs}</strong></div><div title="Gesamtbehinderung${gbe!==eff?` · effektiv nach Rüstungsgewöhnung: ${eff}`:''}"><span class="dashboard-foot-label">gBE</span><strong class="dashboard-foot-value">${gbe}</strong>${gbe!==eff?`<small class="dashboard-foot-sub">eff. ${eff}</small>`:''}</div><div title="Wundschwelle"><span class="dashboard-foot-label">WS</span><strong class="dashboard-foot-value">${wd.threshold}</strong></div><div title="Aktuelle Geschwindigkeit: ${esc(speed.parts.join(' · '))}"><span class="dashboard-foot-label">GS</span><strong class="dashboard-foot-value">${speed.value}</strong></div>`;
+    $('#dashboardFooterOverlay').innerHTML=`<div class="dashboard-footer-item" title="Gewichteter Rüstungsschutz"><span class="dashboard-foot-label">gRS</span><strong class="dashboard-foot-value">${armor.rs}</strong></div><div class="dashboard-footer-item" title="Gesamtbehinderung${gbe!==eff?` · effektiv nach Rüstungsgewöhnung: ${eff}`:''}"><span class="dashboard-foot-label">gBE</span><strong class="dashboard-foot-value">${gbe}</strong>${gbe!==eff?`<small class="dashboard-foot-sub">eff. ${eff}</small>`:''}</div><div class="dashboard-footer-item" title="Wundschwelle"><span class="dashboard-foot-label">WS</span><strong class="dashboard-foot-value">${wd.threshold}</strong></div><div class="dashboard-footer-item" title="Aktuelle Geschwindigkeit: ${esc(speed.parts.join(' · '))}"><span class="dashboard-foot-label">GS</span><strong class="dashboard-foot-value">${speed.value}</strong></div>`;
     const unassigned=Number(zones.unassigned||0);$('#dashboardWoundHint').textContent=!s?'Wunden und Energien werden mit einem aktiven Abenteuer editierbar.':unassigned?`${unassigned} Wunde${unassigned===1?'':'n'} aus dem bisherigen Spielstand noch keiner Trefferzone zugeordnet.`:'';
   }
   function dashboardCombatButton(label,value,ref){return value==null?'':`<button type="button" class="dashboard-combat-roll" data-roll-ref="${ref}">${label}<strong>${esc(value)}</strong></button>`;}
