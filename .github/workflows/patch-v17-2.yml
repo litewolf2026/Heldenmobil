@@ -17,6 +17,18 @@ jobs:
           fetch-depth: 0
       - name: Patch index.html
         run: python .github/scripts/patch_v17_2.py
+      - name: Correct dashboard function boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          bad='  function renderDashboardMoney(){  function renderDashboardMoney(){'
+          if s.count(bad)!=1:
+              raise SystemExit(f'dashboard boundary: expected 1 duplicate, found {s.count(bad)}')
+          p.write_text(s.replace(bad,'  function renderDashboardMoney(){',1),encoding='utf-8')
+          PY
       - name: JavaScript syntax check
         shell: bash
         run: |
