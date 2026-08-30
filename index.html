@@ -571,10 +571,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const meisterhandwerke=new Set(vorteile.filter(v=>attr(v,'name')==='Meisterhandwerk').map(v=>cleanName(attr(v,'value'))).filter(Boolean));
     const vtEntries=vorteile.map(v=>{
       const name=attr(v,'name'),val=cleanName(attr(v,'value'));
-      const details=[...directSelections(v).map(cleanName),val].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
-      if(/^Vorurteile(?: gegen)?$/i.test(name)&&details.length){
-        const numbers=details.filter(x=>/^[-+]?\d+(?:[.,]\d+)?$/.test(x)),targets=details.filter(x=>!/^[-+]?\d+(?:[.,]\d+)?$/.test(x));
-        return {name,label:`${name==='Vorurteile'?'Vorurteile gegen':name}${targets.length?` ${targets.join(' / ')}`:''}${numbers.length?` ${numbers.join(' / ')}`:''}`};
+      const choices=directAll(v,'auswahl').map((a,i)=>({position:num(attr(a,'position'),i),value:cleanName(attr(a,'value'))})).filter(x=>x.value).sort((a,b)=>a.position-b.position).map(x=>x.value);
+      const details=[...choices,...directSelections(v).map(cleanName),val].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
+      const level=choices.find(x=>/^[-+]?\d+(?:[.,]\d+)?$/.test(x));
+      const targets=choices.filter(x=>x!==level);
+      if(level&&targets.length&&(/^(?:Vorurteile gegen|Weltfremd bzgl\.|Angst vor)/i.test(name))){
+        return {name,label:`${name} ${targets.join(' / ')}: ${level}`};
       }
       return {name,label:name+(details.length?`: ${details.join(' · ')}`:'')};
     });
