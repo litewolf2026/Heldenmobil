@@ -1,0 +1,51 @@
+name: Apply HeldenMobil v17.3 quality audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-v17-3-quality-audit.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch index.html
+        run: python .github/scripts/patch_v17_3_quality_audit.py
+      - name: JavaScript syntax check
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          blocks=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S)
+          inline=[b for b in blocks if b.strip()]
+          if not inline:
+              raise SystemExit('no inline script found')
+          Path('/tmp/heldenmobil.js').write_text('\n'.join(inline),encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil.js
+      - name: Verify quality audit contract
+        shell: bash
+        run: |
+          grep -F 'HeldenMobil – HLD PoC v17.3' index.html
+          grep -F 'HLD-Qualitätsprüfung' index.html
+          grep -F 'function qualityAuditOne(' index.html
+          grep -F 'function runQualityAudit()' index.html
+          grep -F 'TALENT_CATEGORY' index.html
+          grep -F 'ARMOR_REFERENCE' index.html
+      - name: Commit patch and clean one-shot tooling
+        shell: bash
+        run: |
+          git config user.name 'HeldenMobil Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/patch-v17-3-quality-audit.yml .github/scripts/patch_v17_3_quality_audit.py
+          git add index.html
+          git commit -m 'v17.3: add full HLD quality audit [skip ci]'
+          git push origin HEAD:main
