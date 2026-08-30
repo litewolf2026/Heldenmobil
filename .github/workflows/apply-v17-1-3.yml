@@ -1,0 +1,34 @@
+name: Apply HeldenMobil v17.1.3 alignment
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v17-1-3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply alignment patch
+        run: python3 tools/apply_v17_1_3.py
+      - name: Verify patch
+        run: |
+          grep -q 'HeldenMobil – HLD PoC v17.1.3' index.html
+          grep -q 'left:4.5% !important' index.html
+          grep -q 'top:47.2% !important' index.html
+          grep -q 'dashboard-footer-item:nth-child(3)' index.html
+          grep -q 'dashboard-footer-item:nth-child(4)' index.html
+      - name: Commit release and clean helper
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git rm tools/apply_v17_1_3.py .github/workflows/apply-v17-1-3.yml
+          git commit -m 'v17.1.3: fine-tune abdomen and footer alignment'
+          git push
