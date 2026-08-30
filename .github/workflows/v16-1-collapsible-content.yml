@@ -1,111 +1,38 @@
-name: Implement v16.1 collapsible content cards
+name: Apply HeldenMobil v16.1
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
-  apply:
-    if: github.event.head_commit.message == 'Implement v16.1 collapsible content cards'
+  apply-v16-1:
+    if: ${{ github.event.head_commit.message == 'Run HeldenMobil v16.1 migration' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Patch HeldenMobil v16.1
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-
-          replacements=[
-            ('HeldenMobil – HLD PoC v16','HeldenMobil – HLD PoC v16.1'),
-            ('DSA 4.1 · HLD + Begleitdaten v16','DSA 4.1 · HLD + Begleitdaten v16.1'),
-            ('Proof of Concept v16','Proof of Concept v16.1'),
-            ('HeldenMobil PoC v16 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch','HeldenMobil PoC v16.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch'),
-          ]
-          for old,new in replacements:
-              count=s.count(old)
-              if count!=1:
-                  raise SystemExit(f'Expected version marker once: {old!r}, found {count}')
-              s=s.replace(old,new,1)
-
-          css='''
-/* v16.1 klappbare Inhaltskästen */
-.box-collapse-heading{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;outline:none}.box-collapse-heading:hover{color:#f6dc98}.box-collapse-heading:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}.box-collapse-chevron{display:inline-flex;align-items:center;justify-content:center;width:1em;flex:0 0 1em;color:#b9a26b;font-weight:900}.box-collapse-heading .count{margin-left:auto}.box-collapsed>.box-collapse-root.box-collapse-heading{margin-bottom:0!important}.box-collapsed>.box-collapse-root.sf-group-head{margin-bottom:0!important}.box-collapsed>:not(.box-collapse-root){display:none!important}.box-collapsed{padding-bottom:10px}.box-collapsed.sf-group{padding-bottom:10px}.combat-block.box-collapsed,.combat-card.box-collapsed,.comp-card.box-collapsed,.sf-group.box-collapsed{min-height:42px}
-@media(max-width:650px){.box-collapse-heading{min-height:30px}.combat-block.box-collapsed,.combat-card.box-collapsed,.comp-card.box-collapsed,.sf-group.box-collapsed{min-height:44px}}
-'''
-          if '/* v16.1 klappbare Inhaltskästen */' in s:
-              raise SystemExit('v16.1 collapsible CSS already present')
-          if s.count('</style>')!=1:
-              raise SystemExit('Expected exactly one </style>')
-          s=s.replace('</style>',css+'\n</style>',1)
-
-          js=r'''
-  const CONTENT_BOX_COLLAPSE_KEY='heldenmobil:ui:collapsed-content-boxes:v1';
-  function contentBoxState(){try{const a=JSON.parse(localStorage.getItem(CONTENT_BOX_COLLAPSE_KEY)||'[]');return new Set(Array.isArray(a)?a:[]);}catch(_){return new Set();}}
-  function saveContentBoxState(set){localStorage.setItem(CONTENT_BOX_COLLAPSE_KEY,JSON.stringify([...set]));}
-  function collapseHeadingText(h){const clone=h.cloneNode(true);clone.querySelectorAll('.count,.box-collapse-chevron').forEach(x=>x.remove());return clone.textContent.replace(/\s+/g,' ').trim();}
-  function contentBoxKey(card,h,index){const section=card.closest('.section')?.id||'global',title=collapseHeadingText(h).toLocaleLowerCase('de').replace(/[^a-z0-9äöüß]+/g,'-').replace(/^-|-$/g,'')||`box-${index}`;return `${section}:${title}`;}
-  function setupCollapsibleContentBoxes(){
-    const collapsed=contentBoxState(),seen=new Map();
-    const cards=[...document.querySelectorAll('.combat-block,.combat-card,.comp-card,.sf-group')];
-    cards.forEach((card,index)=>{
-      let heading=card.querySelector(':scope > h4'),root=heading;
-      if(!heading&&card.classList.contains('sf-group')){root=card.querySelector(':scope > .sf-group-head');heading=root?.querySelector(':scope > h4')||null;}
-      if(!heading||!root||heading.classList.contains('box-collapse-heading'))return;
-      const base=contentBoxKey(card,heading,index),n=(seen.get(base)||0)+1;seen.set(base,n);const key=n===1?base:`${base}:${n}`;
-      root.classList.add('box-collapse-root');heading.classList.add('box-collapse-heading');heading.setAttribute('role','button');heading.setAttribute('tabindex','0');heading.setAttribute('title','Ein-/ausklappen');
-      const chev=document.createElement('span');chev.className='box-collapse-chevron';heading.prepend(chev);
-      const apply=()=>{const isCollapsed=collapsed.has(key);card.classList.toggle('box-collapsed',isCollapsed);heading.setAttribute('aria-expanded',isCollapsed?'false':'true');chev.textContent=isCollapsed?'▸':'▾';};
-      const toggle=()=>{if(collapsed.has(key))collapsed.delete(key);else collapsed.add(key);saveContentBoxState(collapsed);apply();};
-      heading.addEventListener('click',toggle);heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});apply();
-    });
-  }
-'''
-          marker='  applyTabOrder();initTabSorting();'
-          if s.count(marker)!=1:
-              raise SystemExit(f'Expected init marker once, found {s.count(marker)}')
-          s=s.replace(marker,js+'\n  setupCollapsibleContentBoxes();\n'+marker,1)
-
-          p.write_text(s,encoding='utf-8')
-          PY
-
+      - name: Apply migration
+        run: python tools/apply_v16_1.py
       - name: JavaScript syntax check
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
-          s=Path('index.html').read_text(encoding='utf-8')
-          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S|re.I)
+          source=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',source,re.S|re.I)
           if not scripts:
               raise SystemExit('No inline scripts found')
           Path('/tmp/heldenmobil-v16-1.js').write_text('\n'.join(scripts),encoding='utf-8')
           PY
           node --check /tmp/heldenmobil-v16-1.js
-
-      - name: Guard expected collapsible blocks
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          s=Path('index.html').read_text(encoding='utf-8')
-          for heading in ['Nahkampfwaffen','Fernkampfwaffen','Waffenloser Kampf','Schilde &amp; Parierwaffen','Ausweichen','Wunden &amp; Energien','Rüstung nach Trefferzonen']:
-              if heading not in s:
-                  raise SystemExit(f'Missing expected combat block: {heading}')
-          for token in ['CONTENT_BOX_COLLAPSE_KEY','setupCollapsibleContentBoxes()','box-collapsed','HeldenMobil – HLD PoC v16.1']:
-              if token not in s:
-                  raise SystemExit(f'Missing expected v16.1 token: {token}')
-          PY
-
-      - name: Commit v16.1 and remove one-shot workflow
+      - name: Commit release
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/v16-1-collapsible-content.yml
+          git rm .github/workflows/v16-1-collapsible-content.yml tools/apply_v16_1.py
           git add index.html
           git commit -m "v16.1: collapsible content cards"
           git push
