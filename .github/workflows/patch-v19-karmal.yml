@@ -1,0 +1,63 @@
+name: Apply HeldenMobil v19 Geweihte
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-v19-karmal.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fix one-shot search hook marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/patch_v19_karmal.py')
+          s=p.read_text()
+          old="""rep("$('#spellSearch').addEventListener('input',renderSpells);",
+              "$('#spellSearch').addEventListener('input',renderSpells);$('#liturgySearch')?.addEventListener('input',renderLiturgies);",
+              'liturgy search hook')"""
+          new="""rep("$('#talentSearch').addEventListener('input',renderTalents);$('#spellSearch').addEventListener('input',renderSpells);$('#sfSearch').addEventListener('input',renderSonderfertigkeiten);$('#addStaffSlot').addEventListener('click',addStaffSlot);",
+              "$('#talentSearch').addEventListener('input',renderTalents);$('#spellSearch').addEventListener('input',renderSpells);$('#liturgySearch')?.addEventListener('input',renderLiturgies);$('#sfSearch').addEventListener('input',renderSonderfertigkeiten);$('#addStaffSlot').addEventListener('click',addStaffSlot);",
+              'liturgy search hook')"""
+          if old not in s:
+              raise SystemExit('search hook patcher marker missing')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Apply v19 patch
+        run: python3 tools/patch_v19_karmal.py
+      - name: Verify JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S)
+          if not scripts:
+              raise SystemExit('no inline script found')
+          Path('/tmp/heldenmobil.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/heldenmobil.js
+      - name: Verify Geweihte contract
+        run: |
+          grep -q 'HLD PoC v19.0' index.html
+          grep -q 'const COMP_SCHEMA=8;' index.html
+          grep -q 'data-tab="liturgies"' index.html
+          grep -q 'Grundgrad' index.html
+          grep -q 'dashboardLiturgyFavoritesCard' index.html
+          grep -q 'favoriteLiturgyKeys' index.html
+          grep -q "for(const v of \[7,6,5,4,3,2,1\])" index.html
+          grep -q 'Liturgiekenntnisprobe' index.html
+      - name: Commit release and clean one-shot tooling
+        run: |
+          rm -f tools/patch_v19_karmal.py .github/workflows/patch-v19-karmal.yml
+          git config user.name 'HeldenMobil Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git commit -m 'v19.0: add HLD-driven Geweihte and liturgies [skip ci]'
+          git push
