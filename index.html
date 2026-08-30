@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v15</title>
+<title>HeldenMobil – HLD PoC v16</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -67,13 +67,18 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 @media(max-width:700px){.loadout-current{grid-template-columns:1fr 1fr}.loadout-weapon,.loadout-ini{grid-column:1/-1}.dice-bar{width:calc(100% - 18px);justify-content:space-between;gap:3px;padding:6px}.dice-bar button{padding:8px 7px;font-size:.68rem;flex:1}.dice-stage{gap:9px;padding-left:8px;padding-right:8px}.die.d20{width:64px;height:64px}.die.d20.zone{width:76px;height:76px}.die.d6{width:58px;height:58px}.zone-glyph{width:43px;height:43px}.dice-felt{min-height:225px}.dice-dialog{max-height:92vh}.loadout-head{flex-direction:column}.loadout-head .small-note{text-align:left}.tab-order-tools{justify-content:flex-start}.tab-order-hint{display:none}.tabs.sort-mode{gap:6px}.tabs.sort-mode .tab{padding:8px 9px}}
 @media(prefers-reduced-motion:reduce){.die.die-rolling{animation:none!important}}
 
+
+/* v16 Regel- und UI-Fixes */
+.group-row td{padding:0}.group-toggle{display:flex;align-items:center;gap:7px;width:100%;min-height:42px;padding:9px 12px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit}.group-toggle:hover{background:#2b3038}.group-toggle:focus-visible,.inv-collapse-toggle:focus-visible,.money-history-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}.group-toggle .collapse-chevron,.group-toggle .group-label,.group-toggle .group-count{margin-left:0}.collapse-chevron{display:inline-block;width:1em;color:#b9a26b;font-weight:900}.group-toggle .group-count{color:#8e99a8;font-weight:600;margin-left:2px}.inv-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.inv-collapse-toggle{display:flex;align-items:flex-start;gap:7px;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.inv-location-copy{display:flex;flex-direction:column;min-width:0}.inv-location-copy strong{color:#e8d29c;font-size:.94rem}.inv-location-copy small{margin-top:2px;color:var(--muted);font-size:.68rem}.inv-group.collapsed{padding-bottom:9px}.money-history{margin-top:10px;border-top:1px solid #2b3038;padding-top:8px}.money-history-toggle{display:flex;align-items:center;gap:7px;width:100%;min-height:40px;border:0;background:transparent;color:#e8d29c;text-align:left;padding:5px 2px;cursor:pointer;font-weight:760}.money-history-toggle .count{margin-left:auto}.location-delete-dialog{max-width:min(520px,calc(100% - 28px));border:1px solid #4a515d;border-radius:12px;background:#171a1f;color:var(--text);padding:0;box-shadow:0 24px 70px rgba(0,0,0,.6)}.location-delete-dialog::backdrop{background:rgba(0,0,0,.68)}.location-delete-card{padding:18px}.location-delete-card h3{margin:0 0 8px;color:#f0c979}.location-delete-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:650px){.inv-head{align-items:flex-start}.inv-head-actions{gap:5px}.delete-location{padding:6px 7px;font-size:.7rem}.group-toggle{min-height:44px}.location-delete-actions>*{flex:1 1 100%}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v15</div></div></div>
-  <div class="badge">Proof of Concept v15</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v16</div></div></div>
+  <div class="badge">Proof of Concept v16</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -216,7 +221,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
         <div class="inv-head"><div><h4>Geld</h4><div class="subtle">Kleine Kasse im selben Datensatz. Buchungen können positiv oder negativ sein; Excel-Import übernimmt vorhandene D/S/H-Buchungen.</div></div><span class="count" id="moneyCount"></span></div>
         <div id="moneySummary" class="money-summary"></div>
         <div class="form-grid"><div class="field"><label>Dukaten</label><input id="moneyD" type="number" step="1" value="0"></div><div class="field"><label>Silber</label><input id="moneyS" type="number" step="1" value="0"></div><div class="field"><label>Heller</label><input id="moneyH" type="number" step="1" value="0"></div><div class="field"><label>Kreuzer</label><input id="moneyK" type="number" step="1" value="0"></div><div class="field wide"><label>Wofür / woher?</label><input id="moneyNote" placeholder="z. B. 5 D Belohnung oder -2 D Proviant"></div><div class="field"><button class="action-btn primary" id="addMoney">Buchen</button></div></div>
-        <div id="moneyTransactions" class="money-list"></div>
+        <div class="money-history"><button type="button" id="moneyHistoryToggle" class="money-history-toggle" aria-expanded="true"><span class="collapse-chevron" id="moneyHistoryChevron">▾</span><span>Ein- und Ausgaben</span><span class="count" id="moneyHistoryCount"></span></button><div id="moneyTransactions" class="money-list"></div></div>
       </div>
       <div id="inventoryRootDrop" class="inventory-root-drop inv-drop-zone" data-location-id="">Hierher ziehen = ohne Ort / auf oberste Ebene</div>
       <div id="inventoryGroups" class="inv-groups"></div>
@@ -284,7 +289,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil PoC v15 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch</footer>
+<footer>HeldenMobil PoC v16 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch</footer>
 </div>
 
 <script>
@@ -400,12 +405,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   };
 
   const TALENT_GROUPS = [
-    ['Kampf', new Set(Object.keys(COMBAT_META))],
+    ['Kampf', new Set([...Object.keys(COMBAT_META),'Blasrohr','Kettenstäbe','Peitsche','Zweihandflegel'])],
     ['Körperlich', new Set(['Akrobatik','Athletik','Fliegen','Gaukeleien','Klettern','Körperbeherrschung','Reiten','Schleichen','Schwimmen','Selbstbeherrschung','Sich verstecken','Singen','Sinnenschärfe','Skifahren','Stimmen imitieren','Tanzen','Taschendiebstahl','Zechen'])],
-    ['Gesellschaftlich', new Set(['Betören','Etikette','Falschspiel','Gassenwissen','Lehren','Menschenkenntnis','Schauspielerei','Schriftlicher Ausdruck','Sich verkleiden','Überreden','Überzeugen'])],
-    ['Natur', new Set(['Fallen stellen','Fesseln/Entfesseln','Fischen/Angeln','Fährtensuchen','Orientierung','Wettervorhersage','Wildnisleben'])],
-    ['Wissen', new Set(['Anatomie','Baukunst','Brett-/Kartenspiel','Geografie','Geschichtswissen','Gesteinskunde','Götter und Kulte','Heraldik','Hüttenkunde','Kartografie','Kriegskunst','Kryptographie','Magiekunde','Mechanik','Pflanzenkunde','Philosophie','Rechnen','Rechtskunde','Sagen und Legenden','Schätzen','Sprachenkunde','Staatskunst','Sternkunde','Tierkunde'])],
-    ['Handwerk', new Set(['Abrichten','Ackerbau','Alchimie','Bergbau','Boote fahren','Brauer','Fahrzeug lenken','Feinmechanik','Feuersteinbearbeitung','Fleischer','Gerber/Kürschner','Glaskunst','Grobschmied','Handel','Hauswirtschaft','Heilkunde: Gift','Heilkunde: Krankheiten','Heilkunde: Seele','Heilkunde: Wunden','Holzbearbeitung','Kochen','Kristallzucht','Lederarbeiten','Malen/Zeichnen','Maurer','Metallguss','Musizieren','Schlösser knacken','Schnaps brennen','Schneidern','Seefahrt','Steinmetz','Steinschneider/Juwelier','Stellmacher','Stoffe färben','Tätowieren','Töpfern','Viehzucht','Webkunst','Winzer','Zimmermann'])]
+    ['Gesellschaftlich', new Set(['Betören','Etikette','Gassenwissen','Lehren','Menschenkenntnis','Schauspielerei','Schriftlicher Ausdruck','Sich verkleiden','Überreden','Überzeugen'])],
+    ['Natur', new Set(['Fallenstellen','Fallen stellen','Fesseln/Entfesseln','Fischen/Angeln','Fährtensuchen','Orientierung','Wettervorhersage','Wildnisleben'])],
+    ['Wissen', new Set(['Anatomie','Baukunst','Brett-/Kartenspiel','Geographie','Geografie','Geschichtswissen','Gesteinskunde','Götter/Kulte','Götter und Kulte','Heraldik','Hüttenkunde','Kriegskunst','Kryptographie','Magiekunde','Mechanik','Pflanzenkunde','Philosophie','Rechnen','Rechtskunde','Sagen/Legenden','Sagen und Legenden','Schätzen','Sprachenkunde','Staatskunst','Sternkunde','Tierkunde'])],
+    ['Handwerk', new Set(['Abrichten','Ackerbau','Alchimie','Bergbau','Bogenbau','Boote fahren','Boote Fahren','Brauer','Drucker','Eissegler Fahren','Fahrzeug lenken','Fahrzeug Lenken','Falschspiel','Feinmechanik','Feuersteinbearbeitung','Fleischer','Gerber/Kürschner','Glaskunst','Grobschmied','Handel','Hauswirtschaft','Heilkunde: Gift','Heilkunde Gift','Heilkunde: Krankheiten','Heilkunde Krankheiten','Heilkunde: Seele','Heilkunde Seele','Heilkunde: Wunden','Heilkunde Wunden','Holzbearbeitung','Hundeschlitten Fahren','Instrumentenbauer','Kapellmeister','Kartographie','Kartografie','Kochen','Kristallzucht','Kristallzüchter','Lederarbeiten','Malen/Zeichnen','Maurer','Metallguss','Musizieren','Schlösser knacken','Schlösser Knacken','Schnaps brennen','Schnaps Brennen','Schneidern','Seefahrt','Seiler','Steinmetz','Steinschneider/Juwelier','Stellmacher','Steuermann','Stoffe färben','Stoffe Färben','Tätowieren','Töpfern','Viehzucht','Webkunst','Winzer','Zimmermann'])]
   ];
   const GROUP_ORDER = ['Gaben','Kampf','Körperlich','Gesellschaftlich','Natur','Wissen','Sprachen','Schriften','Handwerk','Ritual-/Liturgiekenntnis','Sonstige'];
 
@@ -468,13 +473,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     else if(name==='Waffenmeister'){const a=direct(s,'auswahl'),w=directAll(a,'wahl').map(x=>attr(x,'value')).filter(Boolean);if(w.length>=2)label=`Waffenmeister: ${w[0]} (${w[1]})`;}
     return {name,label,kind,category};
   }
+  function talentKey(name){
+    let key=String(name||'').normalize('NFC').toLocaleLowerCase('de').replace(/und/g,'').replace(/[^a-z0-9äöüß]+/g,'');
+    const aliases={kartografie:'kartographie',geografie:'geographie',kristallzüchter:'kristallzucht'};
+    return aliases[key]||key;
+  }
+  const TALENT_GROUP_BY_KEY=(()=>{const out=new Map();for(const [group,set] of TALENT_GROUPS)for(const name of set)out.set(talentKey(name),group);return out;})();
   function talentCategory(name){
-    if(name.startsWith('Sprachen kennen ')) return 'Sprachen';
-    if(name.startsWith('Lesen/Schreiben ')) return 'Schriften';
-    if(name.startsWith('Ritualkenntnis:') || name.startsWith('Liturgiekenntnis ')) return 'Ritual-/Liturgiekenntnis';
-    if(['Gefahreninstinkt','Geräuschhexerei','Prophezeien','Zwergennase'].includes(name) || name.startsWith('Talentschub ')) return 'Gaben';
-    for(const [group,set] of TALENT_GROUPS) if(set.has(name)) return group;
-    return 'Sonstige';
+    const raw=String(name||'').trim(),lower=raw.toLocaleLowerCase('de');
+    if(lower.startsWith('sprachen kennen ')) return 'Sprachen';
+    if(lower.startsWith('lesen/schreiben ')) return 'Schriften';
+    if(lower.startsWith('ritualkenntnis:') || lower.startsWith('liturgiekenntnis ')) return 'Ritual-/Liturgiekenntnis';
+    const key=talentKey(raw);
+    const gifts=new Set(['empathie','gefahreninstinkt','geräuschhexerei','magiegespür','prophezeien','tierempathie','zwergennase']);
+    if(gifts.has(key) || lower.startsWith('talentschub ') || lower.startsWith('talentschub:') || lower.startsWith('kräfteschub ') || lower.startsWith('kräfteschub:')) return 'Gaben';
+    return TALENT_GROUP_BY_KEY.get(key)||'Sonstige';
   }
 
   // Die HLD enthält die Grundtalente; diese drei Metatalente werden von der
@@ -556,7 +569,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const vtRoot=direct(held,'vt');
     const vorteile=directAll(vtRoot,'vorteil');
     const meisterhandwerke=new Set(vorteile.filter(v=>attr(v,'name')==='Meisterhandwerk').map(v=>cleanName(attr(v,'value'))).filter(Boolean));
-    const vtEntries=vorteile.map(v=>{const name=attr(v,'name'),val=attr(v,'value');return {name,label:name+(val?`: ${val}`:'')};});
+    const vtEntries=vorteile.map(v=>{
+      const name=attr(v,'name'),val=cleanName(attr(v,'value'));
+      const details=[...directSelections(v).map(cleanName),val].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
+      if(/^Vorurteile(?: gegen)?$/i.test(name)&&details.length){
+        const numbers=details.filter(x=>/^[-+]?\d+(?:[.,]\d+)?$/.test(x)),targets=details.filter(x=>!/^[-+]?\d+(?:[.,]\d+)?$/.test(x));
+        return {name,label:`${name==='Vorurteile'?'Vorurteile gegen':name}${targets.length?` ${targets.join(' / ')}`:''}${numbers.length?` ${numbers.join(' / ')}`:''}`};
+      }
+      return {name,label:name+(details.length?`: ${details.join(' · ')}`:'')};
+    });
     const vt=vtEntries.map(v=>v.label);
     const advantages=vtEntries.filter(v=>!isDisadvantage(v.name)).map(v=>v.label);
     const disadvantages=vtEntries.filter(v=>isDisadvantage(v.name)).map(v=>v.label);
@@ -694,12 +715,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const attrs=probeAttributes(probe),pm=propMap(state.current.props),vals=attrs.map(a=>currentAttr(pm,a));
     return {type:'check3',title:name,subtitle:`${kind==='spell'?'Zauberprobe':'Talentprobe'} · ${probe||'Probe nicht angegeben'}`,attrs,values:vals,skill:Number(value||0),skillLabel:kind==='spell'?'ZfW':'TaW',resultLabel:kind==='spell'?'ZfP*':'TaP*'};
   }
+  const TALENT_COLLAPSE_KEY='heldenmobil:ui:collapsed-talents:v1',INVENTORY_COLLAPSE_KEY='heldenmobil:ui:collapsed-inventory:v1',MONEY_HISTORY_COLLAPSE_KEY='heldenmobil:ui:money-history-collapsed:v1';
+  function uiSetFromStorage(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return new Set(Array.isArray(value)?value:[]);}catch(_){return new Set();}}
+  function saveUiSet(key,set){localStorage.setItem(key,JSON.stringify([...set]));}
+  const collapsedTalentGroups=uiSetFromStorage(TALENT_COLLAPSE_KEY),collapsedInventoryLocations=uiSetFromStorage(INVENTORY_COLLAPSE_KEY);
   function renderTalents(){
     const q=$('#talentSearch').value.trim().toLocaleLowerCase('de');
     const arr=state.current.talents.filter(t=>!q||(`${t.name} ${t.probe} ${t.specs.join(' ')} ${t.mh?'meisterhandwerk':''} ${t.meta?'metatalent':''} ${t.metaDetail||''} ${t.category}`).toLocaleLowerCase('de').includes(q));
     const grouped=new Map();for(const g of GROUP_ORDER)grouped.set(g,[]);for(const t of arr){if(!grouped.has(t.category))grouped.set(t.category,[]);grouped.get(t.category).push(t);}
-    let html='';for(const g of GROUP_ORDER){const rows=grouped.get(g)||[];if(!rows.length)continue;html+=`<tr class="group-row"><td colspan="4">${esc(g)} <span>${rows.length}</span></td></tr>`;html+=rows.map(t=>{const idx=state.current.talents.indexOf(t),ref=registerRoll(`talent:${idx}`,rollPayloadForThreePart(t.name,t.probe,t.value,'talent'));return `<tr class="rollable-row" tabindex="0" data-roll-ref="${ref}" title="${esc(t.name)} würfeln"><td>${esc(t.name)} <span class="roll-mark">◆</span>${t.metaDetail?`<div class="cell-sub">${esc(t.metaDetail)}</div>`:''}</td><td>${esc(t.probe)}</td><td class="num hot">${t.value}</td><td><div class="tagrow">${tagsForTalent(t)}</div></td></tr>`;}).join('');}
+    let html='';for(const g of GROUP_ORDER){const rows=grouped.get(g)||[];if(!rows.length)continue;const collapsed=!q&&collapsedTalentGroups.has(g);html+=`<tr class="group-row"><td colspan="4"><button type="button" class="group-toggle" data-talent-group="${esc(g)}" aria-expanded="${collapsed?'false':'true'}"><span class="collapse-chevron">${collapsed?'▸':'▾'}</span><span class="group-label">${esc(g)}</span><span class="group-count">${rows.length}</span></button></td></tr>`;if(!collapsed)html+=rows.map(t=>{const idx=state.current.talents.indexOf(t),ref=registerRoll(`talent:${idx}`,rollPayloadForThreePart(t.name,t.probe,t.value,'talent'));return `<tr class="rollable-row" tabindex="0" data-roll-ref="${ref}" title="${esc(t.name)} würfeln"><td>${esc(t.name)} <span class="roll-mark">◆</span>${t.metaDetail?`<div class="cell-sub">${esc(t.metaDetail)}</div>`:''}</td><td>${esc(t.probe)}</td><td class="num hot">${t.value}</td><td><div class="tagrow">${tagsForTalent(t)}</div></td></tr>`;}).join('');}
     $('#talentBody').innerHTML=html||'<tr><td colspan="4" class="empty">Keine Treffer</td></tr>';
+    if(!q)$$('#talentBody .group-toggle').forEach(btn=>btn.addEventListener('click',()=>{const g=btn.dataset.talentGroup;if(collapsedTalentGroups.has(g))collapsedTalentGroups.delete(g);else collapsedTalentGroups.add(g);saveUiSet(TALENT_COLLAPSE_KEY,collapsedTalentGroups);renderTalents();}));
   }
   function renderSpells(){
     const q=$('#spellSearch').value.trim().toLocaleLowerCase('de');const arr=state.current.spells.filter(z=>!q||(`${z.name} ${z.rep} ${z.probe} ${z.specs.join(' ')}`).toLocaleLowerCase('de').includes(q));
@@ -829,7 +855,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const shieldIni=e?.linkedShield?num(itemShieldData(e.linkedShield).ini,0):0;
     const fixed=base-setBE+sf.bonus+weaponIni+shieldIni;
     const dancer=state.current.sfSet.has('Klingentänzer')&&setBE<3;
-    const dice=dancer?'3W6':'1W6';
+    const dice=dancer?'2W6':'1W6';
     return {base,setBE,sf,weaponIni,shieldIni,fixed,dice};
   }
   function woundData(){const pm=propMap(state.current.props),ko=currentAttr(pm,'Konstitution');return {threshold:Math.ceil(ko/2)+(state.current.vtNames.has('Eisern')?2:0)};}
@@ -847,7 +873,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
   function dualInitiative(r,l,setBE){
     const pm=propMap(state.current.props),base=currentAttr(pm,'ini'),sf=initiativeSfBonus(setBE),mainIni=num(itemMeleeData(r).ini,0),sameBase=r.base===l.base,sameTalent=(r.talent||'')===(l.talent||''),pairPenalty=sameBase?0:(sameTalent?1:2),fixed=base-setBE+sf.bonus+mainIni-pairPenalty,dancer=state.current.sfSet.has('Klingentänzer')&&setBE<3;
-    return {base,setBE,sf,weaponIni:mainIni,shieldIni:0,pairPenalty,fixed,dice:dancer?'3W6':'1W6'};
+    return {base,setBE,sf,weaponIni:mainIni,shieldIni:0,pairPenalty,fixed,dice:dancer?'2W6':'1W6'};
   }
   function buildCombatLoadouts(set,setBE,meleeRows){
     const melee=set.entries.filter(e=>e.type==='melee'&&e.base!=='Linkhand').slice().sort((a,b)=>a.index-b.index),rows=new Map(meleeRows.map(r=>[r.e,r.v])),out=[];
@@ -1042,13 +1068,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
     $$('.inv-drop-zone').forEach(z=>{z.addEventListener('dragover',e=>{if(!inventoryDragPayload)return;e.preventDefault();e.dataTransfer.dropEffect='move';clearInventoryDropHighlight();z.classList.add('drag-over');});z.addEventListener('dragleave',e=>{if(!z.contains(e.relatedTarget))z.classList.remove('drag-over');});z.addEventListener('drop',e=>{e.preventDefault();let p=inventoryDragPayload;try{p=p||JSON.parse(e.dataTransfer.getData('text/plain'));}catch(_){}clearInventoryDropHighlight();if(p)applyInventoryDrop(p,z.dataset.locationId||null);});});
   }
+  function locationMap(){return new Map((companionState.data?.inventory?.locations||[]).map(x=>[x.id,x]));}
+  function locationHasCollapsedAncestor(id){const by=locationMap();let cur=by.get(id),guard=0;while(cur?.parentId&&guard++<50){if(collapsedInventoryLocations.has(cur.parentId))return true;cur=by.get(cur.parentId);}return false;}
+  function descendantLocationIds(id){const locs=companionState.data?.inventory?.locations||[],out=new Set(),stack=[id];while(stack.length){const cur=stack.pop();for(const loc of locs)if(loc.parentId===cur&&!out.has(loc.id)){out.add(loc.id);stack.push(loc.id);}}return out;}
+  function locationHasContent(id){const d=companionState.data;return d.inventory.items.some(x=>x.locationId===id)||d.inventory.locations.some(x=>x.parentId===id);}
+  function ensureLocationDeleteDialog(){let dlg=$('#locationDeleteDialog');if(dlg)return dlg;dlg=document.createElement('dialog');dlg.id='locationDeleteDialog';dlg.className='location-delete-dialog';dlg.innerHTML='<form method="dialog" class="location-delete-card"><h3>Behälter löschen?</h3><p id="locationDeleteText" class="subtle"></p><div class="location-delete-actions"><button type="button" class="action-btn primary" data-choice="move">Inhalt verschieben</button><button type="button" class="danger-btn" data-choice="delete">Alles löschen</button><button type="button" class="action-btn" data-choice="cancel">Abbrechen</button></div></form>';document.body.appendChild(dlg);return dlg;}
+  function chooseFilledLocationDelete(loc){return new Promise(resolve=>{const dlg=ensureLocationDeleteDialog();$('#locationDeleteText').textContent=`„${loc.name}“ enthält Gegenstände oder Unterbehälter. Was soll damit passieren?`;let done=false;const finish=choice=>{if(done)return;done=true;try{dlg.close();}catch(_){}resolve(choice);};dlg.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>finish(b.dataset.choice));dlg.oncancel=e=>{e.preventDefault();finish('cancel');};if(typeof dlg.showModal==='function')dlg.showModal();else{const a=prompt('Behälter ist gefüllt: 1 = Inhalt verschieben, 2 = alles löschen, sonst = abbrechen','1');finish(a==='1'?'move':a==='2'?'delete':'cancel');}});}
+  async function requestDeleteLocation(id){const d=companionState.data,loc=d?.inventory?.locations?.find(x=>x.id===id);if(!loc)return;if(!locationHasContent(id)){if(!confirm(`Leeren Behälter „${loc.name}“ löschen?`))return;d.inventory.locations=d.inventory.locations.filter(x=>x.id!==id);collapsedInventoryLocations.delete(id);saveUiSet(INVENTORY_COLLAPSE_KEY,collapsedInventoryLocations);saveCompanion();renderInventory();return;}const choice=await chooseFilledLocationDelete(loc);if(choice==='cancel')return;if(choice==='move'){const parent=loc.parentId||null;for(const it of d.inventory.items)if(it.locationId===id)it.locationId=parent;for(const child of d.inventory.locations)if(child.parentId===id)child.parentId=parent;d.inventory.locations=d.inventory.locations.filter(x=>x.id!==id);collapsedInventoryLocations.delete(id);}else if(choice==='delete'){const ids=descendantLocationIds(id);ids.add(id);d.inventory.items=d.inventory.items.filter(x=>!ids.has(x.locationId));d.inventory.locations=d.inventory.locations.filter(x=>!ids.has(x.id));for(const x of ids)collapsedInventoryLocations.delete(x);}saveUiSet(INVENTORY_COLLAPSE_KEY,collapsedInventoryLocations);saveCompanion();renderInventory();}
   function renderInventory(){const d=companionState.data;if(!d)return;refreshLocationSelects();renderPriceCatalogCount();const items=d.inventory.items,groups=new Map(),cons=items.filter(isConsumableItem).length;for(const it of items){const k=it.locationId||'';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(it);}$('#inventoryCount').textContent=`${items.length} Gegenstände · ${cons} Verbrauch · ${d.inventory.locations.length} Orte`;
-    const rowsFor=(id)=>groups.get(id)||[];
-    const rootRows=rowsFor('');
+    const rowsFor=id=>groups.get(id)||[],rootRows=rowsFor('');
     const rootHtml=rootRows.length?`<div class="inv-group inv-drop-zone" data-location-id="" style="--inv-depth:0"><div class="inv-head"><div><h4>Ohne Ort</h4><div class="subtle">Nicht zugeordnet</div></div><span class="count">${rootRows.length}</span></div>${rootRows.map(inventoryItemHtml).join('')}</div>`:'';
-    const locHtml=locationOrder().map(({loc,depth})=>{const rows=rowsFor(loc.id),path=locationPath(loc.id);return `<div class="inv-group inv-drop-zone" data-location-id="${loc.id}" style="--inv-depth:${Math.min(depth,5)}"><div class="inv-head"><div class="inv-location-title"><span class="drag-handle" draggable="true" data-drag-kind="location" data-drag-id="${loc.id}" data-drag-label="${esc(loc.name)}" title="Behälter verschieben">⋮⋮</span><div><h4>${esc(loc.name)}</h4>${depth?`<div class="subtle">${esc(path)}</div>`:''}</div></div><span class="count">${rows.length}</span></div>${rows.map(inventoryItemHtml).join('')}${rows.length?'':'<div class="empty-comp">Leer – Gegenstände oder Behälter hierher ziehen.</div>'}</div>`;}).join('');
+    const locHtml=locationOrder().map(({loc,depth})=>{if(locationHasCollapsedAncestor(loc.id))return '';const rows=rowsFor(loc.id),path=locationPath(loc.id),collapsed=collapsedInventoryLocations.has(loc.id),childCount=d.inventory.locations.filter(x=>x.parentId===loc.id).length,contentCount=rows.length+childCount;return `<div class="inv-group inv-drop-zone${collapsed?' collapsed':''}" data-location-id="${loc.id}" style="--inv-depth:${Math.min(depth,5)}"><div class="inv-head"><div class="inv-location-title"><span class="drag-handle" draggable="true" data-drag-kind="location" data-drag-id="${loc.id}" data-drag-label="${esc(loc.name)}" title="Behälter verschieben">⋮⋮</span><button type="button" class="inv-collapse-toggle" data-location-toggle="${loc.id}" aria-expanded="${collapsed?'false':'true'}"><span class="collapse-chevron">${collapsed?'▸':'▾'}</span><span class="inv-location-copy"><strong>${esc(loc.name)}</strong>${depth?`<small>${esc(path)}</small>`:''}</span></button></div><div class="inv-head-actions"><span class="count">${contentCount}</span><button type="button" class="danger-btn delete-location" data-delete-location="${loc.id}">Löschen</button></div></div>${collapsed?'':rows.map(inventoryItemHtml).join('')}${collapsed?'':(rows.length||childCount?'':'<div class="empty-comp">Leer – Gegenstände oder Behälter hierher ziehen.</div>')}</div>`;}).join('');
     $('#inventoryGroups').innerHTML=rootHtml+locHtml||'<div class="empty-comp">Noch kein eigenes Inventar angelegt.</div>';
-    $$('#inventoryGroups .inv-row').forEach(row=>{const id=row.dataset.itemId;row.querySelector('.qty-minus').onclick=()=>changeQty(id,-1);row.querySelector('.qty-plus').onclick=()=>changeQty(id,1);row.querySelector('.delete-item').onclick=()=>{d.inventory.items=d.inventory.items.filter(x=>x.id!==id);saveCompanion();renderInventory();};});setupInventoryDragDrop();}
+    $$('#inventoryGroups .inv-row').forEach(row=>{const id=row.dataset.itemId;row.querySelector('.qty-minus').onclick=()=>changeQty(id,-1);row.querySelector('.qty-plus').onclick=()=>changeQty(id,1);row.querySelector('.delete-item').onclick=()=>{d.inventory.items=d.inventory.items.filter(x=>x.id!==id);saveCompanion();renderInventory();};});
+    $$('#inventoryGroups [data-location-toggle]').forEach(btn=>btn.onclick=()=>{const id=btn.dataset.locationToggle;if(collapsedInventoryLocations.has(id))collapsedInventoryLocations.delete(id);else collapsedInventoryLocations.add(id);saveUiSet(INVENTORY_COLLAPSE_KEY,collapsedInventoryLocations);renderInventory();});
+    $$('#inventoryGroups [data-delete-location]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();requestDeleteLocation(btn.dataset.deleteLocation);});setupInventoryDragDrop();}
   function inventoryItemHtml(it){const consum=isConsumableItem(it),meta=[it.note||'',it.weight!=null&&it.weight!==''?`Gewicht ${it.weight}`:'',it.price?`Listenpreis ${it.price}`:''].filter(Boolean).join(' · ');return `<div class="inv-row" data-item-id="${it.id}"><div><div class="inv-name-line"><span class="drag-handle" draggable="true" data-drag-kind="item" data-drag-id="${it.id}" data-drag-label="${esc(it.name)}" title="Gegenstand verschieben">⋮⋮</span><div><div class="inv-name ${/alchem/i.test(it.type||'')?'alchemy':''}">${esc(it.name)}${it.quality?` <span class="tag spec">${esc(it.quality)}</span>`:''}${it.source?` <span class="source-pill">${esc(it.source)}</span>`:''}${consum?'<span class="source-pill consumable-pill">Verbrauch</span>':''}</div><div class="inv-note">${esc(meta)}</div></div></div></div><div class="inv-type"><span class="badge-type">${esc(it.type||'Gegenstand')}</span></div><div class="qty-controls"><button class="mini-btn qty-minus" title="${consum?'1 verbrauchen':'Anzahl -1'}">−</button><strong>${it.qty}</strong><button class="mini-btn qty-plus">+</button></div><div class="inv-location subtle">${esc(it.locationId?locationPath(it.locationId):'')}</div><div class="inv-actions"><button class="danger-btn delete-item">Löschen</button></div></div>`;}
   const MONEY_FACTOR={d:1000,s:100,h:10,k:1};
   function transactionTotalK(t){return ['d','s','h','k'].reduce((sum,k)=>sum+Number(t[k]||0)*MONEY_FACTOR[k],0);}
@@ -1056,7 +1090,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function splitMoney(total){const sign=total<0?-1:1;let n=Math.abs(Math.round(total));const d=Math.floor(n/1000);n%=1000;const s=Math.floor(n/100);n%=100;const h=Math.floor(n/10);const k=n%10;return {sign,d,s,h,k};}
   function moneyTextFromTotal(total,withZero=false){const m=splitMoney(total),parts=[];if(m.d||withZero)parts.push(`${m.d} D`);if(m.s||withZero)parts.push(`${m.s} S`);if(m.h||withZero)parts.push(`${m.h} H`);if(m.k||withZero)parts.push(`${m.k} K`);return `${m.sign<0?'−':''}${parts.join(' ')||'0 K'}`;}
   function addMoneyTransaction(){const vals={d:Number($('#moneyD').value||0),s:Number($('#moneyS').value||0),h:Number($('#moneyH').value||0),k:Number($('#moneyK').value||0)};const total=['d','s','h','k'].reduce((a,k)=>a+vals[k]*MONEY_FACTOR[k],0);if(!total)return;const note=$('#moneyNote').value.trim(),tx={id:uid('money'),...vals,note,at:new Date().toISOString(),adventureId:companionState.data.activeAdventureId||null,source:null};companionState.data.money.transactions.push(tx);logEvent(`Geld ${moneyTextFromTotal(total)}${note?`: ${note}`:''}`,'money');['D','S','H','K'].forEach(x=>$('#money'+x).value='0');$('#moneyNote').value='';saveCompanion();renderMoney();renderAdventures();}
-  function renderMoney(){const d=companionState.data;if(!d||!$('#moneySummary'))return;const total=moneyTotalK(),m=splitMoney(total);$('#moneySummary').innerHTML=`<div class="money-coin"><span>Dukaten</span><strong>${m.sign<0?'−':''}${m.d}</strong></div><div class="money-coin"><span>Silber</span><strong>${m.s}</strong></div><div class="money-coin"><span>Heller</span><strong>${m.h}</strong></div><div class="money-coin"><span>Kreuzer</span><strong>${m.k}</strong></div>`;const tx=d.money.transactions||[];$('#moneyCount').textContent=`${tx.length} Buchungen`;const shown=tx.slice(-20).reverse();$('#moneyTransactions').innerHTML=(tx.length>20?`<div class="small-note" style="padding:7px 0">Letzte 20 von ${tx.length} Buchungen.</div>`:'')+shown.map(t=>{const v=transactionTotalK(t);return `<div class="money-row" data-money-id="${t.id}"><div class="money-amount ${v<0?'negative':''}">${esc(moneyTextFromTotal(v))}</div><div><div class="money-note">${esc(t.note||'ohne Notiz')}${t.source?` <span class="source-pill">${esc(t.source)}</span>`:''}</div><div class="money-meta">${t.at?new Date(t.at).toLocaleString('de-DE'):'importiert'}</div></div><div class="money-actions"><button class="danger-btn delete-money">Löschen</button></div></div>`;}).join('')||'<div class="empty-comp">Noch keine Geldbuchungen.</div>';
+  function renderMoney(){const d=companionState.data;if(!d||!$('#moneySummary'))return;const total=moneyTotalK(),m=splitMoney(total);$('#moneySummary').innerHTML=`<div class="money-coin"><span>Dukaten</span><strong>${m.sign<0?'−':''}${m.d}</strong></div><div class="money-coin"><span>Silber</span><strong>${m.s}</strong></div><div class="money-coin"><span>Heller</span><strong>${m.h}</strong></div><div class="money-coin"><span>Kreuzer</span><strong>${m.k}</strong></div>`;const tx=d.money.transactions||[];$('#moneyCount').textContent=`${tx.length} Buchungen`;const shown=tx.slice(-20).reverse(),collapsed=localStorage.getItem(MONEY_HISTORY_COLLAPSE_KEY)==='1',list=$('#moneyTransactions'),toggle=$('#moneyHistoryToggle');if($('#moneyHistoryCount'))$('#moneyHistoryCount').textContent=`${tx.length}`;if(toggle){toggle.setAttribute('aria-expanded',collapsed?'false':'true');const c=$('#moneyHistoryChevron');if(c)c.textContent=collapsed?'▸':'▾';toggle.onclick=()=>{localStorage.setItem(MONEY_HISTORY_COLLAPSE_KEY,collapsed?'0':'1');renderMoney();};}list.hidden=collapsed;list.innerHTML=(tx.length>20?`<div class="small-note" style="padding:7px 0">Letzte 20 von ${tx.length} Buchungen.</div>`:'')+shown.map(t=>{const v=transactionTotalK(t);return `<div class="money-row" data-money-id="${t.id}"><div class="money-amount ${v<0?'negative':''}">${esc(moneyTextFromTotal(v))}</div><div><div class="money-note">${esc(t.note||'ohne Notiz')}${t.source?` <span class="source-pill">${esc(t.source)}</span>`:''}</div><div class="money-meta">${t.at?new Date(t.at).toLocaleString('de-DE'):'importiert'}</div></div><div class="money-actions"><button class="danger-btn delete-money">Löschen</button></div></div>`;}).join('')||'<div class="empty-comp">Noch keine Geldbuchungen.</div>';
     $$('#moneyTransactions .money-row').forEach(row=>row.querySelector('.delete-money').onclick=()=>{d.money.transactions=d.money.transactions.filter(x=>x.id!==row.dataset.moneyId);saveCompanion();renderMoney();});}
 
   // Minimaler XLSX-Leser auf Basis des ohnehin eingebetteten JSZip: keine Fremdbibliothek, kein Upload.
@@ -1265,35 +1299,33 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if(r.type==='check3'||(r.type==='d20'&&r.target!=null))return {label:'Erschwernis (+) / Erleichterung (−)',mode:'difficulty'};
     if(r.type==='damage')return {label:'TP-Modifikator (+/−)',mode:'add'};
     if(r.type==='initiative')return {label:'INI-Modifikator (+/−)',mode:'add'};
-    if(r.type==='zone')return {label:'Zonenmodifikator (+/−)',mode:'zone'};
     if(r.type==='3d20')return {label:'Modifikator (+/−)',mode:'display'};
     return {label:'Modifikator (+/−)',mode:'add'};
   }
   function diceModifier(){return Number($('#diceModifier')?.value||0);}
-  function diceZoneModifier(){return Number($('#diceZoneModifier')?.value||0);}
   function dicePreviewText(){
     const r=diceRequest;if(!r)return '';const mod=diceModifier();
     if(r.type==='check3')return `${r.skillLabel||'Wert'} ${r.skill??'–'}${mod?` · ${signedNum(mod)} → ${Number(r.skill||0)-mod} Punkte`:''}`;
     if(r.type==='d20'&&r.target!=null)return `${r.targetLabel||'Zielwert'} ${r.target}${mod?` · ${signedNum(mod)} → Zielwert ${Number(r.target)-mod}`:''}`;
-    if(r.type==='damage'||r.type==='initiative'){const d=r.dice||[1,6,0],base=diceText(d);return `${base}${mod?` · zusätzlicher Modifikator ${signedNum(mod)}`:''}${r.withZone&&diceZoneModifier()?` · Zone ${signedNum(diceZoneModifier())}`:''}`;}
+    if(r.type==='damage'||r.type==='initiative'){const d=r.dice||[1,6,0],base=diceText(d);return `${base}${mod?` · zusätzlicher Modifikator ${signedNum(mod)}`:''}`;}
     if(r.type==='pool')return `${Math.max(1,Number($('#diceCount')?.value||r.count||2))}W6${mod?` · ${signedNum(mod)}`:''}`;
-    if(r.type==='zone')return `Trefferzone per W20${mod?` · Zonenwurf ${signedNum(mod)}`:''}`;
+    if(r.type==='zone')return 'Trefferzone per W20';
     if(r.type==='3d20')return `3W20${mod?` · Modifikator ${signedNum(mod)} wird nur mit angezeigt`:''}`;
     return `${r.type==='d6'?'1W6':'1W20'}${mod?` · ${signedNum(mod)}`:''}`;
   }
   function updateDicePreview(){const p=$('#dicePreview');if(p)p.textContent=dicePreviewText();}
   function resetDiceStage(){
-    $('#diceStage').innerHTML='<div class="dice-ready"><strong>Wurf vorbereiten</strong><span>Modifikator setzen und dann auf „Würfeln“ tippen.</span></div>';
+    $('#diceStage').innerHTML=`<div class="dice-ready"><strong>Wurf vorbereiten</strong><span>${diceRequest?.type==='zone'?'Trefferzone direkt würfeln.':'Modifikator setzen und dann auf „Würfeln“ tippen.'}</span></div>`;
     const out=$('#diceResult');out.className='dice-result';out.innerHTML='<strong>Noch nicht gewürfelt</strong><div class="result-detail">Die Würfel starten erst nach deiner Bestätigung.</div>';
   }
-  function openDice(req){diceRequest={modifier:0,zoneModifier:0,...req};diceHasRolled=false;$('#diceTitle').textContent=req.title||'Würfeltisch';$('#diceSubtitle').textContent=req.subtitle||'';$('#diceOverlay').classList.remove('hidden');renderDiceControls();resetDiceStage();setTimeout(()=>$('#diceModifier')?.focus(),40);}
+  function openDice(req){diceRequest={modifier:0,...req};diceHasRolled=false;$('#diceTitle').textContent=req.title||'Würfeltisch';$('#diceSubtitle').textContent=req.subtitle||'';$('#diceOverlay').classList.remove('hidden');renderDiceControls();resetDiceStage();setTimeout(()=>$('#diceModifier')?.focus(),40);}
   function closeDice(){$('#diceOverlay').classList.add('hidden');if(diceTimer)clearTimeout(diceTimer);diceTimer=null;diceHasRolled=false;}
   function renderDiceControls(){
-    const r=diceRequest,spec=modifierSpec(r);let html=`<div class="dice-control"><label>${esc(spec.label)}</label><input id="diceModifier" type="number" step="1" inputmode="numeric" value="${Number(r.modifier||0)}"></div>`;
+    const r=diceRequest,spec=modifierSpec(r);let html='';
+    if(r.type!=='zone')html=`<div class="dice-control"><label>${esc(spec.label)}</label><input id="diceModifier" type="number" step="1" inputmode="numeric" value="${Number(r.modifier||0)}"></div>`;
     if(r.type==='pool')html+=`<div class="dice-control"><label>Anzahl W6</label><input id="diceCount" type="number" min="1" max="30" step="1" inputmode="numeric" value="${Math.max(1,Number(r.count||2))}"></div>`;
-    if(r.withZone)html+=`<div class="dice-control"><label>Zonenmodifikator (+/−)</label><input id="diceZoneModifier" type="number" step="1" inputmode="numeric" value="${Number(r.zoneModifier||0)}"></div>`;
     html+='<button type="button" id="diceReroll" class="dice-roll-btn">Würfeln</button><div id="dicePreview" class="dice-preview"></div>';
-    $('#diceControls').innerHTML=html;$('#diceReroll').onclick=()=>performDiceRoll();['#diceModifier','#diceCount','#diceZoneModifier'].forEach(sel=>{$(sel)?.addEventListener('input',updateDicePreview);$(sel)?.addEventListener('keydown',e=>{if(e.key==='Enter')performDiceRoll();});});updateDicePreview();
+    $('#diceControls').innerHTML=html;$('#diceReroll').onclick=()=>performDiceRoll();['#diceModifier','#diceCount'].forEach(sel=>{$(sel)?.addEventListener('input',updateDicePreview);$(sel)?.addEventListener('keydown',e=>{if(e.key==='Enter')performDiceRoll();});});updateDicePreview();
   }
   function performDiceRoll(){
     if(!diceRequest)return;if(diceTimer)clearTimeout(diceTimer);const r=diceRequest,anim=diceAnimationEnabled(),mod=diceModifier(),dice=[];let result={title:'',detail:'',className:'',zone:null};
@@ -1314,7 +1346,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
     else if(r.type==='damage'||r.type==='initiative'){
       const d=r.dice||[1,6,0],count=Math.max(1,Number(d[0]||1)),sides=Math.max(2,Number(d[1]||6)),bonus=Number(d[2]||0);let sum=0;for(let i=0;i<count;i++){const v=secureDie(sides);sum+=v;add(v,sides,sides===6?'W6':`W${sides}`,'');}const total=sum+bonus+mod,unit=r.resultUnit||'TP';result.title=`${total} ${unit}`;const parts=[dice.map(x=>x.value).join(' + ')];if(bonus)parts.push(`${bonus>0?'+':'−'} ${Math.abs(bonus)}`);if(mod)parts.push(`${mod>0?'+':'−'} ${Math.abs(mod)} Mod.`);result.detail=`${parts.join(' ')} = ${total}`;
-      if(r.withZone){const raw=secureDie(20),zmod=diceZoneModifier(),adjusted=clamp(raw+zmod,1,20),zone=zoneFromD20(adjusted),rs=currentZoneArmor(zone);add(raw,20,'Trefferzone','zone',zone);result.zone={...zone,rs,roll:raw,adjusted,modifier:zmod};}
+      if(r.withZone){const raw=secureDie(20),zone=zoneFromD20(raw),rs=currentZoneArmor(zone);add(raw,20,'Trefferzone','zone',zone);result.zone={...zone,rs,roll:raw};}
     }
     else if(r.type==='pool'){
       const count=Math.max(1,Math.min(30,Number($('#diceCount')?.value||r.count||2)));let sum=0;for(let i=0;i<count;i++){const v=secureDie(6);sum+=v;add(v,6,`W6 ${i+1}`,'');}const total=sum+mod;result.title=`${total}`;result.detail=`${count}W6 · ${dice.map(x=>x.value).join(' + ')}${mod?` ${mod>0?'+':'−'} ${Math.abs(mod)}`:''} = ${total}`;
@@ -1323,7 +1355,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       const v=secureDie(6),total=v+mod;add(v,6,'W6','');result={title:`${total}`,detail:mod?`${v} ${mod>0?'+':'−'} ${Math.abs(mod)} = ${total}`:'1W6',className:''};
     }
     else if(r.type==='zone'){
-      const raw=secureDie(20),adjusted=clamp(raw+mod,1,20),zone=zoneFromD20(adjusted),rs=currentZoneArmor(zone);add(raw,20,'Trefferzone','zone',zone);result={title:zone.label,detail:`Trefferzonenwurf ${raw}${mod?` ${mod>0?'+':'−'} ${Math.abs(mod)} → ${adjusted}`:''}${rs!=null?` · RS in diesem Kampfset: ${rs}`:''}`,className:'',zone:{...zone,rs,roll:raw,adjusted,modifier:mod}};
+      const raw=secureDie(20),zone=zoneFromD20(raw),rs=currentZoneArmor(zone);add(raw,20,'Trefferzone','zone',zone);result={title:zone.label,detail:`Trefferzonenwurf ${raw}${rs!=null?` · RS in diesem Kampfset: ${rs}`:''}`,className:'',zone:{...zone,rs,roll:raw}};
     }
     $('#diceStage').innerHTML=dice.map((d,i)=>dieHtml(d,i,anim)).join('');const zoneExtra=result.zone?`<div class="zone-result">${esc(result.zone.label)}${result.zone.rs!=null?` · RS ${result.zone.rs}`:''}</div>`:'';const resultHtml=`<strong>${esc(result.title)}</strong><div class="result-detail">${esc(result.detail)}</div>${zoneExtra}`;const out=$('#diceResult');out.className=`dice-result ${result.className||''}${anim?' pending':''}`;out.innerHTML=anim?'<strong>Die Würfel rollen …</strong>':resultHtml;
     const reveal=()=>{$$('#diceStage .die').forEach(el=>{if(el.dataset.zoneKey)el.innerHTML=zoneGlyph(el.dataset.zoneKey);else el.textContent=el.dataset.final;});out.className=`dice-result ${result.className||''}`;out.innerHTML=resultHtml;};if(anim)diceTimer=setTimeout(reveal,850);else reveal();diceHasRolled=true;const b=$('#diceReroll');if(b)b.textContent='Noch einmal würfeln';
