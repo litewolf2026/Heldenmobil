@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v16</title>
+<title>HeldenMobil – HLD PoC v16.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -72,13 +72,28 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 .group-row td{padding:0}.group-toggle{display:flex;align-items:center;gap:7px;width:100%;min-height:42px;padding:9px 12px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit}.group-toggle:hover{background:#2b3038}.group-toggle:focus-visible,.inv-collapse-toggle:focus-visible,.money-history-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}.group-toggle .collapse-chevron,.group-toggle .group-label,.group-toggle .group-count{margin-left:0}.collapse-chevron{display:inline-block;width:1em;color:#b9a26b;font-weight:900}.group-toggle .group-label{color:var(--accent2)}.group-toggle .group-count{color:#8e99a8;font-weight:600;margin-left:2px}.inv-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.inv-collapse-toggle{display:flex;align-items:flex-start;gap:7px;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.inv-location-copy{display:flex;flex-direction:column;min-width:0}.inv-location-copy strong{color:#e8d29c;font-size:.94rem}.inv-location-copy small{margin-top:2px;color:var(--muted);font-size:.68rem}.inv-group.collapsed{padding-bottom:9px}.money-history{margin-top:10px;border-top:1px solid #2b3038;padding-top:8px}.money-history-toggle{display:flex;align-items:center;gap:7px;width:100%;min-height:40px;border:0;background:transparent;color:#e8d29c;text-align:left;padding:5px 2px;cursor:pointer;font-weight:760}.money-history-toggle .count{margin-left:auto}.location-delete-dialog{max-width:min(520px,calc(100% - 28px));border:1px solid #4a515d;border-radius:12px;background:#171a1f;color:var(--text);padding:0;box-shadow:0 24px 70px rgba(0,0,0,.6)}.location-delete-dialog::backdrop{background:rgba(0,0,0,.68)}.location-delete-card{padding:18px}.location-delete-card h3{margin:0 0 8px;color:#f0c979}.location-delete-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 @media(max-width:650px){.inv-head{align-items:flex-start}.inv-head-actions{gap:5px}.delete-location{padding:6px 7px;font-size:.7rem}.group-toggle{min-height:44px}.location-delete-actions>*{flex:1 1 100%}}
 
+
+/* v16.1 klappbare Inhaltskästen */
+.box-collapse-heading{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;outline:none}
+.box-collapse-heading:hover{color:#f6dc98}
+.box-collapse-heading:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.box-collapse-chevron{display:inline-flex;align-items:center;justify-content:center;width:1em;flex:0 0 1em;color:#b9a26b;font-weight:900}
+.box-collapse-heading .count{margin-left:auto}
+.box-collapsed>.box-collapse-root.box-collapse-heading{margin-bottom:0!important}
+.box-collapsed>.box-collapse-root.sf-group-head{margin-bottom:0!important}
+.box-collapsed>:not(.box-collapse-root){display:none!important}
+.box-collapsed{padding-bottom:10px}
+.box-collapsed.sf-group{padding-bottom:10px}
+.combat-block.box-collapsed,.combat-card.box-collapsed,.comp-card.box-collapsed,.sf-group.box-collapsed{min-height:42px}
+@media(max-width:650px){.box-collapse-heading{min-height:30px}.combat-block.box-collapsed,.combat-card.box-collapsed,.comp-card.box-collapsed,.sf-group.box-collapsed{min-height:44px}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v16</div></div></div>
-  <div class="badge">Proof of Concept v16</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v16.1</div></div></div>
+  <div class="badge">Proof of Concept v16.1</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -289,7 +304,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil PoC v16 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch</footer>
+<footer>HeldenMobil PoC v16.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Würfeltisch</footer>
 </div>
 
 <script>
@@ -1411,6 +1426,29 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $$('#globalDiceBar [data-global-roll]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.globalRoll;if(k==='d20')openDice({type:'d20',title:'1W20'});else if(k==='3d20')openDice({type:'3d20',title:'3W20'});else if(k==='d6')openDice({type:'d6',title:'1W6'});else if(k==='xd6')openDice({type:'pool',title:'W6-Pool',count:2});else if(k==='zone')openDice({type:'zone',title:'Trefferzonenwürfel',subtitle:'Humanoide Trefferzone'});}));
   $('#diceClose').addEventListener('click',closeDice);$('#diceOverlay').addEventListener('click',e=>{if(e.target===$('#diceOverlay'))closeDice();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#diceOverlay').classList.contains('hidden'))closeDice();});
   const animToggle=$('#diceAnimationToggle');animToggle.checked=localStorage.getItem(DICE_ANIM_KEY)!=='0';animToggle.addEventListener('change',e=>localStorage.setItem(DICE_ANIM_KEY,e.target.checked?'1':'0'));
+
+  const CONTENT_BOX_COLLAPSE_KEY='heldenmobil:ui:collapsed-content-boxes:v1';
+  function contentBoxState(){try{const a=JSON.parse(localStorage.getItem(CONTENT_BOX_COLLAPSE_KEY)||'[]');return new Set(Array.isArray(a)?a:[]);}catch(_){return new Set();}}
+  function saveContentBoxState(set){localStorage.setItem(CONTENT_BOX_COLLAPSE_KEY,JSON.stringify([...set]));}
+  function collapseHeadingText(h){const clone=h.cloneNode(true);clone.querySelectorAll('.count,.box-collapse-chevron').forEach(x=>x.remove());return clone.textContent.replace(/\s+/g,' ').trim();}
+  function contentBoxKey(card,h,index){const section=card.closest('.section')?.id||'global',title=collapseHeadingText(h).toLocaleLowerCase('de').replace(/[^a-z0-9äöüß]+/g,'-').replace(/^-|-$/g,'')||`box-${index}`;return `${section}:${title}`;}
+  function setupCollapsibleContentBoxes(){
+    const collapsed=contentBoxState(),seen=new Map();
+    const cards=[...document.querySelectorAll('.combat-block,.combat-card,.comp-card,.sf-group')];
+    cards.forEach((card,index)=>{
+      let heading=card.querySelector(':scope > h4'),root=heading;
+      if(!heading&&card.classList.contains('sf-group')){root=card.querySelector(':scope > .sf-group-head');heading=root?.querySelector(':scope > h4')||null;}
+      if(!heading||!root||heading.classList.contains('box-collapse-heading'))return;
+      const base=contentBoxKey(card,heading,index),n=(seen.get(base)||0)+1;seen.set(base,n);const key=n===1?base:`${base}:${n}`;
+      root.classList.add('box-collapse-root');heading.classList.add('box-collapse-heading');heading.setAttribute('role','button');heading.setAttribute('tabindex','0');heading.setAttribute('title','Ein-/ausklappen');
+      const chev=document.createElement('span');chev.className='box-collapse-chevron';heading.prepend(chev);
+      const apply=()=>{const isCollapsed=collapsed.has(key);card.classList.toggle('box-collapsed',isCollapsed);heading.setAttribute('aria-expanded',isCollapsed?'false':'true');chev.textContent=isCollapsed?'▸':'▾';};
+      const toggle=()=>{if(collapsed.has(key))collapsed.delete(key);else collapsed.add(key);saveContentBoxState(collapsed);apply();};
+      heading.addEventListener('click',toggle);heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});apply();
+    });
+  }
+
+  setupCollapsibleContentBoxes();
   applyTabOrder();initTabSorting();
   const dz=$('#dropzone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>openFile(e.dataTransfer.files[0],{source:'local'}));
   cloudInit();
