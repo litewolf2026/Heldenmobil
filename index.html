@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17.3.1</title>
+<title>HeldenMobil – HLD PoC v17.3.2</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -456,29 +456,67 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   let priceCatalog=(()=>{try{const x=JSON.parse(localStorage.getItem(PRICE_CATALOG_KEY)||'null');return Array.isArray(x)&&x.length?x:DEFAULT_PRICE_CATALOG;}catch(_){return DEFAULT_PRICE_CATALOG;}})();
 
 
-  // HLD speichert viele Standardwerte der Ausrüstung nur über den Gegenstandsnamen.
-  // Für den PoC enthält dieser kleine Referenzsatz die Standardgegenstände aus Karls Kampfbögen.
-  // XML-spezifische Modifikationen (z.B. Karls Streitkolben +4) überschreiben diese Werte.
-  const WEAPON_REF = {
-    // Referenzdaten werden nur benutzt, wenn die HLD einen Standardwert nicht mitspeichert.
-    // Individuelle XML-Werte haben in itemMeleeData() immer Vorrang.
+  // DSA 4.1 standard fallbacks used when the HLD omits invariant weapon data.
+  // HLD/XML-specific values always win. Nah- und Fernkampf sind getrennt,
+  // weil mehrere Gegenstaende (z.B. Speer/Wurfmesser) beide Profile besitzen.
+  const MELEE_REF = {
     'Kurzschwert': {kind:'melee', dk:'HN', tp:[1,6,2], tpkk:[11,4], ini:0, wm:[0,-1], bf:1},
-    'Streitkolben': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,6], tpkk:[11,3], ini:0, wm:[0,0], bf:-3},
-    'Spitzhacke': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,6], tpkk:[14,3], ini:-3, wm:[-2,-4], bf:5},
+    'Streitkolben': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,4], tpkk:[11,3], ini:0, wm:[0,-1], bf:1},
+    'Spitzhacke': {kind:'melee', talent:'Zweihandhiebwaffen', dk:'N', tp:[1,6,6], tpkk:[13,2], ini:-3, wm:[-2,-4], bf:5},
     'Fackel': {kind:'melee', talent:'Hiebwaffen', dk:'HN', tp:[1,6,0], tpkk:[11,5], ini:-2, wm:[-2,-3], bf:8},
-    'Leichte Armbrust': {kind:'ranged', talent:'Armbrust', tp:[1,6,6], ranges:[10,15,25,40,60], rangeTp:[1,1,0,0,-1]}
+    'Magierstab': {kind:'melee', talent:'Stäbe', dk:'NS', tp:[1,6,1], tpkk:[11,5], ini:0, wm:[-1,-1], bf:null},
+    'Magierstab als Stab': {kind:'melee', talent:'Stäbe', dk:'NS', tp:[1,6,1], tpkk:[11,5], ini:0, wm:[-1,-1], bf:null},
+    'Langdolch': {kind:'melee', dk:'H', tp:[1,6,2], tpkk:[12,4], ini:0, wm:[0,0], bf:1},
+    'Hakendolch': {kind:'melee', talent:'Dolche', dk:'HN', tp:[1,6,1], tpkk:[12,4], ini:0, wm:[0,1], bf:-2},
+    'Borndorn': {kind:'melee', talent:'Dolche', dk:'H', tp:[1,6,2], tpkk:[12,5], ini:0, wm:[0,-1], bf:1},
+    'Wurfmesser': {kind:'melee', talent:'Dolche', dk:'H', tp:[1,6,-1], tpkk:[12,6], ini:-1, wm:[-2,-3], bf:2},
+    'Wurfbeil': {kind:'melee', talent:'Hiebwaffen', dk:'H', tp:[1,6,3], tpkk:[10,4], ini:-1, wm:[0,-2], bf:2},
+    'Säbel': {kind:'melee', talent:'Säbel', dk:'N', tp:[1,6,3], tpkk:[12,4], ini:1, wm:[0,0], bf:2},
+    'Haumesser': {kind:'melee', dk:'HN', tp:[1,6,3], tpkk:[13,3], ini:-1, wm:[0,-2], bf:3},
+    '(Lang-)Schwert': {kind:'melee', talent:'Schwerter', dk:'N', tp:[1,6,4], tpkk:[11,4], ini:0, wm:[0,0], bf:1},
+    'Warunker Hammer': {kind:'melee', dk:'NS', tp:[1,6,6], tpkk:[14,3], ini:-1, wm:[0,-1], bf:2},
+    'Beil': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,3], tpkk:[11,4], ini:-1, wm:[-1,-2], bf:5},
+    'Byakka': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,5], tpkk:[14,2], ini:-1, wm:[0,-2], bf:3},
+    'Schmiedehammer': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,4], tpkk:[14,2], ini:-1, wm:[-1,-1], bf:1},
+    'Skraja': {kind:'melee', talent:'Hiebwaffen', dk:'N', tp:[1,6,3], tpkk:[11,3], ini:0, wm:[0,0], bf:4},
+    'Zwergenskraja': {kind:'melee', talent:'Hiebwaffen', dk:'HN', tp:[1,6,3], tpkk:[11,3], ini:0, wm:[0,0], bf:1},
+    'Kriegslanze': {kind:'melee', dk:'P', tp:[1,6,3], tpkk:[12,5], ini:-2, wm:[-2,-4], bf:5},
+    'Speer': {kind:'melee', talent:'Speere', dk:'S', tp:[1,6,5], tpkk:[12,4], ini:-1, wm:[0,-2], bf:5},
+    'Wurfspeer': {kind:'melee', talent:'Speere', dk:'N', tp:[1,6,3], tpkk:[11,5], ini:-2, wm:[-1,-3], bf:4},
+    'Rondrakamm': {kind:'melee', talent:'Zweihandschwerter/-säbel', dk:'NS', tp:[2,6,2], tpkk:[12,3], ini:0, wm:[0,0], bf:1},
+    'Zweihänder': {kind:'melee', talent:'Zweihandschwerter/-säbel', dk:'NS', tp:[2,6,4], tpkk:[12,3], ini:-1, wm:[0,-1], bf:2},
+    'Magierdegen': {kind:'melee', talent:'Fechtwaffen', dk:'N', tp:[1,6,2], tpkk:[13,5], ini:1, wm:[0,-2], bf:4}
+  };
+  const RANGED_REF = {
+    'Leichte Armbrust': {kind:'ranged', talent:'Armbrust', tp:[1,6,6], ranges:[10,15,25,40,60], rangeTp:[1,0,0,0,-1]},
+    'Balestrina': {kind:'ranged', talent:'Armbrust', tp:[1,6,4], ranges:[2,4,8,15,25], rangeTp:[2,1,0,0,-1]},
+    'Windenarmbrust': {kind:'ranged', talent:'Armbrust', tp:[2,6,6], ranges:[10,30,60,100,180], rangeTp:[4,2,0,-1,-3]},
+    'Kurzbogen': {kind:'ranged', talent:'Bogen', tp:[1,6,4], ranges:[5,15,25,40,60], rangeTp:[1,1,0,0,-1]},
+    'Fledermaus': {kind:'ranged', talent:'Schleuder', tp:[1,6,6], ranges:[0,5,10,15,25], rangeTp:['–',0,0,0,-1]},
+    'Schleuder': {kind:'ranged', talent:'Schleuder', tp:[1,6,2], ranges:[0,5,15,25,40], rangeTp:['–',0,0,0,0]},
+    'Wurfbeil': {kind:'ranged', talent:'Wurfbeile', tp:[1,6,3], ranges:[0,5,10,15,25], rangeTp:['–',1,1,0,-1]},
+    'Wurfmesser': {kind:'ranged', talent:'Wurfmesser', tp:[1,6,0], ranges:[2,4,6,8,15], rangeTp:[1,0,0,0,-1]},
+    'Borndorn': {kind:'ranged', talent:'Wurfmesser', tp:[1,6,2], ranges:[2,4,6,8,15], rangeTp:[1,0,0,0,-1]},
+    'Speer': {kind:'ranged', talent:'Wurfspeere', tp:[1,6,3], ranges:[5,10,15,25,40], rangeTp:[1,0,0,-1,-2]},
+    'Wurfspeer': {kind:'ranged', talent:'Wurfspeere', tp:[1,6,4], ranges:[5,10,15,25,40], rangeTp:[3,1,0,-1,-1]},
+    'Wurfscheibe': {kind:'ranged', talent:'Wurfmesser', tp:[1,6,1], ranges:[2,4,8,12,20], rangeTp:[1,0,0,0,0]},
+    'Wurfstern': {kind:'ranged', talent:'Wurfmesser', tp:[1,6,1], ranges:[2,4,8,12,20], rangeTp:[1,0,0,0,0]}
   };
   const SHIELD_REF = {
     'Holzschild': {ini:-1, wm:[-1,3], bf:3},
-    'Mattenschild': {ini:0, wm:[-1,4], bf:6}
+    'Mattenschild': {ini:0, wm:[-1,4], bf:6},
+    'Thorwaler Rundschild': {ini:-1, wm:[-2,4], bf:3},
+    'Großschild': {ini:-2, wm:[-2,5], bf:2},
+    'Bock': {ini:0, wm:[-1,1], bf:0},
+    'Panzerarm': {ini:0, wm:[-2,1], bf:-2}
   };
-  // DSA 4.1: Parierwaffen werden in der HLD im gleichen Slot-Typ wie Schilde geführt,
-  // sind regeltechnisch aber separat zu berechnen. Standardwerte dienen als Fallback,
-  // XML-Modifikationen eines konkreten Gegenstands überschreiben sie.
+  // Parierwaffen liegen in der HLD im gleichen Slot-Typ wie Schilde.
   const PARRY_REF = {
     'Langdolch': {ini:0, wm:[0,1], bf:1},
-    'Hakendolch': {ini:0, wm:[0,2], bf:-2},
-    'Linkhand': {ini:1, wm:[0,2], bf:0}
+    'Hakendolch': {ini:0, wm:[-1,3], bf:-2},
+    'Linkhand': {ini:1, wm:[0,2], bf:0},
+    'Bock': {ini:0, wm:[-1,1], bf:0},
+    'Panzerarm': {ini:0, wm:[-2,1], bf:-2}
   };
   const Z=(kopf,brust,ruecken,bauch,linkerarm,rechterarm,linkesbein,rechtesbein)=>({kopf,brust,ruecken,bauch,linkerarm,rechterarm,linkesbein,rechtesbein});
   // Standardwerte des DSA-4.1-Zonensystems. Die HLD liefert Set-Zuordnung und
@@ -927,7 +965,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function adjustCombatForBE(at,pa,ebe){return {at:at-Math.floor(ebe/2),pa:pa-Math.ceil(ebe/2)};}
   function hasMatchingSpec(talent,base){return (state.current.talentSpecs.get(talent)||[]).some(s=>s===base||base.includes(s)||s.includes(base));}
   function itemMeleeData(e){
-    const ref=WEAPON_REF[e.base]||{};const xml=e.item?.nk||{};const tp=xml.tp||ref.tp||null;const tpkk=xml.tpkk||ref.tpkk||null;const wm=xml.wm||ref.wm||[0,0];const ini=xml.ini??ref.ini??0;const bf=e.bfakt??xml.bf??ref.bf??null;
+    const ref=MELEE_REF[e.base]||{};const xml=e.item?.nk||{};const tp=xml.tp||ref.tp||null;const tpkk=xml.tpkk||ref.tpkk||null;const wm=xml.wm||ref.wm||[0,0];const ini=xml.ini??ref.ini??0;const bf=e.bfakt??xml.bf??ref.bf??null;
     return {...ref,tp,tpkk,wm,ini,bf};
   }
   function isParryWeapon(e){return (e?.usage||'').toLocaleLowerCase('de').includes('parade');}
@@ -949,7 +987,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {data,tal,at,pa,tp:finalDamage(data.tp,data.tpkk)};
   }
   function rangedValues(e,setBE){
-    const ref=WEAPON_REF[e.base]||{},tal=e.talent||ref.talent;const t=state.current.talents.find(x=>x.name===tal);const pm=propMap(state.current.props);let fk=currentAttr(pm,'fk')+(t?.value||0)-combatEbe(tal,setBE);if(hasMatchingSpec(tal,e.base))fk+=2;return {ref,tal,fk};
+    const ref=RANGED_REF[e.base]||{},tal=e.talent||ref.talent;const t=state.current.talents.find(x=>x.name===tal);const pm=propMap(state.current.props);let fk=currentAttr(pm,'fk')+(t?.value||0)-combatEbe(tal,setBE);if(hasMatchingSpec(tal,e.base))fk+=2;return {ref,tal,fk};
   }
   function shieldPA(e,meleeRows,setBE){
     const sh=itemShieldData(e),pm=propMap(state.current.props);
@@ -1359,7 +1397,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if(!z.column)qualityIssue(issues,'info','SPELL_COLUMN',`${z.name}${z.rep?` [${z.rep}]`:''}: Steigerungsspalte fehlt.`,'Zauber');
       if(!Number.isFinite(Number(z.value)))qualityIssue(issues,'error','SPELL_VALUE',`${z.name}: ungültiger ZfW.`,'Zauber');
     }
-    for(const n of qualityDupes(spells.map(z=>`${z.name} [${z.rep||'–'}]`)))qualityIssue(issues,'warn','SPELL_DUPLICATE',`${n} kommt mehrfach vor.`,'Zauber');
+    const spellGroups=new Map();for(const z of spells){const key=`${z.name} [${z.rep||'–'}]`;if(!spellGroups.has(key))spellGroups.set(key,[]);spellGroups.get(key).push(z);}
+    for(const [key,rows] of spellGroups){if(rows.length<2)continue;const details=rows.map(z=>`ZfW ${z.value} · Spalte ${z.column||'–'} · Probe ${z.probe||'–'}${z.house?' · Hauszauber':''}`).join(' | ');qualityIssue(issues,'warn','SPELL_DUPLICATE',`${key} kommt ${rows.length}× vor: ${details}.`,'Zauber');}
     for(const label of (h.vt||[])){
       if(/^Vorurteile gegen\s*(?::|$)/i.test(label))qualityIssue(issues,'warn','VT_TARGET',`${label}: Ziel der Vorurteile scheint zu fehlen.`,'Vor-/Nachteile');
       if(/^Vorurteile gegen .+:\s*$/i.test(label))qualityIssue(issues,'warn','VT_LEVEL',`${label}: Höhe der Vorurteile scheint zu fehlen.`,'Vor-/Nachteile');
@@ -1371,16 +1410,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if(e.type==='other'){if(!qualityInternalEquipmentRecord(e.record))qualityIssue(issues,'info','EQUIP_UNKNOWN',`${e.record||'Unbekannter Eintrag'} konnte keinem Ausrüstungstyp zugeordnet werden.`,where);continue;}
       if(!e.base){qualityIssue(issues,'warn','EQUIP_NAME',`${e.type}: Gegenstandsname fehlt.`,where);continue;}
       if(e.type==='melee'){
-        const ref=WEAPON_REF[e.base]||{},xml=e.item?.nk||{},tal=e.talent||ref.talent;
-        if(!e.item&&!WEAPON_REF[e.base]){qualityIssue(issues,'warn','MELEE_REFERENCE',`${qualityEquipmentName(e)}: weder HLD-Gegenstand noch Waffenreferenz gefunden.`,where);catalog.unknownCombat.add(e.base);}
-        if(!(xml.tp||ref.tp))qualityIssue(issues,'warn','MELEE_DAMAGE',`${qualityEquipmentName(e)}: Trefferpunkte fehlen.`,where);
+        const ref=MELEE_REF[e.base]||{},xml=e.item?.nk||{},tal=e.talent||ref.talent;
+        if(!e.item&&!MELEE_REF[e.base]&&!SHIELD_REF[e.base]&&!PARRY_REF[e.base]){qualityIssue(issues,'warn','MELEE_REFERENCE',`${qualityEquipmentName(e)}: weder HLD-Gegenstand noch Nahkampfreferenz gefunden.`,where);catalog.unknownCombat.add(e.base);}
+        if(!(xml.tp||ref.tp)){if(SHIELD_REF[e.base]||PARRY_REF[e.base])qualityIssue(issues,'info','SHIELD_MELEE',`${qualityEquipmentName(e)} erscheint zusätzlich als Nahkampfeintrag; dafür existiert bewusst kein normaler Waffen-TP-Fallback.`,where);else qualityIssue(issues,'warn','MELEE_DAMAGE',`${qualityEquipmentName(e)}: Trefferpunkte fehlen.`,where);}
         if(!tal)qualityIssue(issues,'warn','MELEE_TALENT',`${qualityEquipmentName(e)}: Waffentalent fehlt.`,where);
         else if(!h.combatMap.has(tal)&&!talents.some(t=>t.name===tal))qualityIssue(issues,'warn','MELEE_TALENT_MATCH',`${qualityEquipmentName(e)}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
       }else if(e.type==='ranged'){
-        const ref=WEAPON_REF[e.base]||{},tal=e.talent||ref.talent;
-        if(!WEAPON_REF[e.base]){qualityIssue(issues,'warn','RANGED_REFERENCE',`${qualityEquipmentName(e)}: keine Fernkampf-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
+        const ref=RANGED_REF[e.base]||{},tal=e.talent||ref.talent;
+        if(!RANGED_REF[e.base]){qualityIssue(issues,'warn','RANGED_REFERENCE',`${qualityEquipmentName(e)}: keine Fernkampf-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
         if(!tal)qualityIssue(issues,'warn','RANGED_TALENT',`${qualityEquipmentName(e)}: Fernkampftalent fehlt.`,where);
-        else if(!talents.some(t=>t.name===tal)&&!h.combatMap.has(tal))qualityIssue(issues,'warn','RANGED_TALENT_MATCH',`${qualityEquipmentName(e)}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
+        else if(!talents.some(t=>t.name===tal)&&!h.combatMap.has(tal))qualityIssue(issues,'info','RANGED_TALENT_ZERO',`${qualityEquipmentName(e)}: Talent „${tal}“ ist beim Helden nicht separat vorhanden; HeldenMobil verwendet dafür TaW 0.`,where);
       }else if(e.type==='armor'){
         const ref=ARMOR_REF[e.base]||{},zones=e.item?.armor?.zones||{};
         if(!ref.zones&&!Object.keys(zones).length){qualityIssue(issues,'warn','ARMOR_REFERENCE',`${qualityEquipmentName(e)}: keine Trefferzonen-Rüstungsdaten vorhanden.`,where);catalog.unknownArmor.add(e.base);}
@@ -1394,7 +1433,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v17.3.1`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v17.3.2`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
