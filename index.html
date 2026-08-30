@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17.1</title>
+<title>HeldenMobil – HLD PoC v17.1.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -111,13 +111,20 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 .dashboard-foot-sub{display:block;flex-basis:100%;margin-top:-.15cqw;color:#aeb7c4;font-size:1.0cqw;line-height:1}
 @media(max-width:430px){.dashboard-foot-label{font-size:2.25cqw}.dashboard-foot-value{font-size:3.45cqw}.dashboard-foot-sub{font-size:1.1cqw}}
 
+
+
+/* v17.1.1 Spieltisch alignment */
+.dashboard-energy-overlay{transform:translateY(1.35cqw)}
+.dashboard-zone[data-zone="bauch"]{transform:translateY(2.1cqw)}
+.dashboard-zone[data-zone="rechterarm"]{transform:translateY(1.8cqw)}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.1</div></div></div>
-  <div class="badge">Proof of Concept v17.1</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.1.1</div></div></div>
+  <div class="badge">Proof of Concept v17.1.1</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -354,7 +361,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil PoC v17.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
+<footer>HeldenMobil PoC v17.1.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
 </div>
 
 <script>
