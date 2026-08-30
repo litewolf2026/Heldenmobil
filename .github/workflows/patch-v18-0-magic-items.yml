@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Align current audit marker
+        run: sed -i "s/version:'17.3'/version:'17.3.3'/" tools/apply_v18_0_magic_items.py
       - name: Apply patch
         run: python tools/apply_v18_0_magic_items.py
       - name: Verify JavaScript syntax
