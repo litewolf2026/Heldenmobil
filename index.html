@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17.3</title>
+<title>HeldenMobil – HLD PoC v17.3.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -1328,6 +1328,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function qualityDupes(values){const seen=new Set(),dup=new Set();for(const v of values){const k=String(v||'').trim();if(!k)continue;if(seen.has(k))dup.add(k);else seen.add(k);}return [...dup];}
   function qualityCounterAdd(map,key){key=String(key||'').trim()||'–';map.set(key,(map.get(key)||0)+1);}
   function qualityCounterObject(map){return Object.fromEntries([...map.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'de')));}
+  function qualityInternalEquipmentRecord(record){return /^(?:jagtwaffe|bk\d+)$/i.test(String(record||'').trim());}
+  function qualityEquipmentName(e){const shown=String(e?.name||e?.base||'').trim(),base=String(e?.base||'').trim();return shown&&base&&shown!==base?`${shown} (Basis: ${base})`:(shown||base||'Unbenannter Gegenstand');}
+  function qualityDedupeIssues(items){
+    const map=new Map();
+    for(const issue of (items||[])){const key=`${issue.severity}\u001f${issue.code}\u001f${issue.detail}`,prev=map.get(key);if(!prev)map.set(key,{...issue,_areas:new Set(issue.area?[issue.area]:[])});else if(issue.area)prev._areas.add(issue.area);}
+    return [...map.values()].map(issue=>{const areas=[...issue._areas];delete issue._areas;if(areas.length>1&&areas.every(a=>/^Kampfset \d+$/.test(a)))issue.area=`Kampfsets ${areas.map(a=>a.replace(/\D/g,'')).join(', ')}`;else if(areas.length)issue.area=areas.join(' / ');return issue;});
+  }
   function qualityAuditOne(raw,index,catalog){
     let h;try{h=parseHero(raw);}catch(e){return {name:raw?.name||`Held ${index+1}`,key:raw?.key||'',issues:[{severity:'error',code:'PARSER',area:'Parser',detail:e?.message||String(e)}]};}
     const issues=[],talents=(h.talents||[]).filter(t=>!t.meta),spells=h.spells||[],sets=h.combatSets||[];
@@ -1361,32 +1368,33 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     for(const n of qualityDupes(h.sf||[]))qualityIssue(issues,'info','SF_DUPLICATE',`${n} kommt mehrfach in den Sonderfertigkeiten vor.`,'Sonderfertigkeiten');
     for(const set of sets){for(const e of (set.entries||[])){
       const where=`Kampfset ${set.id}`;
-      if(e.type==='other'){qualityIssue(issues,'info','EQUIP_UNKNOWN',`${e.record||'Unbekannter Eintrag'} konnte keinem Ausrüstungstyp zugeordnet werden.`,where);continue;}
+      if(e.type==='other'){if(!qualityInternalEquipmentRecord(e.record))qualityIssue(issues,'info','EQUIP_UNKNOWN',`${e.record||'Unbekannter Eintrag'} konnte keinem Ausrüstungstyp zugeordnet werden.`,where);continue;}
       if(!e.base){qualityIssue(issues,'warn','EQUIP_NAME',`${e.type}: Gegenstandsname fehlt.`,where);continue;}
       if(e.type==='melee'){
         const ref=WEAPON_REF[e.base]||{},xml=e.item?.nk||{},tal=e.talent||ref.talent;
-        if(!e.item&&!WEAPON_REF[e.base]){qualityIssue(issues,'warn','MELEE_REFERENCE',`${e.name||e.base}: weder HLD-Gegenstand noch Waffenreferenz gefunden.`,where);catalog.unknownCombat.add(e.base);}
-        if(!(xml.tp||ref.tp))qualityIssue(issues,'warn','MELEE_DAMAGE',`${e.name||e.base}: Trefferpunkte fehlen.`,where);
-        if(!tal)qualityIssue(issues,'warn','MELEE_TALENT',`${e.name||e.base}: Waffentalent fehlt.`,where);
-        else if(!h.combatMap.has(tal)&&!talents.some(t=>t.name===tal))qualityIssue(issues,'warn','MELEE_TALENT_MATCH',`${e.name||e.base}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
+        if(!e.item&&!WEAPON_REF[e.base]){qualityIssue(issues,'warn','MELEE_REFERENCE',`${qualityEquipmentName(e)}: weder HLD-Gegenstand noch Waffenreferenz gefunden.`,where);catalog.unknownCombat.add(e.base);}
+        if(!(xml.tp||ref.tp))qualityIssue(issues,'warn','MELEE_DAMAGE',`${qualityEquipmentName(e)}: Trefferpunkte fehlen.`,where);
+        if(!tal)qualityIssue(issues,'warn','MELEE_TALENT',`${qualityEquipmentName(e)}: Waffentalent fehlt.`,where);
+        else if(!h.combatMap.has(tal)&&!talents.some(t=>t.name===tal))qualityIssue(issues,'warn','MELEE_TALENT_MATCH',`${qualityEquipmentName(e)}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
       }else if(e.type==='ranged'){
         const ref=WEAPON_REF[e.base]||{},tal=e.talent||ref.talent;
-        if(!WEAPON_REF[e.base]){qualityIssue(issues,'warn','RANGED_REFERENCE',`${e.name||e.base}: keine Fernkampf-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
-        if(!tal)qualityIssue(issues,'warn','RANGED_TALENT',`${e.name||e.base}: Fernkampftalent fehlt.`,where);
-        else if(!talents.some(t=>t.name===tal)&&!h.combatMap.has(tal))qualityIssue(issues,'warn','RANGED_TALENT_MATCH',`${e.name||e.base}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
+        if(!WEAPON_REF[e.base]){qualityIssue(issues,'warn','RANGED_REFERENCE',`${qualityEquipmentName(e)}: keine Fernkampf-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
+        if(!tal)qualityIssue(issues,'warn','RANGED_TALENT',`${qualityEquipmentName(e)}: Fernkampftalent fehlt.`,where);
+        else if(!talents.some(t=>t.name===tal)&&!h.combatMap.has(tal))qualityIssue(issues,'warn','RANGED_TALENT_MATCH',`${qualityEquipmentName(e)}: Talent „${tal}“ ist beim Helden nicht vorhanden.`,where);
       }else if(e.type==='armor'){
         const ref=ARMOR_REF[e.base]||{},zones=e.item?.armor?.zones||{};
-        if(!ref.zones&&!Object.keys(zones).length){qualityIssue(issues,'warn','ARMOR_REFERENCE',`${e.name||e.base}: keine Trefferzonen-Rüstungsdaten vorhanden.`,where);catalog.unknownArmor.add(e.base);}
+        if(!ref.zones&&!Object.keys(zones).length){qualityIssue(issues,'warn','ARMOR_REFERENCE',`${qualityEquipmentName(e)}: keine Trefferzonen-Rüstungsdaten vorhanden.`,where);catalog.unknownArmor.add(e.base);}
       }else if(e.type==='shield'){
         const parade=(e.usage||'').toLocaleLowerCase('de').includes('parade'),ref=(parade?PARRY_REF[e.base]:SHIELD_REF[e.base])||{},xml=e.item?.shield||{},mxml=e.item?.nk||{};
-        if(!Object.keys(ref).length&&!xml.wm&&!mxml.wm&&xml.ini==null&&mxml.ini==null){qualityIssue(issues,'warn','SHIELD_REFERENCE',`${e.name||e.base}: keine Schild-/Parierwaffen-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
+        if(!Object.keys(ref).length&&!xml.wm&&!mxml.wm&&xml.ini==null&&mxml.ini==null){qualityIssue(issues,'warn','SHIELD_REFERENCE',`${qualityEquipmentName(e)}: keine Schild-/Parierwaffen-Referenzdaten vorhanden.`,where);catalog.unknownCombat.add(e.base);}
       }
     }}
     for(const rg of (h.rg1||[])){const ok=(h.items||[]).some(i=>i.armor&&(i.base===rg||i.display===rg||i.base.includes(rg)||rg.includes(i.base)||i.display.includes(rg)||rg.includes(i.display)));if(!ok)qualityIssue(issues,'info','RG1_REFERENCE',`Rüstungsgewöhnung I verweist auf „${rg}“, aber kein passendes Rüstungsstück wurde erkannt.`,'Rüstung');}
-    return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues};
+    const cleanIssues=qualityDedupeIssues(issues);
+    return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v17.3`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v17.3.1`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
