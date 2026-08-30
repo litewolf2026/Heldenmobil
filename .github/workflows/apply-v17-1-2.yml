@@ -1,0 +1,53 @@
+name: Apply HeldenMobil v17.1.2 alignment
+
+on:
+  push:
+    paths:
+      - 'tools/apply_v17_1_2.py'
+      - '.github/workflows/apply-v17-1-2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply alignment patch
+        run: python tools/apply_v17_1_2.py
+
+      - name: JavaScript syntax check
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S)
+          if not scripts:
+              raise SystemExit('No inline script found')
+          Path('/tmp/heldenmobil.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil.js
+
+      - name: Verify patch
+        run: |
+          grep -q 'HLD PoC v17.1.2' index.html
+          grep -q 'v17.1.2 footer/abdomen alignment' index.html
+          grep -q 'top:47.6% !important' index.html
+          grep -q 'grid-template-columns:24.32fr 22.16fr 23.07fr 30.45fr !important' index.html
+
+      - name: Commit release and clean helper
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f tools/apply_v17_1_2.py .github/workflows/apply-v17-1-2.yml
+          rmdir tools 2>/dev/null || true
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git add -A
+          git commit -m 'v17.1.2: center Spieltisch abdomen and footer'
+          git push
