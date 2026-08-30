@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v17.1.2</title>
+<title>HeldenMobil – HLD PoC v17.1.3</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -133,6 +133,19 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
   justify-self:stretch;
   text-align:center;
 }
+
+
+
+/* v17.1.3 final optical alignment */
+/* Bauch: minimal nach oben und links; vorhandener v17.1.1-Y-Offset bleibt erhalten. */
+.dashboard-zone[data-zone="bauch"]{
+  left:4.5% !important;
+  top:47.2% !important;
+}
+/* Die gezeichneten Footer-Felder sind optisch nicht exakt gleich breit.
+   gRS und gBE passen bereits; nur WS und GS werden gezielt nach links gerueckt. */
+.dashboard-footer-item:nth-child(3){position:relative;left:-1cqw;}
+.dashboard-footer-item:nth-child(4){position:relative;left:-1.5cqw;}
 
 </style>
 </head>
