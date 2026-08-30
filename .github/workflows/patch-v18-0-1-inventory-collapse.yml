@@ -1,0 +1,42 @@
+name: Apply HeldenMobil v18.0.1 inventory collapse
+on:
+  push:
+    paths:
+      - 'tools/apply_v18_0_1_inventory_collapse.py'
+      - '.github/workflows/patch-v18-0-1-inventory-collapse.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        run: python tools/apply_v18_0_1_inventory_collapse.py
+      - name: Verify JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',t,re.S|re.I)
+          if not scripts:
+              raise SystemExit('no script found')
+          Path('/tmp/heldenmobil.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil.js
+      - name: Verify collapse contract
+        run: |
+          grep -q 'HLD PoC v18.0.1' index.html
+          grep -q 'id="artifactCard" class="comp-card artifact-card"' index.html
+          grep -q 'id="moneyHeaderSummary"' index.html
+          grep -q 'Magische Gegenstände</span><span class="count" id="artifactCount"' index.html
+          grep -q "card?.classList.contains('box-collapsed')" index.html
+      - name: Commit release and clean one-shot tooling
+        run: |
+          git config user.name 'HeldenMobil Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm tools/apply_v18_0_1_inventory_collapse.py .github/workflows/patch-v18-0-1-inventory-collapse.yml
+          git add index.html
+          git commit -m 'v18.0.1: collapse magic and money inventory sections [skip ci]'
+          git push
