@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Split source and add CI
+      - name: Split source and prepare tests
         run: python3 tools/migrate_v20_split.py
 
       - name: Verify JavaScript syntax
@@ -32,7 +32,6 @@ jobs:
           grep -F 'Beta v20.0' index.html
           grep -F '<script src="vendor/jszip-3.10.1.min.js"></script>' index.html
           grep -F '<script src="js/app.js"></script>' index.html
-          test -f .github/workflows/ci.yml
           test -f README.md
 
       - name: Commit v20.0 and remove migration tooling
@@ -40,6 +39,6 @@ jobs:
           git config user.name 'HeldenMobil Bot'
           git config user.email 'actions@users.noreply.github.com'
           git rm tools/migrate_v20_split.py .github/workflows/migrate-v20-split.yml
-          git add index.html js/app.js vendor/jszip-3.10.1.min.js tests/smoke.mjs package.json .github/workflows/ci.yml README.md
-          git commit -m 'v20.0: split source and add regression CI'
+          git add index.html js/app.js vendor/jszip-3.10.1.min.js tests/smoke.mjs package.json README.md
+          git commit -m 'v20.0: split source and add regression smoke tests'
           git push
