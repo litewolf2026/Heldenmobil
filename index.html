@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v19.0.1</title>
+<title>HeldenMobil – HLD PoC v19.0.2</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -183,8 +183,8 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v19.0.1</div></div></div>
-  <div class="badge">Beta v19.0.1</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v19.0.2</div></div></div>
+  <div class="badge">Beta v19.0.2</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -473,7 +473,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil Beta v19.0.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
+<footer>HeldenMobil Beta v19.0.2 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
 </div>
 
 <script>
@@ -1212,7 +1212,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const activeInfo=renderActiveLoadout(set,armor,meleeRows),activeCalc=activeInfo.calc;
     const iniShown=activeCalc?`${activeCalc.ini.fixed}+${activeCalc.ini.dice}`:`${currentAttr(pm,'ini')-armor.be}+1W6`;
     const iniDetail=activeCalc?`${activeCalc.label} · INI-Basis ${activeCalc.ini.base} − BE ${activeCalc.ini.setBE}${activeCalc.ini.sf.bonus?` + SF ${activeCalc.ini.sf.bonus}`:''}${activeCalc.ini.weaponIni?` ${signed(activeCalc.ini.weaponIni)} Führhand`:''}${activeCalc.ini.shieldIni?` ${signed(activeCalc.ini.shieldIni)} Nebenhand`:''}${activeCalc.ini.pairPenalty?` −${activeCalc.ini.pairPenalty} Waffenpaar`:''}`:'INI-Basis − BE + SF + Waffenmodifikator';
-    const summary=[{l:'AT-Basis',v:currentAttr(pm,'at')},{l:'PA-Basis',v:currentAttr(pm,'pa')},{l:'FK-Basis',v:currentAttr(pm,'fk')},{l:'INI-Basis',v:currentAttr(pm,'ini')},{l:'INI aktuell',v:iniShown,n:iniDetail},{l:'GS',v:speed.value,n:speed.parts.join(' · ')},{l:'BE',v:armor.be,n:`gBE ${armor.baseBE}${armor.beReduction?` · Rüstungsgewöhnung −${armor.beReduction}`:''}`}];
+    const summary=[{l:'AT-Basis',v:currentAttr(pm,'at')},{l:'PA-Basis',v:currentAttr(pm,'pa')},{l:'FK-Basis',v:currentAttr(pm,'fk')},{l:'INI-Basis',v:currentAttr(pm,'ini')},{l:'INI aktuell',v:iniShown,n:iniDetail},{l:'GS',v:speed.value,n:speed.parts.join(' · ')},{l:'gBE',v:armor.be,n:`Roh-gBE ${armor.baseBE}${armor.beReduction?` · Rüstungsgewöhnung −${armor.beReduction}`:''}`}];
     $('#combatSummary').innerHTML=summary.map(x=>`<div class="combat-metric"><span>${x.l}</span><strong>${x.v}</strong>${x.n?`<small>${esc(x.n)}</small>`:''}</div>`).join('');
 
     $('#meleeBody').innerHTML=meleeRows.map(({e,v},idx)=>{const d=v.data,meta=COMBAT_META[v.tal]||{},suffix=e.shieldIndex?` (S${e.shieldIndex})`:'',desc=e.descriptor?` · ${e.descriptor}`:'',refs=registerCombatWeaponRolls(`table:${set.id}:melee:${idx}`,e,v,armor);return `<tr><td><strong>${esc(e.name+suffix)}</strong><div class="cell-sub">${esc(desc.replace(/^ · /,''))}</div></td><td>${esc(meta.abbr||v.tal||'–')} / ${esc(meta.ebe||'–')}</td><td>${esc(d.dk||'–')}</td><td>${esc(diceText(d.tp))}</td><td>${esc(d.tpkk?d.tpkk.join(' / '):'–')}</td><td class="num">${d.ini??'–'}</td><td>${esc(`${signed(d.wm?.[0]||0)} / ${signed(d.wm?.[1]||0)}`)}</td><td class="num hot rollable" data-roll-ref="${refs.atRef}">${v.at??'–'}</td><td class="num hot rollable" data-roll-ref="${refs.paRef}">${v.pa??'–'}</td><td class="rollable" data-roll-ref="${refs.tpRef}">${esc(diceText(v.tp))}</td><td class="num">${d.bf??'–'}</td></tr>`;}).join('')||'<tr><td colspan="11" class="empty">Keine Nahkampfwaffen</td></tr>';
@@ -1535,7 +1535,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v19.0.1`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v19.0.2`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
@@ -1551,7 +1551,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function runQualityAudit(){
     const raws=Array.isArray(state.heroes)?state.heroes:[];if(!raws.length){$('#qualityAuditResult').innerHTML='<div class="empty-comp">Zuerst eine HLD laden.</div>';return;}
     const catalog={representations:new Map(),genders:new Map(),races:new Map(),unknownTalents:new Set(),unknownCombat:new Set(),unknownArmor:new Set()},heroes=raws.map((h,i)=>qualityAuditOne(h,i,catalog)),all=heroes.flatMap(h=>h.issues),summary={heroes:heroes.length,errors:all.filter(i=>i.severity==='error').length,warnings:all.filter(i=>i.severity==='warn').length,infos:all.filter(i=>i.severity==='info').length};
-    lastQualityAudit={version:'19.0.1',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
+    lastQualityAudit={version:'19.0.2',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
     renderQualityAudit(lastQualityAudit);$('#copyQualityAudit').disabled=false;$('#exportQualityAudit').disabled=false;$('#qualityCopyState').textContent='';
   }
   async function copyQualityAudit(){if(!lastQualityAudit)return;const text=qualityAuditText(lastQualityAudit);try{await navigator.clipboard.writeText(text);$('#qualityCopyState').textContent='Bericht kopiert.';}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();$('#qualityCopyState').textContent='Bericht kopiert.';}}
@@ -1588,14 +1588,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const attrs=primaryNames.map(name=>{const p=pm.get(name),v=p?p.value+p.mod:'–',abbr=short[name]||name,ref=p?registerRoll(`dashboard:attr:${name}`,{type:'d20',title:name,subtitle:`Eigenschaft ${abbr} ${v}`,target:v,targetLabel:abbr}):'';return `<div class="dashboard-attr ${p?'rollable':''}" ${p?`tabindex="0" role="button" data-roll-ref="${ref}"`:''}><span>${esc(abbr)}</span><strong>${esc(v)}</strong></div>`;});
     attrs.push(`<div class="dashboard-attr"><span>MR</span><strong>${esc(basis.get('MR')??'–')}</strong></div>`,`<div class="dashboard-attr"><span>SO</span><strong>${esc(basis.get('SO')??'–')}</strong></div>`);host.innerHTML=attrs.join('');
   }
+  function dashboardEffectiveBE(set,armor){
+    if(!set)return {value:armor.be,talent:'',offset:0};
+    const meleeRows=set.entries.filter(e=>e.type==='melee').map(e=>({e,v:meleeValues(e,armor.be)})),loadouts=buildCombatLoadouts(set,armor.be,meleeRows),active=activeLoadout(set,loadouts);
+    const talent=active?.main?(active.main.talent||itemMeleeData(active.main).talent||''):'';
+    return {value:talent?combatEbe(talent,armor.be):armor.be,talent,offset:COMBAT_META[talent]?.offset||0};
+  }
   function renderDashboardBody(){
-    if(!state.current||!$('#dashboardBodyImage'))return;const {armor,speed}=dashboardArmor(),s=activeAdventureStatus();if(s)normalizeStatusWounds(s);const zones=s?.woundZones||blankWoundZones(),img=$('#dashboardBodyImage'),female=state.current.gender==='female';
+    if(!state.current||!$('#dashboardBodyImage'))return;const {set,armor,speed}=dashboardArmor(),s=activeAdventureStatus();if(s)normalizeStatusWounds(s);const zones=s?.woundZones||blankWoundZones(),img=$('#dashboardBodyImage'),female=state.current.gender==='female';
     const wanted=female?'assets/body-female.webp':'assets/body-male.webp';if(!img.getAttribute('src')?.endsWith(wanted))img.src=wanted;img.alt=`Trefferzonen ${female?'weibliche':'männliche'} Silhouette`;
     renderDashboardEnergies();
     $('#dashboardZoneOverlay').innerHTML=DASHBOARD_ZONES.map(z=>{const wounds=Number(zones[z.key]||0),rs=Number(armor.zones?.[z.key]||0);return `<div class="dashboard-zone" data-zone="${z.key}"><div class="dashboard-zone-name">${z.label}</div><div class="dashboard-zone-rs">RS ${rs}</div><div class="dashboard-wounds">${[1,2,3].map(n=>`<button type="button" class="dashboard-wound-dot ${wounds>=n?'active':''}" data-zone-wound="${z.key}" data-wound-count="${n}" aria-label="${z.label}: ${n} Wunden" ${s?'':'disabled'}></button>`).join('')}</div></div>`;}).join('');
     $$('#dashboardZoneOverlay [data-zone-wound]').forEach(b=>b.onclick=()=>{const cur=Number(activeAdventureStatus()?.woundZones?.[b.dataset.zoneWound]||0),target=Number(b.dataset.woundCount);setZoneWounds(b.dataset.zoneWound,cur===target?target-1:target);});
-    const wd=woundData(),gbe=armor.baseBE,eff=armor.be;
-    $('#dashboardFooterOverlay').innerHTML=`<div class="dashboard-footer-item" title="Gewichteter Rüstungsschutz"><span class="dashboard-foot-label">gRS</span><strong class="dashboard-foot-value">${armor.rs}</strong></div><div class="dashboard-footer-item" title="Gesamtbehinderung${gbe!==eff?` · effektiv nach Rüstungsgewöhnung: ${eff}`:''}"><span class="dashboard-foot-label">gBE</span><strong class="dashboard-foot-value">${gbe}</strong>${gbe!==eff?`<small class="dashboard-foot-sub">eff. ${eff}</small>`:''}</div><div class="dashboard-footer-item" title="Wundschwelle"><span class="dashboard-foot-label">WS</span><strong class="dashboard-foot-value">${wd.threshold}</strong></div><div class="dashboard-footer-item" title="Aktuelle Geschwindigkeit: ${esc(speed.parts.join(' · '))}"><span class="dashboard-foot-label">GS</span><strong class="dashboard-foot-value">${speed.value}</strong></div>`;
+    const wd=woundData(),gbe=armor.be,ebe=dashboardEffectiveBE(set,armor),eff=ebe.value,rawGbe=armor.baseBE;
+    const gbeTitle=`Gesamtbehinderung nach Rüstungsgewöhnung${armor.beReduction?` · Roh-gBE ${rawGbe} − RG ${armor.beReduction} = gBE ${gbe}`:''}${ebe.talent?` · eff. BE Hauptwaffe (${ebe.talent}): ${eff}`:''}`;
+    $('#dashboardFooterOverlay').innerHTML=`<div class="dashboard-footer-item" title="Gewichteter Rüstungsschutz"><span class="dashboard-foot-label">gRS</span><strong class="dashboard-foot-value">${armor.rs}</strong></div><div class="dashboard-footer-item" title="${esc(gbeTitle)}"><span class="dashboard-foot-label">gBE</span><strong class="dashboard-foot-value">${gbe}</strong>${ebe.talent&&eff!==gbe?`<small class="dashboard-foot-sub">eff. ${eff}</small>`:''}</div><div class="dashboard-footer-item" title="Wundschwelle"><span class="dashboard-foot-label">WS</span><strong class="dashboard-foot-value">${wd.threshold}</strong></div><div class="dashboard-footer-item" title="Aktuelle Geschwindigkeit: ${esc(speed.parts.join(' · '))}"><span class="dashboard-foot-label">GS</span><strong class="dashboard-foot-value">${speed.value}</strong></div>`;
     const unassigned=Number(zones.unassigned||0);$('#dashboardWoundHint').textContent=!s?'Wunden und Energien werden mit einem aktiven Abenteuer editierbar.':unassigned?`${unassigned} Wunde${unassigned===1?'':'n'} aus dem bisherigen Spielstand noch keiner Trefferzone zugeordnet.`:'';
   }
   function dashboardCombatButton(label,value,ref){return value==null?'':`<button type="button" class="dashboard-combat-roll" data-roll-ref="${ref}">${label}<strong>${esc(value)}</strong></button>`;}
