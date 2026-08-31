@@ -24,7 +24,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           s=Path('index.html').read_text(encoding='utf-8')
-          start=s.index('<script>')+len('<script>')
+          start=s.rindex('<script>')+len('<script>')
           end=s.rindex('</script>')
           Path('/tmp/heldenmobil.js').write_text(s[start:end],encoding='utf-8')
           PY
