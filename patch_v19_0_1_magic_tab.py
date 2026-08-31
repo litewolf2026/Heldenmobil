@@ -40,9 +40,12 @@ rep('props,talents,spells,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf
     'props,talents,spells,magical,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,',
     'hero return magical flag')
 
-old_render = "    $('#workspace').classList.add('has-hero');$$('.tab[data-tab]').forEach(b=>{if(b.dataset.tab!=='data')b.disabled=false;});\n    const litTab=$('.tab[data-tab=\\\"liturgies\\\"]');if(litTab){litTab.classList.toggle('hidden',!h.karmal);litTab.disabled=!h.karmal;if(!h.karmal&&litTab.classList.contains('active'))$('.tab[data-tab=\\\"overview\\\"]')?.click();}"
-new_render = "    $('#workspace').classList.add('has-hero');$$('.tab[data-tab]').forEach(b=>{if(b.dataset.tab!=='data')b.disabled=false;});\n    const spellTab=$('.tab[data-tab=\\\"spells\\\"]');if(spellTab){spellTab.classList.toggle('hidden',!h.magical);spellTab.disabled=!h.magical;if(!h.magical&&spellTab.classList.contains('active'))$('.tab[data-tab=\\\"overview\\\"]')?.click();}\n    const litTab=$('.tab[data-tab=\\\"liturgies\\\"]');if(litTab){litTab.classList.toggle('hidden',!h.karmal);litTab.disabled=!h.karmal;if(!h.karmal&&litTab.classList.contains('active'))$('.tab[data-tab=\\\"overview\\\"]')?.click();}"
-rep(old_render, new_render, 'spell tab render visibility')
+# Insert the spell visibility logic immediately before the already proven liturgy logic.
+lit_marker = "    const litTab=$('.tab[data-tab=\"liturgies\"]');if(litTab){litTab.classList.toggle('hidden',!h.karmal);litTab.disabled=!h.karmal;if(!h.karmal&&litTab.classList.contains('active'))$('.tab[data-tab=\"overview\"]')?.click();}"
+spell_logic = "    const spellTab=$('.tab[data-tab=\"spells\"]');if(spellTab){spellTab.classList.toggle('hidden',!h.magical);spellTab.disabled=!h.magical;if(!h.magical&&spellTab.classList.contains('active'))$('.tab[data-tab=\"overview\"]')?.click();}\n"
+if lit_marker not in s:
+    raise SystemExit('marker missing: liturgy visibility insertion point')
+s = s.replace(lit_marker, spell_logic + lit_marker, 1)
 
 p.write_text(s, encoding='utf-8')
 
