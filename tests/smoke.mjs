@@ -22,6 +22,7 @@ ok(app.includes('HeldenMobilCompanion.normalizeCompanionData'), 'companion core 
 ok(app.includes('HeldenMobilCombat.combatEbe'), 'combat core delegate missing');
 ok(app.includes("function automaticEvent(e){return e?.type==='energy';}"), 'wound/status events must remain manually managed');
 ok(app.includes("lastQualityAudit={version:'20.3'"), 'quality audit JSON version must be v20.3');
+ok(app.includes("cloudState.conflictHeroKey===key&&!force"), 'unresolved OneDrive conflict must block automatic save');
 ok(vendor.includes('JSZip v3.10.1'), 'wrong JSZip vendor payload');
 for (const [name,src] of [['app',app],['hld',hld],['companion',companion],['combat',combat],['vendor',vendor]]) new vm.Script(src,{filename:`${name}.js`});
 console.log('HeldenMobil v20.3 smoke tests passed');
