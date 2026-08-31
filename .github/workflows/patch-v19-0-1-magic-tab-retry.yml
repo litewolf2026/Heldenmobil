@@ -1,0 +1,63 @@
+name: Apply corrected HeldenMobil v19.0.1 magic tab
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-v19-0-1-magic-tab-retry.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply v19.0.1 patch
+        run: python patch_v19_0_1_magic_tab.py
+
+      - name: Verify JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          parts=[]
+          pos=0
+          while True:
+              a=s.find('<script>',pos)
+              if a < 0:
+                  break
+              b=s.find('</script>',a)
+              if b < 0:
+                  raise SystemExit('unclosed script tag')
+              parts.append(s[a+8:b])
+              pos=b+9
+          if not parts:
+              raise SystemExit('no inline JavaScript found')
+          Path('/tmp/heldenmobil.js').write_text('\n'.join(parts),encoding='utf-8')
+          PY
+          node --check /tmp/heldenmobil.js
+
+      - name: Verify release contract
+        run: |
+          grep -Fq '<title>HeldenMobil – HLD PoC v19.0.1</title>' index.html
+          grep -Fq '<div class="sub">DSA 4.1 · HLD + Begleitdaten v19.0.1</div>' index.html
+          grep -Fq '<div class="badge">Beta v19.0.1</div>' index.html
+          grep -Fq 'HeldenMobil Beta v19.0.1' index.html
+          grep -Fq '<button class="tab hidden" data-tab="spells" disabled>Zauber</button>' index.html
+          grep -Fq "const magical=spells.length>0||props.some(x=>x.name==='Astralenergie'" index.html
+          grep -Fq "spellTab.classList.toggle('hidden',!h.magical)" index.html
+          grep -Fq "lastQualityAudit={version:'19.0.1'" index.html
+          if grep -Fq 'Beta v17.3' index.html; then exit 1; fi
+
+      - name: Commit release and remove one-shot tooling
+        run: |
+          rm -f patch_v19_0_1_magic_tab.py
+          rm -f .github/workflows/patch-v19-0-1-magic-tab.yml
+          rm -f .github/workflows/patch-v19-0-1-magic-tab-retry.yml
+          git config user.name 'HeldenMobil Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git commit -m 'v19.0.1: hide spell tab for non-magical heroes [skip ci]'
+          git push
