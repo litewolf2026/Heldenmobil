@@ -274,147 +274,15 @@
   }
 
 
-  const BASIC_BLESSING_NAMES=new Set(['Eidsegen','Feuersegen','Geburtssegen','Glückssegen','Grabsegen','Harmoniesegen','Heilungssegen','Märtyrersegen','Objektsegen','Schutzsegen','Speisesegen','Tranksegen','Weisheitssegen']);
-  function parseLiturgySfName(raw,index=0){
-    const full=String(raw||'').replace(/^Liturgie:\s*/,'').trim(),m=/^(.*?)\s+\(([IVX]+)\)$/.exec(full),name=(m?m[1]:full).trim(),grade=m?m[2]:'';
-    return {raw:String(raw||''),name,grade,gradeLabel:grade?`Grad ${grade}`:'Grundgrad',blessing:BASIC_BLESSING_NAMES.has(name),key:`${String(raw||'')}␟${index}`};
-  }
-  function liturgyKnowledgeDeity(t){const m=/^Liturgiekenntnis\s*\((.*?)\)\s*$/.exec(String(t?.name||''));return m?m[1]:String(t?.name||'').replace(/^Liturgiekenntnis\s*/,'').trim()||'Geweiht';}
+  const hldParser=HeldenMobilHld.createParser({direct,directAll,attr,num,cleanName,talentCategory,buildMetaTalents,directSelections,isDisadvantage,sfEntryFromElement});
+  const parseLiturgySfName=hldParser.parseLiturgySfName;
+  const liturgyKnowledgeDeity=hldParser.liturgyKnowledgeDeity;
   function primaryLiturgyKnowledge(){return state.current?.liturgyKnowledges?.[0]||null;}
 
-  function parseHero(hero){
-    const held=hero.doc.querySelector('helden > held');
-    const basis=direct(held,'basis');
-    const rasse=direct(basis,'rasse'), kultur=direct(basis,'kultur');
-    const ausb=direct(direct(basis,'ausbildungen'),'ausbildung');
-    const variante=direct(ausb,'variante');
-    const race=attr(rasse,'string',attr(rasse,'name'));
-    const genderNode=direct(basis,'geschlecht')||direct(held,'geschlecht')||held.querySelector('geschlecht');
-    const genderRaw=[attr(held,'geschlecht'),attr(basis,'geschlecht'),attr(genderNode,'name'),attr(genderNode,'value'),attr(genderNode,'string'),genderNode?.textContent||''].filter(Boolean).join(' ').toLocaleLowerCase('de');
-    const gender=/weib|female|frau/.test(genderRaw)?'female':(/männ|maenn|male|mann/.test(genderRaw)?'male':'unknown');
-
-    const eigRoot=direct(held,'eigenschaften');
-    const props=directAll(eigRoot,'eigenschaft').map(e=>({name:attr(e,'name'),value:num(attr(e,'value')),mod:num(attr(e,'mod')),start:attr(e,'startwert',''),permanent:attr(e,'permanent','')}));
-
-    const talentRoot=direct(held,'talentliste');
-    let talents=directAll(talentRoot,'talent').map(t=>({name:attr(t,'name'),probe:attr(t,'probe').trim(),value:num(attr(t,'value')),se:attr(t,'se')==='true',method:attr(t,'lernmethode'),be:attr(t,'be'),k:attr(t,'k'),specs:[],mh:false,category:talentCategory(attr(t,'name')),meta:false}));
-    talents=[...talents,...buildMetaTalents(talents)];
-
-    const spellRoot=direct(held,'zauberliste');
-    const spells=directAll(spellRoot,'zauber').map(z=>({name:attr(z,'name'),probe:attr(z,'probe').trim(),value:num(attr(z,'value')),rep:attr(z,'repraesentation'),column:attr(z,'k'),house:attr(z,'hauszauber')==='true',specs:[]}));
-
-    const kampfRoot=direct(held,'kampf');
-    const combat=directAll(kampfRoot,'kampfwerte').map(k=>({name:attr(k,'name'),at:num(attr(direct(k,'attacke'),'value')),pa:num(attr(direct(k,'parade'),'value'))}));
-    const combatMap=new Map(combat.map(k=>[k.name,k]));
-
-    const vtRoot=direct(held,'vt');
-    const vorteile=directAll(vtRoot,'vorteil');
-    const meisterhandwerke=new Set(vorteile.filter(v=>attr(v,'name')==='Meisterhandwerk').map(v=>cleanName(attr(v,'value'))).filter(Boolean));
-    const vtEntries=vorteile.map(v=>{
-      const name=attr(v,'name'),val=cleanName(attr(v,'value'));
-      const choices=directAll(v,'auswahl').map((a,i)=>({position:num(attr(a,'position'),i),value:cleanName(attr(a,'value'))})).filter(x=>x.value).sort((a,b)=>a.position-b.position).map(x=>x.value);
-      const details=[...choices,...directSelections(v).map(cleanName),val].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
-      const level=choices.find(x=>/^[-+]?\d+(?:[.,]\d+)?$/.test(x));
-      const targets=choices.filter(x=>x!==level);
-      if(level&&targets.length&&(/^(?:Vorurteile gegen|Weltfremd bzgl\.|Angst vor)/i.test(name))){
-        return {name,label:`${name} ${targets.join(' / ')}: ${level}`};
-      }
-      return {name,label:name+(details.length?`: ${details.join(' · ')}`:'')};
-    });
-    const vt=vtEntries.map(v=>v.label);
-    const advantages=vtEntries.filter(v=>!isDisadvantage(v.name)).map(v=>v.label);
-    const disadvantages=vtEntries.filter(v=>isDisadvantage(v.name)).map(v=>v.label);
-    const vtNames=new Set(vorteile.map(v=>attr(v,'name')));
-    const vtValues=new Map(vorteile.map(v=>[attr(v,'name'),attr(v,'value')]));
-
-    const sfRoot=direct(held,'sf');
-    const sfEls=directAll(sfRoot,'sonderfertigkeit');
-    const sf=sfEls.map(s=>attr(s,'name')).filter(Boolean);
-    const sfEntries=sfEls.map(sfEntryFromElement).filter(Boolean);
-    const sfSet=new Set(sf);
-    const liturgyKnowledges=talents.filter(t=>/^Liturgiekenntnis\s*\(/.test(t.name));
-    const liturgies=sfEls.map((el,i)=>({el,name:attr(el,'name'),i})).filter(x=>/^Liturgie:\s*/.test(x.name)).map(x=>parseLiturgySfName(x.name,x.i));
-    const karmal=liturgyKnowledges.length>0||liturgies.length>0||props.some(x=>x.name==='Karmaenergie'&&(Number(x.mod||0)!==0||Number(x.value||0)!==0))||sfSet.has('Karmalqueste');
-    const magical=spells.length>0||props.some(x=>x.name==='Astralenergie'&&(Number(x.mod||0)!==0||Number(x.value||0)!==0));
-    const talentSpecs=new Map(), spellSpecs=[];
-    for(const s of sfEls){
-      const name=attr(s,'name');
-      if(name.startsWith('Talentspezialisierung ')){
-        const tn=cleanName(attr(direct(s,'talent'),'name')), sn=cleanName(attr(direct(s,'spezialisierung'),'name'));
-        if(tn&&sn){if(!talentSpecs.has(tn))talentSpecs.set(tn,[]);talentSpecs.get(tn).push(sn);}
-      } else if(name.startsWith('Zauberspezialisierung ')){
-        const z=direct(s,'zauber'),sp=direct(s,'spezialisierung');
-        const zn=cleanName(attr(z,'name')),rep=cleanName(attr(z,'repraesentation')),sn=cleanName(attr(sp,'name'));
-        if(zn&&sn)spellSpecs.push({name:zn,rep,spec:sn});
-      }
-    }
-    for(const t of talents){t.specs=talentSpecs.get(t.name)||[];t.mh=meisterhandwerke.has(t.name);}
-    for(const z of spells){z.specs=spellSpecs.filter(s=>s.name===z.name&&(!s.rep||s.rep===z.rep)).map(s=>s.spec);}
-
-    const itemsRoot=direct(held,'gegenstände');
-    const items=directAll(itemsRoot,'gegenstand').map(g=>parseItem(g));
-    const equipRoot=direct(held,'ausrüstungen');
-    const equip=directAll(equipRoot,'heldenausruestung');
-    const setIds=[...new Set(equip.map(e=>num(attr(e,'set'))))].sort((a,b)=>a-b);
-    const combatSets=setIds.map(id=>{
-      const entries=equip.filter(e=>num(attr(e,'set'))===id).map(e=>parseEquipmentEntry(e,items));
-      const shields=new Map(entries.filter(e=>e.type==='shield').map(e=>[e.index,e]));
-      for(const e of entries.filter(e=>e.type==='melee'))e.linkedShield=e.shieldIndex?shields.get(e.shieldIndex)||null:null;
-      return {id,entries};
-    });
-
-    const boniRoot=direct(held,'BoniWaffenlos');
-    const unarmedBonuses=directAll(boniRoot,'boniSF').map(b=>({sf:attr(b,'sf'),talent:attr(b,'talent')}));
-
-    const rg1=sfEls.filter(s=>attr(s,'name')==='Rüstungsgewöhnung I').map(s=>attr(direct(s,'gegenstand'),'name')).filter(Boolean);
-
-    return {
-      name:attr(held,'name'),key:attr(held,'key'),race,gender,
-      culture:attr(kultur,'string',attr(kultur,'name')),
-      profession:[attr(ausb,'string',attr(ausb,'name')),attr(variante,'name')].filter(Boolean).join(' · '),
-      ap:num(attr(direct(basis,'abenteuerpunkte'),'value')),freeAp:num(attr(direct(basis,'freieabenteuerpunkte'),'value')),
-      props,talents,spells,magical,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
-      staffItems:items.filter(i=>/magierstab/i.test(`${i.base} ${i.display}`))
-    };
-  }
-
-  function parseItem(g){
-    const base=attr(g,'name'),slot=attr(g,'slot');
-    const mod=direct(g,'modallgemein'),display=attr(direct(mod,'name'),'value',base);
-    const nk=direct(g,'Nahkampfwaffe'), sh=direct(g,'Schild'), ru=direct(g,'Rüstung');
-    const tp=direct(nk,'trefferpunkte'),wm=direct(nk,'wm'),bf=direct(nk,'bf'),nki=direct(nk,'inimod'),tpkk=direct(nk,'tpkk');
-    const swm=direct(sh,'wm'),sbf=direct(sh,'bf'),shi=direct(sh,'inimod');
-    const armorZones={};
-    for(const n of ['kopf','brust','ruecken','bauch','linkerarm','rechterarm','linkesbein','rechtesbein']){
-      const e=direct(ru,n); if(e) armorZones[n]=num(attr(e,'value'));
-    }
-    return {
-      base,slot,display,count:num(attr(g,'anzahl'),1),
-      nk:nk?{tp:tp?[num(attr(tp,'mul'),1),num(attr(tp,'w'),6),num(attr(tp,'sum'),0)]:null,tpkk:tpkk?[num(attr(tpkk,'kk')),num(attr(tpkk,'schrittweite'))]:null,wm:wm?[num(attr(wm,'at')),num(attr(wm,'pa'))]:null,ini:nki?num(attr(nki,'ini')):null,bf:bf?num(attr(bf,'akt')):null}:null,
-      fk:!!direct(g,'Fernkampfwaffe'),
-      shield:sh?{wm:swm?[num(attr(swm,'at')),num(attr(swm,'pa'))]:null,ini:shi?num(attr(shi,'ini')):null,bf:sbf?num(attr(sbf,'akt')):null,bfmin:sbf?num(attr(sbf,'min')):null}:null,
-      armor:ru?{
-        rs:direct(ru,'rs')?num(attr(direct(ru,'rs'),'value')):null,
-        gesRs:direct(ru,'geszors')?num(attr(direct(ru,'geszors'),'value')):null,
-        gesBe:direct(ru,'gesbe')?num(attr(direct(ru,'gesbe'),'value')):null,
-        stars:direct(ru,'sterne')?num(attr(direct(ru,'sterne'),'value')):null,
-        parts:direct(ru,'teile')?num(attr(direct(ru,'teile'),'value')):null,
-        zones:armorZones
-      }:null
-    };
-  }
-
-  function findItem(items,base,slot){ return items.find(i=>i.base===base&&String(i.slot)===String(slot))||items.find(i=>i.base===base)||null; }
-  function parseEquipmentEntry(e,items){
-    const n=attr(e,'name'); let type='other',base='',index=0;
-    if(n.startsWith('nkwaffe')){type='melee';base=attr(e,'waffenname');index=num(n.replace(/\D/g,''));}
-    else if(n.startsWith('fkwaffe')){type='ranged';base=attr(e,'waffenname');index=num(n.replace(/\D/g,''));}
-    else if(n.startsWith('schild')){type='shield';base=attr(e,'schildname');index=num(n.replace(/\D/g,''));}
-    else if(n.startsWith('ruestung')){type='armor';base=attr(e,'ruestungsname');index=num(n.replace(/\D/g,''));}
-    else return {type:'other',record:n,index};
-    const item=findItem(items,base,attr(e,'slot'));
-    return {type,base,name:item?.display||base,slot:attr(e,'slot'),talent:attr(e,'talent'),item,record:n,index,hand:attr(e,'hand'),shieldIndex:num(attr(e,'schild')),usage:attr(e,'verwendungsArt'),descriptor:attr(e,'bezeichner'),bfakt:attr(e,'bfakt')===''?null:num(attr(e,'bfakt'))};
-  }
+  const parseHero=hldParser.parseHero;
+  const parseItem=hldParser.parseItem;
+  const findItem=hldParser.findItem;
+  const parseEquipmentEntry=hldParser.parseEquipmentEntry;
 
   function propMap(props){return new Map(props.map(p=>[p.name,p]));}
   function deriveBasis(props){
@@ -551,8 +419,8 @@
     const value=Math.max(0,base-setBE);parts.push(`BE −${setBE}`);
     return {value,base,parts};
   }
-  function combatEbe(talent,be){const m=COMBAT_META[talent];return m?Math.max(0,be-m.offset):be;}
-  function adjustCombatForBE(at,pa,ebe){return {at:at-Math.floor(ebe/2),pa:pa-Math.ceil(ebe/2)};}
+  function combatEbe(talent,be){return HeldenMobilCombat.combatEbe(talent,be,COMBAT_META);}
+  function adjustCombatForBE(at,pa,ebe){return HeldenMobilCombat.adjustCombatForBE(at,pa,ebe);}
   function hasMatchingSpec(talent,base){return (state.current.talentSpecs.get(talent)||[]).some(s=>s===base||base.includes(s)||s.includes(base));}
   function itemMeleeData(e){
     const ref=MELEE_REF[e.base]||{};const xml=e.item?.nk||{};const tp=xml.tp||ref.tp||null;const tpkk=xml.tpkk||ref.tpkk||null;const wm=xml.wm||ref.wm||[0,0];const ini=xml.ini??ref.ini??0;const bf=e.bfakt??xml.bf??ref.bf??null;
@@ -565,9 +433,7 @@
     // tragen ihren WM im Nahkampfwaffen-Block und nur INI/BF im Schild-Block.
     return {ini:xml.ini??meleeXml.ini??ref.ini??0,wm:xml.wm||meleeXml.wm||ref.wm||[0,0],bf:xml.bfmin??xml.bf??meleeXml.bf??ref.bf??null};
   }
-  function finalDamage(tp,tpkk){
-    if(!tp)return null;const out=[...tp];if(tpkk){const kk=currentAttr(propMap(state.current.props),'Körperkraft'),[thr,step]=tpkk;const delta=kk-thr;const bonus=delta>=0?Math.floor(delta/step):-Math.ceil(Math.abs(delta)/step);out[2]+=bonus;}return out;
-  }
+  function finalDamage(tp,tpkk){const kk=currentAttr(propMap(state.current.props),'Körperkraft');return HeldenMobilCombat.finalDamage(tp,tpkk,kk);}
   function meleeValues(e,setBE){
     const data=itemMeleeData(e),tal=e.talent||data.talent,base=state.current.combatMap.get(tal);if(!base)return {data,tal,at:null,pa:null,tp:finalDamage(data.tp,data.tpkk)};
     const adj=adjustCombatForBE(base.at,base.pa,combatEbe(tal,setBE));let at=adj.at,pa=adj.pa;
@@ -746,16 +612,8 @@
   const COMP_SCHEMA=8;
   const uid=(p='id')=>`${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
   const WOUND_ZONE_KEYS=['kopf','brust','ruecken','bauch','linkerarm','rechterarm','linkesbein','rechtesbein'];
-  function blankWoundZones(){return {kopf:0,brust:0,ruecken:0,bauch:0,linkerarm:0,rechterarm:0,linkesbein:0,rechtesbein:0,unassigned:0};}
-  function normalizeStatusWounds(status){
-    if(!status||typeof status!=='object')return status;
-    const raw=(status.woundZones&&typeof status.woundZones==='object')?status.woundZones:{};
-    const zones=blankWoundZones();for(const k of WOUND_ZONE_KEYS)zones[k]=Math.max(0,Math.min(3,Math.floor(Number(raw[k]||0))));
-    const zoned=WOUND_ZONE_KEYS.reduce((a,k)=>a+zones[k],0),oldTotal=Math.max(0,Math.floor(Number(status.wounds||0)));
-    zones.unassigned=Math.max(0,Math.floor(Number(raw.unassigned??Math.max(0,oldTotal-zoned))||0));
-    if(zoned+zones.unassigned<oldTotal)zones.unassigned+=oldTotal-(zoned+zones.unassigned);
-    status.woundZones=zones;status.wounds=zoned+zones.unassigned;return status;
-  }
+  const blankWoundZones=()=>HeldenMobilCompanion.blankWoundZones();
+  function normalizeStatusWounds(status){return HeldenMobilCompanion.normalizeStatusWounds(status);}
   function companionStorageKey(ver=COMP_SCHEMA){return state.current?`heldenmobil:v${ver}:${state.current.key}`:null;}
   function freshAdventureStatus(){
     const h=state.current,b=new Map(deriveBasis(h.props).map(x=>[x.name,x.value]));
@@ -766,65 +624,28 @@
     return {schemaVersion:COMP_SCHEMA,heroKey:h.key,heroName:h.name,updatedAt:new Date().toISOString(),activeAdventureId:null,
       adventures:[],advancement:[],favorites:{talents:[],spells:[],liturgies:[]},inventory:{locations:[{id:'loc_person',name:'Am Mann',parentId:null},{id:'loc_pack',name:'Rucksack',parentId:'loc_person'},{id:'loc_wagon',name:'Wagen',parentId:null},{id:'loc_home',name:'Zuhause',parentId:null}],items:[]},money:{transactions:[]},magic:{staffSlots:[]}};
   }
-  function magicOptionalInt(v){if(v===null||v===undefined||v==='')return null;const n=Math.floor(Number(v));return Number.isFinite(n)?Math.max(0,n):null;}
-  function magicOptionalNumber(v){if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null;}
-  function normalizeMagicEffect(raw,index=0){const r=raw&&typeof raw==='object'?raw:{},max=magicOptionalInt(r.maxCharges);let charges=magicOptionalInt(r.charges);if(max!=null){if(charges==null)charges=max;charges=Math.min(max,charges);}else charges=null;return {id:String(r.id||uid('effect')),name:String(r.name||`Wirkung ${index+1}`),type:String(r.type||'Zauber'),activation:String(r.activation||''),charges,maxCharges:max,zfp:magicOptionalNumber(r.zfp),asp:magicOptionalNumber(r.asp),recharge:String(r.recharge||''),note:String(r.note||'')};}
-  function normalizeInventoryMagic(it){if(!it||typeof it!=='object')return it;const out={...it};if(out.magic&&typeof out.magic==='object'){const m=out.magic;out.magic={kind:String(m.kind||'Artefakt'),effects:(Array.isArray(m.effects)?m.effects:[]).map((x,i)=>normalizeMagicEffect(x,i))};}return out;}
-
-  function normalizeCompanion(d){
-    const base=emptyCompanion();if(!d||typeof d!=='object')return base;
-    const legacyStatus=d.status&&typeof d.status==='object'?d.status:null;
-    const x={...base,...d,favorites:{...base.favorites,...(d.favorites||{})},inventory:{...base.inventory,...(d.inventory||{})},money:{...base.money,...(d.money||{})},magic:{...base.magic,...(d.magic||{})}};
-    x.heroKey=state.current.key;x.heroName=state.current.name;x.schemaVersion=COMP_SCHEMA;
-    x.adventures=Array.isArray(x.adventures)?x.adventures:[];x.advancement=Array.isArray(x.advancement)?x.advancement:[];
-    x.adventures=x.adventures.map(a=>{const status={...freshAdventureStatus(),...(a.status||{})};normalizeStatusWounds(status);return {...a,events:normalizeAdventureEvents(a.events),learning:Array.isArray(a.learning)?a.learning:[],combatBySet:(a.combatBySet&&typeof a.combatBySet==='object')?a.combatBySet:{},status};});
-    if(legacyStatus&&x.adventures.length){const target=x.adventures.find(a=>a.id===x.activeAdventureId)||x.adventures[0];target.status={...target.status,...legacyStatus};normalizeStatusWounds(target.status);if(!x.activeAdventureId)x.activeAdventureId=target.id;}
-    delete x.status;
-    x.inventory.locations=Array.isArray(x.inventory.locations)&&x.inventory.locations.length?x.inventory.locations:base.inventory.locations;
-    x.inventory.items=Array.isArray(x.inventory.items)?x.inventory.items.map(normalizeInventoryMagic):[];
-    x.money.transactions=Array.isArray(x.money.transactions)?x.money.transactions:[];x.magic.staffSlots=Array.isArray(x.magic.staffSlots)?x.magic.staffSlots:[];x.favorites.talents=Array.isArray(x.favorites.talents)?[...new Set(x.favorites.talents.map(String).filter(Boolean))]:[];x.favorites.spells=Array.isArray(x.favorites.spells)?[...new Set(x.favorites.spells.map(String).filter(Boolean))]:[];x.favorites.liturgies=Array.isArray(x.favorites.liturgies)?[...new Set(x.favorites.liturgies.map(String).filter(Boolean))]:[];delete x.magic.artifacts;
-    return x;
-  }
+  function magicOptionalInt(v){return HeldenMobilCompanion.magicOptionalInt(v);}
+  function magicOptionalNumber(v){return HeldenMobilCompanion.magicOptionalNumber(v);}
+  function normalizeMagicEffect(raw,index=0){return HeldenMobilCompanion.normalizeMagicEffect(raw,index,uid);}
+  function normalizeInventoryMagic(it){return HeldenMobilCompanion.normalizeInventoryMagic(it,uid);}
+  function normalizeCompanion(d){return HeldenMobilCompanion.normalizeCompanionData(d,{base:emptyCompanion(),heroKey:state.current.key,heroName:state.current.name,schemaVersion:COMP_SCHEMA,freshAdventureStatus,uid,energyWindowMs:ENERGY_EVENT_WINDOW_MS});}
   function saveCompanion(opts={}){if(!companionState.data)return;if(opts.touch!==false)companionState.data.updatedAt=new Date().toISOString();localStorage.setItem(companionStorageKey(),JSON.stringify(companionState.data));companionState.localExists=true;renderDataMeta();renderDashboard();if(!opts.skipCloud)cloudScheduleSave();}
   function loadCompanionForHero(){
     let d=null,migrated=false,raw=null;try{raw=localStorage.getItem(companionStorageKey());if(!raw){for(const v of [7,6,5,4,3,2,1]){raw=localStorage.getItem(companionStorageKey(v));if(raw){migrated=true;break;}}}if(raw)d=JSON.parse(raw);}catch(e){console.warn('Begleitdaten unlesbar',e);}
-    companionState.localExists=!!raw;companionState.data=normalizeCompanion(d);if(migrated)saveCompanion({skipCloud:true});renderTalents();renderCompanionAll();cloudOnHeroChanged();
+    companionState.localExists=!!raw;const normalized=normalizeCompanion(d);companionState.data=normalized;let normalizedChanged=false;if(raw){try{normalizedChanged=JSON.stringify(d)!==JSON.stringify(normalized);}catch(_){normalizedChanged=true;}}if(raw&&(migrated||normalizedChanged))saveCompanion({touch:false,skipCloud:true});renderTalents();renderCompanionAll();cloudOnHeroChanged();
   }
   function renderCompanionAll(){renderStatus();renderAdventures();renderAdvancement();renderInventory();renderMoney();renderMagic();renderDataMeta();refreshAdventureSelectors();refreshWishTargets();if(state.current){renderCombat();renderLiturgies();}renderDashboard();}
   function energyMaxMap(){return new Map(deriveBasis(state.current.props).map(x=>[x.name,x.value]));}
   function statusKeyFor(label){return {LeP:'lep',AuP:'aup',AsP:'asp',KaP:'kap'}[label];}
-  function energyEventText(label,from,to){const delta=Number(to)-Number(from),signed=delta>0?`+${delta}`:`${delta}`;return `${label} ${signed} · ${from} → ${to}`;}
-  function parseLegacyEnergyEvent(raw){
-    if(!raw||typeof raw!=='object')return null;
-    if(raw.type==='energy'&&raw.energy&&Number.isFinite(Number(raw.from))&&Number.isFinite(Number(raw.to))){const e={...raw,from:Number(raw.from),to:Number(raw.to)};e.delta=e.to-e.from;e.startedAt=e.startedAt||e.at||e.lastAt||null;e.lastAt=e.lastAt||e.at||e.startedAt||null;e.text=energyEventText(e.energy,e.from,e.to);return e;}
-    if(raw.type!=='status')return null;
-    const m=/^(LeP|AuP|AsP|KaP)\s+[+-]?\d+:\s*(-?\d+)\s*→\s*(-?\d+)\s*$/.exec(String(raw.text||''));if(!m)return null;
-    const e={...raw,type:'energy',energy:m[1],from:Number(m[2]),to:Number(m[3])};e.delta=e.to-e.from;e.startedAt=e.at||null;e.lastAt=e.at||null;e.text=energyEventText(e.energy,e.from,e.to);return e;
-  }
-  function normalizeAdventureEvents(events){
-    const out=[],lastByEnergy=new Map();
-    for(const raw of (Array.isArray(events)?events:[])){
-      const e=parseLegacyEnergyEvent(raw);if(!e){out.push(raw);continue;}
-      const nowMs=Date.parse(e.lastAt||e.at||'')||0,prev=lastByEnergy.get(e.energy),prevMs=prev?(Date.parse(prev.lastAt||prev.at||'')||0):0;
-      if(prev&&nowMs&&prevMs&&nowMs>=prevMs&&nowMs-prevMs<=ENERGY_EVENT_WINDOW_MS&&Number(prev.to)===Number(e.from)){
-        prev.to=e.to;prev.delta=prev.to-prev.from;prev.lastAt=e.lastAt||e.at||prev.lastAt;prev.at=e.at||prev.at;prev.text=energyEventText(prev.energy,prev.from,prev.to);
-        const idx=out.indexOf(prev);if(idx>=0)out.splice(idx,1);if(prev.delta!==0){out.push(prev);lastByEnergy.set(prev.energy,prev);}else lastByEnergy.delete(prev.energy);continue;
-      }
-      if(e.delta!==0){out.push(e);lastByEnergy.set(e.energy,e);}
-    }
-    return out;
-  }
+  function energyEventText(label,from,to){return HeldenMobilCompanion.energyEventText(label,from,to);}
+  function parseLegacyEnergyEvent(raw){return HeldenMobilCompanion.parseLegacyEnergyEvent(raw);}
+  function normalizeAdventureEvents(events){return HeldenMobilCompanion.normalizeAdventureEvents(events,ENERGY_EVENT_WINDOW_MS);}
   function activeAdventure(){const d=companionState.data;return d?.adventures.find(a=>a.id===d.activeAdventureId)||null;}
   function activeAdventureStatus(){return activeAdventure()?.status||null;}
   function logEvent(text,type='note'){
     const a=activeAdventure();if(!a)return;a.events=Array.isArray(a.events)?a.events:[];a.events.push({id:uid('evt'),at:new Date().toISOString(),type,text});
   }
-  function logEnergyEvent(label,before,after){
-    const a=activeAdventure();before=Number(before);after=Number(after);if(!a||before===after)return;a.events=Array.isArray(a.events)?a.events:[];const nowMs=Date.now(),now=new Date(nowMs).toISOString();let found=-1,event=null;
-    for(let i=a.events.length-1;i>=0;i--){const parsed=parseLegacyEnergyEvent(a.events[i]);if(!parsed||parsed.energy!==label)continue;const lastMs=Date.parse(parsed.lastAt||parsed.at||'')||0;if(lastMs&&nowMs>=lastMs&&nowMs-lastMs<=ENERGY_EVENT_WINDOW_MS&&Number(parsed.to)===before){found=i;event=parsed;}break;}
-    if(found>=0&&event){a.events.splice(found,1);event.to=after;event.delta=event.to-event.from;event.lastAt=now;event.at=now;event.text=energyEventText(label,event.from,event.to);if(event.delta!==0)a.events.push(event);return;}
-    a.events.push({id:uid('evt'),at:now,lastAt:now,startedAt:now,type:'energy',energy:label,from:before,to:after,delta:after-before,text:energyEventText(label,before,after)});
-  }
+  function logEnergyEvent(label,before,after){const a=activeAdventure();if(!a||Number(before)===Number(after))return;a.events=HeldenMobilCompanion.mergeEnergyEvent(a.events,label,before,after,{nowMs:Date.now(),uid,windowMs:ENERGY_EVENT_WINDOW_MS});}
   function adjustStatus(label,delta){const a=activeAdventure(),s=a?.status,k=statusKeyFor(label);if(!s||!k)return;const max=energyMaxMap().get(label);const before=Number(s[k]??max??0);let after=before+delta;if(max!=null)after=Math.min(max,after);if(after===before)return;s[k]=after;logEnergyEvent(label,before,after);saveCompanion();renderStatus();renderAdventures();}
   function renderStatus(){
     const d=companionState.data;if(!d)return;const a=activeAdventure(),s=a?.status,max=energyMaxMap();
@@ -847,7 +668,7 @@
   function addLearning(advId,form){const d=companionState.data,a=d.adventures.find(x=>x.id===advId);if(!a)return;const type=form.querySelector('[data-role="learn-type"]').value,target=form.querySelector('[data-role="learn-target"]').value.trim(),detail=form.querySelector('[data-role="learn-detail"]').value.trim();if(!target&&!detail)return;a.learning=a.learning||[];a.learning.push({id:uid('learn'),type,target,detail});saveCompanion();renderAdventures();renderAdvancement();}
   function addManualEvent(advId,input){const a=companionState.data.adventures.find(x=>x.id===advId);const txt=input.value.trim();if(!a||!txt)return;a.events=a.events||[];a.events.push({id:uid('evt'),at:new Date().toISOString(),type:'note',text:txt});input.value='';saveCompanion();renderAdventures();}
   function editEvent(advId,eventId){const a=companionState.data.adventures.find(x=>x.id===advId),e=a?.events?.find(x=>x.id===eventId);if(!e)return;const txt=prompt('Ereignis bearbeiten',e.text||'');if(txt===null)return;const clean=txt.trim();if(!clean)return;e.text=clean;e.editedAt=new Date().toISOString();saveCompanion();renderAdventures();}
-  function automaticEvent(e){return e?.type==='energy'||e?.type==='status';}
+  function automaticEvent(e){return e?.type==='energy';}
   function eventDisplayHtml(e){if(e?.type==='energy'&&e.energy){const delta=Number(e.delta??(Number(e.to)-Number(e.from))),signed=(delta>0?`+${delta}`:`${delta}`).replace('-', '−');return `<strong class="event-energy-label">${esc(e.energy)} ${esc(signed)}</strong><span class="event-energy-range"> · ${esc(String(e.from))} → ${esc(String(e.to))}</span>`;}return esc(e?.text||'');}
   function deleteEvent(advId,eventId){const a=companionState.data.adventures.find(x=>x.id===advId),e=a?.events?.find(x=>x.id===eventId);if(!a||!e)return;if(!automaticEvent(e)&&!confirm('Ereignis wirklich löschen?'))return;a.events=(a.events||[]).filter(x=>x.id!==eventId);saveCompanion();renderAdventures();}
   function adventureEnergyHtml(a){const max=energyMaxMap(),s=a.status||freshAdventureStatus();return ['LeP','AuP','AsP','KaP'].filter(l=>max.has(l)||s[statusKeyFor(l)]!=null).map(l=>{const k=statusKeyFor(l),v=s[k]??max.get(l)??0,m=max.get(l);return `<span class="adv-energy-pill">${l} ${v}${m!=null?`/${m}`:''}</span>`;}).join('');}
@@ -919,11 +740,11 @@
   function artifactLookup(itemId,effectId){const item=companionState.data?.inventory?.items?.find(x=>x.id===itemId),effect=item?.magic?.effects?.find(x=>x.id===effectId);return {item,effect};}
   function clearArtifactForm(){for(const id of ['artifactEffectName','artifactActivation','artifactCharges','artifactMaxCharges','artifactZfp','artifactAsp','artifactRecharge','artifactEffectNote']){const el=$(`#${id}`);if(el)el.value='';}}
   function addArtifactEffect(){const d=companionState.data,item=d?.inventory?.items?.find(x=>x.id===$('#artifactItem').value),name=$('#artifactEffectName').value.trim();if(!item){alert('Bitte zuerst einen Inventargegenstand auswählen.');return;}if(!name){alert('Bitte eine Wirkung oder einen Zauber angeben.');return;}const max=magicOptionalInt($('#artifactMaxCharges').value);let charges=magicOptionalInt($('#artifactCharges').value);if(max!=null){if(charges==null)charges=max;charges=Math.min(max,charges);}else charges=null;item.magic=item.magic&&typeof item.magic==='object'?item.magic:{kind:'Artefakt',effects:[]};item.magic.kind=$('#artifactKind').value||item.magic.kind||'Artefakt';item.magic.effects=Array.isArray(item.magic.effects)?item.magic.effects:[];item.magic.effects.push(normalizeMagicEffect({id:uid('effect'),name,type:$('#artifactEffectType').value||'Zauber',activation:$('#artifactActivation').value.trim(),charges,maxCharges:max,zfp:magicOptionalNumber($('#artifactZfp').value),asp:magicOptionalNumber($('#artifactAsp').value),recharge:$('#artifactRecharge').value.trim(),note:$('#artifactEffectNote').value.trim()}));clearArtifactForm();saveCompanion();renderInventory();}
-  function triggerArtifactEffect(itemId,effectId){const {item,effect}=artifactLookup(itemId,effectId);if(!item||!effect)return;if(effect.maxCharges!=null){const cur=Math.max(0,Number(effect.charges||0));if(cur<=0){alert(`${item.name} – ${effect.name}: keine Ladungen mehr.`);return;}effect.charges=cur-1;}const charge=effect.maxCharges!=null?` · ${artifactChargeText(effect)} Ladungen`:'';logEvent(`Magischer Gegenstand ${item.name}: ${effect.name} ausgelöst${charge}`,'magic');saveCompanion();renderInventory();renderAdventures();}
+  function triggerArtifactEffect(itemId,effectId){const {item,effect}=artifactLookup(itemId,effectId);if(!item||!effect||/^passiv$/i.test(String(effect.type||'').trim()))return;if(effect.maxCharges!=null){const cur=Math.max(0,Number(effect.charges||0));if(cur<=0){alert(`${item.name} – ${effect.name}: keine Ladungen mehr.`);return;}effect.charges=cur-1;}const charge=effect.maxCharges!=null?` · ${artifactChargeText(effect)} Ladungen`:'';logEvent(`Magischer Gegenstand ${item.name}: ${effect.name} ausgelöst${charge}`,'magic');saveCompanion();renderInventory();renderAdventures();}
   function changeArtifactCharge(itemId,effectId,delta){const {effect}=artifactLookup(itemId,effectId);if(!effect||effect.maxCharges==null)return;effect.charges=Math.max(0,Math.min(effect.maxCharges,Number(effect.charges||0)+delta));saveCompanion();renderInventory();}
-  function deleteArtifactEffect(itemId,effectId){const item=companionState.data?.inventory?.items?.find(x=>x.id===itemId);if(!item?.magic)return;item.magic.effects=(item.magic.effects||[]).filter(x=>x.id!==effectId);if(!item.magic.effects.length)delete item.magic;saveCompanion();renderInventory();}
-  function removeArtifactMagic(itemId){const item=companionState.data?.inventory?.items?.find(x=>x.id===itemId);if(!item)return;delete item.magic;saveCompanion();renderInventory();}
-  function renderArtifacts(){const d=companionState.data,host=$('#artifactList');if(!d||!host)return;refreshArtifactItemSelect();const items=artifactItems(),effects=artifactEffectCount();$('#artifactCount').textContent=`${items.length} Gegenstände · ${effects} Wirkungen`;host.innerHTML=items.map(it=>{const rows=(it.magic?.effects||[]).map(fx=>{const empty=fx.maxCharges!=null&&Number(fx.charges||0)<=0,meta=[fx.type||'',fx.activation?`Auslöser: ${fx.activation}`:'',fx.zfp!=null?`ZfP* ${fx.zfp}`:'',fx.asp!=null?`${fx.asp} AsP`:'',fx.recharge?`Aufladung: ${fx.recharge}`:'',fx.note||''].filter(Boolean).join(' · ');return `<div class="artifact-effect" data-effect-id="${fx.id}"><div class="artifact-effect-head"><div><div class="artifact-effect-name">${esc(fx.name)}</div><div class="artifact-effect-meta">${esc(meta)}</div></div><span class="charge-badge ${empty?'empty':''}">${artifactChargeText(fx)} Ladungen</span></div><div class="artifact-effect-actions"><button class="action-btn artifact-trigger" ${empty?'disabled':''}>Auslösen</button>${fx.maxCharges!=null?'<button class="mini-btn artifact-charge-minus">−1</button><button class="mini-btn artifact-charge-plus">+1</button>':''}<button class="danger-btn artifact-effect-delete">Wirkung löschen</button></div></div>`;}).join('')||'<div class="artifact-empty-effect">Noch keine magische Wirkung eingetragen.</div>';return `<div class="artifact-item" data-artifact-item="${it.id}"><div class="artifact-item-head"><div><div class="artifact-item-title">${esc(it.name)} <span class="artifact-kind">${esc(it.magic?.kind||'Magischer Gegenstand')}</span></div><div class="artifact-item-meta">${esc(it.type||'Gegenstand')}${it.locationId?` · ${esc(locationPath(it.locationId))}`:''}</div></div>${it.magic?'<button class="danger-btn artifact-remove-magic">Magische Daten entfernen</button>':''}</div><div class="artifact-effects">${rows}</div></div>`;}).join('')||'<div class="empty-comp">Noch keine magischen Gegenstände erfasst. Wähle oben einen Inventargegenstand und füge seine erste Wirkung hinzu.</div>';host.querySelectorAll('[data-artifact-item]').forEach(row=>{const itemId=row.dataset.artifactItem;row.querySelector('.artifact-remove-magic')?.addEventListener('click',()=>removeArtifactMagic(itemId));row.querySelectorAll('.artifact-effect').forEach(er=>{const effectId=er.dataset.effectId;er.querySelector('.artifact-trigger')?.addEventListener('click',()=>triggerArtifactEffect(itemId,effectId));er.querySelector('.artifact-charge-minus')?.addEventListener('click',()=>changeArtifactCharge(itemId,effectId,-1));er.querySelector('.artifact-charge-plus')?.addEventListener('click',()=>changeArtifactCharge(itemId,effectId,1));er.querySelector('.artifact-effect-delete')?.addEventListener('click',()=>deleteArtifactEffect(itemId,effectId));});});}
+  function deleteArtifactEffect(itemId,effectId){const item=companionState.data?.inventory?.items?.find(x=>x.id===itemId),effect=item?.magic?.effects?.find(x=>x.id===effectId);if(!item?.magic||!effect)return;if(!confirm(`Wirkung „${effect.name}“ von „${item.name}“ wirklich löschen?`))return;item.magic.effects=(item.magic.effects||[]).filter(x=>x.id!==effectId);if(!item.magic.effects.length)delete item.magic;saveCompanion();renderInventory();}
+  function removeArtifactMagic(itemId){const item=companionState.data?.inventory?.items?.find(x=>x.id===itemId);if(!item?.magic)return;if(!confirm(`Alle magischen Daten von „${item.name}“ wirklich entfernen?`))return;delete item.magic;saveCompanion();renderInventory();}
+  function renderArtifacts(){const d=companionState.data,host=$('#artifactList');if(!d||!host)return;refreshArtifactItemSelect();const items=artifactItems(),effects=artifactEffectCount();$('#artifactCount').textContent=`${items.length} Gegenstände · ${effects} Wirkungen`;host.innerHTML=items.map(it=>{const rows=(it.magic?.effects||[]).map(fx=>{const empty=fx.maxCharges!=null&&Number(fx.charges||0)<=0,passive=/^passiv$/i.test(String(fx.type||'').trim()),meta=[fx.type||'',fx.activation?`Auslöser: ${fx.activation}`:'',fx.zfp!=null?`ZfP* ${fx.zfp}`:'',fx.asp!=null?`${fx.asp} AsP`:'',fx.recharge?`Aufladung: ${fx.recharge}`:'',fx.note||''].filter(Boolean).join(' · ');return `<div class="artifact-effect" data-effect-id="${fx.id}"><div class="artifact-effect-head"><div><div class="artifact-effect-name">${esc(fx.name)}</div><div class="artifact-effect-meta">${esc(meta)}</div></div><span class="charge-badge ${empty?'empty':''}">${artifactChargeText(fx)} Ladungen</span></div><div class="artifact-effect-actions"><button class="action-btn artifact-trigger" ${empty||passive?'disabled':''}>${passive?'Passiv':'Auslösen'}</button>${fx.maxCharges!=null?'<button class="mini-btn artifact-charge-minus">−1</button><button class="mini-btn artifact-charge-plus">+1</button>':''}<button class="danger-btn artifact-effect-delete">Wirkung löschen</button></div></div>`;}).join('')||'<div class="artifact-empty-effect">Noch keine magische Wirkung eingetragen.</div>';return `<div class="artifact-item" data-artifact-item="${it.id}"><div class="artifact-item-head"><div><div class="artifact-item-title">${esc(it.name)} <span class="artifact-kind">${esc(it.magic?.kind||'Magischer Gegenstand')}</span></div><div class="artifact-item-meta">${esc(it.type||'Gegenstand')}${it.locationId?` · ${esc(locationPath(it.locationId))}`:''}</div></div>${it.magic?'<button class="danger-btn artifact-remove-magic">Magische Daten entfernen</button>':''}</div><div class="artifact-effects">${rows}</div></div>`;}).join('')||'<div class="empty-comp">Noch keine magischen Gegenstände erfasst. Wähle oben einen Inventargegenstand und füge seine erste Wirkung hinzu.</div>';host.querySelectorAll('[data-artifact-item]').forEach(row=>{const itemId=row.dataset.artifactItem;row.querySelector('.artifact-remove-magic')?.addEventListener('click',()=>removeArtifactMagic(itemId));row.querySelectorAll('.artifact-effect').forEach(er=>{const effectId=er.dataset.effectId;er.querySelector('.artifact-trigger')?.addEventListener('click',()=>triggerArtifactEffect(itemId,effectId));er.querySelector('.artifact-charge-minus')?.addEventListener('click',()=>changeArtifactCharge(itemId,effectId,-1));er.querySelector('.artifact-charge-plus')?.addEventListener('click',()=>changeArtifactCharge(itemId,effectId,1));er.querySelector('.artifact-effect-delete')?.addEventListener('click',()=>deleteArtifactEffect(itemId,effectId));});});}
 
   const MONEY_FACTOR={d:1000,s:100,h:10,k:1};
   function transactionTotalK(t){return ['d','s','h','k'].reduce((sum,k)=>sum+Number(t[k]||0)*MONEY_FACTOR[k],0);}
@@ -1041,7 +862,7 @@
     return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v20.0`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v20.3`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
@@ -1057,7 +878,7 @@
   function runQualityAudit(){
     const raws=Array.isArray(state.heroes)?state.heroes:[];if(!raws.length){$('#qualityAuditResult').innerHTML='<div class="empty-comp">Zuerst eine HLD laden.</div>';return;}
     const catalog={representations:new Map(),genders:new Map(),races:new Map(),unknownTalents:new Set(),unknownCombat:new Set(),unknownArmor:new Set()},heroes=raws.map((h,i)=>qualityAuditOne(h,i,catalog)),all=heroes.flatMap(h=>h.issues),summary={heroes:heroes.length,errors:all.filter(i=>i.severity==='error').length,warnings:all.filter(i=>i.severity==='warn').length,infos:all.filter(i=>i.severity==='info').length};
-    lastQualityAudit={version:'19.0.2',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
+    lastQualityAudit={version:'20.3',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
     renderQualityAudit(lastQualityAudit);$('#copyQualityAudit').disabled=false;$('#exportQualityAudit').disabled=false;$('#qualityCopyState').textContent='';
   }
   async function copyQualityAudit(){if(!lastQualityAudit)return;const text=qualityAuditText(lastQualityAudit);try{await navigator.clipboard.writeText(text);$('#qualityCopyState').textContent='Bericht kopiert.';}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();$('#qualityCopyState').textContent='Bericht kopiert.';}}
@@ -1138,7 +959,7 @@
   function renderDashboardMagic(){
     const host=$('#dashboardMagic'),d=companionState.data;if(!host||!d)return;const slots=[...(d.magic?.staffSlots||[])].sort((a,b)=>(a.slot||0)-(b.slot||0)),hasStorage=state.current?.sfSet?.has('Stabzauber: Zauberspeicher');
     const staffRows=slots.map(x=>`<div class="dashboard-magic-row ${x.loaded?'':'empty-slot'}"><div class="dashboard-magic-title"><span class="slot-badge">Slot ${x.slot}</span>${esc(x.spell)} ${x.loaded?'<span class="loaded-badge">geladen</span>':'<span class="empty-badge">leer</span>'}</div><div class="dashboard-magic-meta">${x.zfp!=null?`ZfP* ${x.zfp} · `:''}${x.asp!=null?`${x.asp} AsP · `:''}${esc(x.note||'')}</div><div class="dashboard-magic-actions"><button type="button" class="action-btn dashboard-toggle-slot" data-slot-id="${x.id}">${x.loaded?'Auslösen':'Wieder laden'}</button></div></div>`).join('');
-    const artifactRows=artifactItems().flatMap(it=>(it.magic?.effects||[]).map(fx=>{const empty=fx.maxCharges!=null&&Number(fx.charges||0)<=0,meta=[it.magic?.kind||'Magischer Gegenstand',fx.type||'',fx.activation?`Auslöser: ${fx.activation}`:'',fx.maxCharges!=null?`${artifactChargeText(fx)} Ladungen`:'unbegrenzt',it.locationId?locationPath(it.locationId):''].filter(Boolean).join(' · ');return `<div class="dashboard-magic-row ${empty?'empty-slot':''}"><div class="dashboard-magic-title"><span class="source-pill magic-pill">Magisch</span>${esc(it.name)} · ${esc(fx.name)}</div><div class="dashboard-magic-meta">${esc(meta)}</div><div class="dashboard-magic-actions"><button type="button" class="action-btn dashboard-artifact-trigger" data-artifact-item="${it.id}" data-artifact-effect="${fx.id}" ${empty?'disabled':''}>Auslösen</button></div></div>`;})).join('');
+    const artifactRows=artifactItems().flatMap(it=>(it.magic?.effects||[]).map(fx=>{const empty=fx.maxCharges!=null&&Number(fx.charges||0)<=0,passive=/^passiv$/i.test(String(fx.type||'').trim()),meta=[it.magic?.kind||'Magischer Gegenstand',fx.type||'',fx.activation?`Auslöser: ${fx.activation}`:'',fx.maxCharges!=null?`${artifactChargeText(fx)} Ladungen`:'unbegrenzt',it.locationId?locationPath(it.locationId):''].filter(Boolean).join(' · ');return `<div class="dashboard-magic-row ${empty?'empty-slot':''}"><div class="dashboard-magic-title"><span class="source-pill magic-pill">Magisch</span>${esc(it.name)} · ${esc(fx.name)}</div><div class="dashboard-magic-meta">${esc(meta)}</div><div class="dashboard-magic-actions"><button type="button" class="action-btn dashboard-artifact-trigger" data-artifact-item="${it.id}" data-artifact-effect="${fx.id}" ${empty||passive?'disabled':''}>${passive?'Passiv':'Auslösen'}</button></div></div>`;})).join('');
     const staffBlock=(hasStorage||slots.length)?`<div class="dashboard-magic-section-title">Zauberspeicher</div><div class="dashboard-magic-list">${staffRows||(hasStorage?'<div class="empty-comp">Zauberspeicher vorhanden, aber noch nicht belegt.</div>':'')}</div>`:'';
     const artifactBlock=`<div class="dashboard-magic-section-title">Magische Gegenstände</div><div class="dashboard-magic-list">${artifactRows||'<div class="empty-comp">Noch keine magischen Gegenstände erfasst.</div>'}</div><div class="artifact-manage-row"><button type="button" id="dashboardMagicManage" class="action-btn">Im Inventar verwalten</button></div>`;
     host.innerHTML=staffBlock+artifactBlock;host.querySelectorAll('.dashboard-toggle-slot').forEach(b=>b.onclick=()=>toggleStaffSlot(b.dataset.slotId));host.querySelectorAll('.dashboard-artifact-trigger').forEach(b=>b.onclick=()=>triggerArtifactEffect(b.dataset.artifactItem,b.dataset.artifactEffect));$('#dashboardMagicManage')?.addEventListener('click',()=>{const tab=$('.tab[data-tab="inventory"]');tab?.click();setTimeout(()=>{const card=$('#artifactCard');if(card?.classList.contains('box-collapsed'))card.querySelector(':scope > h4')?.click();card?.scrollIntoView({behavior:'smooth',block:'start'});},30);});
@@ -1240,6 +1061,11 @@
     if(!ref?.id)return;cloudMessage(`Lade ${ref.name} aus OneDrive …`,'');try{const meta=await graphJson(`/me/drive/items/${encodeURIComponent(ref.id)}?$select=id,name,eTag,size,lastModifiedDateTime,parentReference`),r=await graphFetch(`/me/drive/items/${encodeURIComponent(ref.id)}/content`);if(!r.ok)throw new Error(`HLD-Download ${r.status}`);const blob=await r.blob(),file=new File([blob],meta.name||ref.name,{type:'application/zip',lastModified:meta.lastModifiedDateTime?Date.parse(meta.lastModifiedDateTime):Date.now()});cloudState.hldRef={id:meta.id,name:meta.name,eTag:meta.eTag||null,lastModifiedDateTime:meta.lastModifiedDateTime||null,driveId:meta.parentReference?.driveId||null};localStorage.setItem(CLOUD_HLD_KEY,JSON.stringify(cloudState.hldRef));cloudRenderState();await openFile(file,{source:'onedrive',cloudHld:cloudState.hldRef});cloudMessage('HLD aus OneDrive geladen.','ok');}catch(e){cloudMessage(`HLD konnte nicht geladen werden: ${e.message}`,'error');}
   }
 
+  const CLOUD_SYNC_BASELINE_PREFIX='heldenmobil:onedrive:baseline:v1:';
+  function cloudBaselineKey(heroKey){return CLOUD_SYNC_BASELINE_PREFIX+String(heroKey||'unknown');}
+  function cloudLoadBaseline(heroKey){try{const x=JSON.parse(localStorage.getItem(cloudBaselineKey(heroKey))||'null');return x&&typeof x==='object'?x:null;}catch(_){return null;}}
+  function cloudStoreBaseline(heroKey,meta,localUpdatedAt){if(!heroKey||!meta?.eTag)return;localStorage.setItem(cloudBaselineKey(heroKey),JSON.stringify({eTag:meta.eTag,localUpdatedAt:localUpdatedAt||null,syncedAt:new Date().toISOString()}));}
+
   function cloudCompanionFileName(heroKey){return `hero-${String(heroKey||'unknown').replace(/[^a-zA-Z0-9._-]/g,'_')}.json`;}
   async function cloudCompanionMeta(heroKey){
     // erster Zugriff erzeugt bei Bedarf den App-Ordner
@@ -1251,10 +1077,11 @@
   async function cloudOnHeroChanged(){
     const key=state.current?.key;if(!key||!cloudIsConnected()){cloudState.heroReadyKey=null;cloudRenderState();return;}const seq=key;cloudState.heroReadyKey=null;cloudMessage('Begleitdaten werden mit OneDrive abgeglichen …','','#cloudSyncMessage');
     try{const meta=await cloudCompanionMeta(key);if(state.current?.key!==seq)return;cloudSetRemote(key,meta);if(!meta){cloudState.heroReadyKey=key;cloudMessage(companionState.localExists?'Noch keine Cloud-Datei. Die nächste Änderung wird hochgeladen.':'Noch keine Cloud-Datei für diesen Helden.','ok','#cloudSyncMessage');if(cloudState.dirtyHeroes.has(key))cloudScheduleSave(true);return;}
-      const remote=await cloudReadCompanion(key,meta);if(state.current?.key!==seq)return;const rd=normalizeCompanion(remote.data),rt=isoTime(rd.updatedAt),lt=isoTime(companionState.data?.updatedAt);cloudSetRemote(key,remote.meta);
-      if(!companionState.localExists||rt>lt){companionState.data=rd;saveCompanion({touch:false,skipCloud:true});renderCompanionAll();cloudMessage('Neuere OneDrive-Version geladen.','ok','#cloudSyncMessage');}
-      else if(lt>rt){cloudMessage('Lokale Version ist neuer und wird nach OneDrive gespeichert.','warn','#cloudSyncMessage');cloudState.dirtyHeroes.add(key);}
-      else cloudMessage('Lokale Daten und OneDrive sind auf demselben Stand.','ok','#cloudSyncMessage');
+      const remote=await cloudReadCompanion(key,meta);if(state.current?.key!==seq)return;const rd=normalizeCompanion(remote.data),rt=isoTime(rd.updatedAt),lt=isoTime(companionState.data?.updatedAt),baseline=cloudLoadBaseline(key),decision=HeldenMobilCompanion.decideInitialSync({localExists:companionState.localExists,localUpdatedAt:companionState.data?.updatedAt,remoteUpdatedAt:rd.updatedAt,remoteEtag:remote.meta?.eTag,baseline});cloudSetRemote(key,remote.meta);
+      if(decision==='conflict'){cloudState.conflictHeroKey=key;cloudState.heroReadyKey=key;cloudRenderState();cloudMessage('Konflikt: Lokale Daten und OneDrive wurden seit dem letzten gemeinsamen Stand beide geändert. Keine Seite wurde überschrieben.','warn','#cloudSyncMessage');return;}
+      if(decision==='remote'){companionState.data=rd;saveCompanion({touch:false,skipCloud:true});renderCompanionAll();cloudStoreBaseline(key,remote.meta,rd.updatedAt);cloudMessage('Neuere OneDrive-Version geladen.','ok','#cloudSyncMessage');}
+      else if(decision==='local'){cloudMessage('Lokale Version ist neuer und wird nach OneDrive gespeichert.','warn','#cloudSyncMessage');cloudState.dirtyHeroes.add(key);}
+      else{cloudStoreBaseline(key,remote.meta,companionState.data?.updatedAt);cloudMessage('Lokale Daten und OneDrive sind auf demselben Stand.','ok','#cloudSyncMessage');}
       cloudState.heroReadyKey=key;if(cloudState.dirtyHeroes.has(key))cloudScheduleSave(true);
     }catch(e){cloudState.heroReadyKey=key;cloudMessage(`OneDrive-Abgleich fehlgeschlagen: ${e.message}`,'error','#cloudSyncMessage');}
   }
@@ -1264,11 +1091,11 @@
   }
   async function cloudSaveCurrent(force=false){
     const key=state.current?.key,d=companionState.data;if(!key||!d){return;}if(!cloudIsConnected()){cloudMessage('Nicht mit Microsoft verbunden.','warn','#cloudSyncMessage');return;}if(cloudState.saving)return;cloudState.saving=true;cloudMessage('Speichere Begleitdaten nach OneDrive …','','#cloudSyncMessage');
-    try{const known=cloudState.remoteByHero.get(key)||null,meta=await cloudCompanionMeta(key);if(meta&&known?.eTag&&meta.eTag!==known.eTag&&!force){cloudSetRemote(key,meta);cloudState.conflictHeroKey=key;cloudRenderState();cloudMessage('Konflikt: Die OneDrive-Datei wurde auf einem anderen Gerät geändert.','warn','#cloudSyncMessage');return;}if(meta&&!known&&!force){cloudSetRemote(key,meta);cloudState.conflictHeroKey=key;cloudRenderState();cloudMessage('Cloud-Datei existiert bereits. Bitte zuerst laden oder bewusst überschreiben.','warn','#cloudSyncMessage');return;}
-      const body=JSON.stringify(d,null,2),path=meta?`/me/drive/items/${encodeURIComponent(meta.id)}/content`:`/me/drive/special/approot:/${encodeURIComponent(cloudCompanionFileName(key))}:/content`,r=await graphFetch(path,{method:'PUT',headers:{'Content-Type':'application/json; charset=utf-8'},body});if(!r.ok){let m=`Speichern fehlgeschlagen (${r.status})`;try{m=(await r.json()).error?.message||m;}catch(_){}throw new Error(m);}const saved=await r.json();cloudSetRemote(key,saved);cloudState.conflictHeroKey=null;cloudState.dirtyHeroes.delete(key);cloudState.heroReadyKey=key;cloudRenderState();cloudMessage(`In OneDrive gespeichert · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}`,'ok','#cloudSyncMessage');
+    try{const known=cloudState.remoteByHero.get(key)||null,baseline=cloudLoadBaseline(key),meta=await cloudCompanionMeta(key),decision=HeldenMobilCompanion.decideCloudWrite({force,remoteExists:!!meta,currentEtag:meta?.eTag||null,knownEtag:known?.eTag||null,baselineEtag:baseline?.eTag||null});if(decision==='conflict'){cloudSetRemote(key,meta);cloudState.conflictHeroKey=key;cloudRenderState();cloudMessage('Konflikt: Die OneDrive-Datei wurde auf einem anderen Gerät geändert.','warn','#cloudSyncMessage');return;}if(decision==='unknown-remote'){cloudSetRemote(key,meta);cloudState.conflictHeroKey=key;cloudRenderState();cloudMessage('Cloud-Datei existiert bereits. Bitte zuerst laden oder bewusst überschreiben.','warn','#cloudSyncMessage');return;}
+      const body=JSON.stringify(d,null,2),path=meta?`/me/drive/items/${encodeURIComponent(meta.id)}/content`:`/me/drive/special/approot:/${encodeURIComponent(cloudCompanionFileName(key))}:/content`,r=await graphFetch(path,{method:'PUT',headers:{'Content-Type':'application/json; charset=utf-8'},body});if(!r.ok){let m=`Speichern fehlgeschlagen (${r.status})`;try{m=(await r.json()).error?.message||m;}catch(_){}throw new Error(m);}const saved=await r.json();cloudSetRemote(key,saved);cloudStoreBaseline(key,saved,d.updatedAt);cloudState.conflictHeroKey=null;cloudState.dirtyHeroes.delete(key);cloudState.heroReadyKey=key;cloudRenderState();cloudMessage(`In OneDrive gespeichert · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}`,'ok','#cloudSyncMessage');
     }catch(e){cloudMessage(e.message,'error','#cloudSyncMessage');}finally{cloudState.saving=false;}
   }
-  async function cloudLoadCurrentManual(){const key=state.current?.key;if(!key)return;try{const remote=await cloudReadCompanion(key);if(!remote){cloudMessage('Für diesen Helden gibt es noch keine OneDrive-Datei.','warn','#cloudSyncMessage');return;}companionState.data=normalizeCompanion(remote.data);saveCompanion({touch:false,skipCloud:true});cloudSetRemote(key,remote.meta);cloudState.conflictHeroKey=null;cloudState.heroReadyKey=key;cloudState.dirtyHeroes.delete(key);renderCompanionAll();cloudRenderState();cloudMessage('OneDrive-Version geladen.','ok','#cloudSyncMessage');}catch(e){cloudMessage(e.message,'error','#cloudSyncMessage');}}
+  async function cloudLoadCurrentManual(){const key=state.current?.key;if(!key)return;try{const remote=await cloudReadCompanion(key);if(!remote){cloudMessage('Für diesen Helden gibt es noch keine OneDrive-Datei.','warn','#cloudSyncMessage');return;}companionState.data=normalizeCompanion(remote.data);saveCompanion({touch:false,skipCloud:true});cloudSetRemote(key,remote.meta);cloudStoreBaseline(key,remote.meta,companionState.data?.updatedAt);cloudState.conflictHeroKey=null;cloudState.heroReadyKey=key;cloudState.dirtyHeroes.delete(key);renderCompanionAll();cloudRenderState();cloudMessage('OneDrive-Version geladen.','ok','#cloudSyncMessage');}catch(e){cloudMessage(e.message,'error','#cloudSyncMessage');}}
   async function cloudForceOverwrite(){const key=state.current?.key;if(!key)return;cloudState.conflictHeroKey=null;await cloudSaveCurrent(true);}
   async function cloudInit(){
     cloudLoadStored();cloudRenderState();try{await cloudHandleRedirect();}catch(e){cloudMessage(`Microsoft-Anmeldung fehlgeschlagen: ${e.message}`,'error');}cloudRenderState();cloudState.initDone=true;if(cloudIsConnected()&&cloudState.hldRef&&!state.heroes.length)await cloudLoadHld(cloudState.hldRef);
@@ -1300,7 +1127,7 @@
   function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
   // DSA 4.1 / WdS 107: 19-20 Kopf, 15-18 Brust, 9-14 Arme,
   // 7-8 Bauch, 1-6 Beine; Arme/Beine werden per gerade/ungerade getrennt.
-  function zoneFromD20(r){r=clamp(Math.round(Number(r)||1),1,20);if(r>=19)return {label:'Kopf',key:'kopf'};if(r>=15)return {label:'Brust',key:'brust'};if(r>=9)return r%2?{label:'Schildarm (links)',key:'linkerarm'}:{label:'Schwertarm (rechts)',key:'rechterarm'};if(r>=7)return {label:'Bauch',key:'bauch'};return r%2?{label:'linkes Bein',key:'linkesbein'}:{label:'rechtes Bein',key:'rechtesbein'};}
+  function zoneFromD20(r){return HeldenMobilCombat.zoneFromD20(r);}
   function currentZoneArmor(zone){const set=state.current?.combatSets?.[state.combatSet];if(!set)return null;return setArmor(set).zones?.[zone.key]??null;}
   function signedNum(v){v=Number(v||0);return v?`${v>0?'+':''}${v}`:'0';}
   function zoneGlyph(key,generic=false){
@@ -1439,7 +1266,7 @@
   function contentBoxKey(card,h,index){const section=card.closest('.section')?.id||'global',title=collapseHeadingText(h).toLocaleLowerCase('de').replace(/[^a-z0-9äöüß]+/g,'-').replace(/^-|-$/g,'')||`box-${index}`;return `${section}:${title}`;}
   function setupCollapsibleContentBoxes(){
     const collapsed=contentBoxState(),seen=new Map();
-    const cards=[...document.querySelectorAll('.combat-block,.combat-card,.comp-card,.sf-group')];
+    const cards=[...document.querySelectorAll('.combat-block,.combat-card,.comp-card,.sf-group,.spell-list-card')];
     cards.forEach((card,index)=>{
       let heading=card.querySelector(':scope > h4'),root=heading;
       if(!heading&&card.classList.contains('sf-group')){root=card.querySelector(':scope > .sf-group-head');heading=root?.querySelector(':scope > h4')||null;}

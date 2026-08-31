@@ -1,13 +1,25 @@
 # HeldenMobil
 
-DSA 4.1 Heldentool fuer HLD-Dateien mit lokalen Begleitdaten und optionalem OneDrive-Sync.
+DSA 4.1 Heldentool für HLD-Dateien mit lokalen Begleitdaten und optionalem OneDrive-Sync.
 
-## Quellstruktur ab v20
+## Quellstruktur ab v20.3
 
-- `index.html` - HTML/CSS und statische Oberflaeche
-- `vendor/jszip-3.10.1.min.js` - vendorte ZIP-Bibliothek fuer HLD-Dateien
-- `js/app.js` - HeldenMobil-Anwendungslogik (wird in den folgenden v20-Schritten weiter modularisiert)
-- `tests/smoke.mjs` - regressionskritische Struktur- und Syntaxpruefungen
+- `index.html` – HTML/CSS und statische Oberfläche
+- `vendor/jszip-3.10.1.min.js` – vendorte ZIP-Bibliothek für HLD-Dateien
+- `js/hld-parser.js` – HLD-Parsing und HLD-spezifische Semantik
+- `js/companion-core.js` – Begleitdaten-Normalisierung, Ereignisaggregation und Sync-Entscheidungslogik
+- `js/combat-core.js` – kleine, bereits produktiv genutzte Kampfberechnungen
+- `js/app.js` – UI, Orchestrierung, OneDrive/Graph und verbleibende Anwendungslogik
+- `tests/smoke.mjs` – Struktur-, Lade- und Syntaxprüfungen
+- `tests/core.mjs` – Regressionstests für Parser-, Companion-, Sync- und Kampfverhalten
+
+## Stabilisierung v20.1 bis v20.3
+
+- **v20.1:** HLD-Parser aus dem UI-Monolithen gelöst und HLD-Semantik testbar gemacht.
+- **v20.2:** Companion-/Abenteuer-Normalisierung ausgelagert; Energieereignisse werden dauerhaft normalisiert; OneDrive erkennt mit persistenter Sync-Baseline parallele Offline-/Remote-Änderungen und blockiert fail-closed statt still zu überschreiben.
+- **v20.3:** bestehende Kampfberechnung in ein testbares Core-Modul verschoben; Wundereignisse bleiben manuell, passive magische Wirkungen sind nicht auslösbar, destruktive Magie-Aktionen sind bestätigt, Zauberliste nutzt die generische Einklapplogik.
+
+Die Module bilden nur Verhalten ab, das HeldenMobil tatsächlich verwendet. Es wird kein vollständiges DSA-4.1-Regelwerk nachgebaut.
 
 ## Tests
 
@@ -15,4 +27,4 @@ DSA 4.1 Heldentool fuer HLD-Dateien mit lokalen Begleitdaten und optionalem OneD
 npm test
 ```
 
-Die CI fuehrt diese Tests bei jedem Push und Pull Request aus.
+Die CI führt die Tests bei jedem Push und Pull Request aus.
