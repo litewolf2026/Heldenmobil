@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v19.0</title>
+<title>HeldenMobil – HLD PoC v19.0.1</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -183,8 +183,8 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v17.3</div></div></div>
-  <div class="badge">Beta v17.3</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v19.0.1</div></div></div>
+  <div class="badge">Beta v19.0.1</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -209,7 +209,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <button class="tab" data-tab="dashboard" disabled>Spieltisch</button>
     <button class="tab" data-tab="overview" disabled>Übersicht</button>
     <button class="tab" data-tab="talents" disabled>Talente</button>
-    <button class="tab" data-tab="spells" disabled>Zauber</button>
+    <button class="tab hidden" data-tab="spells" disabled>Zauber</button>
     <button class="tab hidden" data-tab="liturgies" disabled>Liturgien</button>
     <button class="tab" data-tab="combat" disabled>Kampf</button>
     <button class="tab" data-tab="sf" disabled>Sonderfertigkeiten</button>
@@ -473,7 +473,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil Beta v17.3 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
+<footer>HeldenMobil Beta v19.0.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
 </div>
 
 <script>
@@ -829,6 +829,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const liturgyKnowledges=talents.filter(t=>/^Liturgiekenntnis\s*\(/.test(t.name));
     const liturgies=sfEls.map((el,i)=>({el,name:attr(el,'name'),i})).filter(x=>/^Liturgie:\s*/.test(x.name)).map(x=>parseLiturgySfName(x.name,x.i));
     const karmal=liturgyKnowledges.length>0||liturgies.length>0||props.some(x=>x.name==='Karmaenergie'&&(Number(x.mod||0)!==0||Number(x.value||0)!==0))||sfSet.has('Karmalqueste');
+    const magical=spells.length>0||props.some(x=>x.name==='Astralenergie'&&(Number(x.mod||0)!==0||Number(x.value||0)!==0));
     const talentSpecs=new Map(), spellSpecs=[];
     for(const s of sfEls){
       const name=attr(s,'name');
@@ -866,7 +867,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       culture:attr(kultur,'string',attr(kultur,'name')),
       profession:[attr(ausb,'string',attr(ausb,'name')),attr(variante,'name')].filter(Boolean).join(' · '),
       ap:num(attr(direct(basis,'abenteuerpunkte'),'value')),freeAp:num(attr(direct(basis,'freieabenteuerpunkte'),'value')),
-      props,talents,spells,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
+      props,talents,spells,magical,liturgyKnowledges,liturgies,karmal,combat,combatMap,sf,sfEntries,sfSet,vt,advantages,disadvantages,vtNames,vtValues,meisterhandwerke,talentSpecs,combatSets,unarmedBonuses,rg1,items,
       staffItems:items.filter(i=>/magierstab/i.test(`${i.base} ${i.display}`))
     };
   }
@@ -927,6 +928,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     state.current=parseHero(hero);state.combatSet=0;rollRegistry.clear();
     const h=state.current;
     $('#workspace').classList.add('has-hero');$$('.tab[data-tab]').forEach(b=>{if(b.dataset.tab!=='data')b.disabled=false;});
+    const spellTab=$('.tab[data-tab="spells"]');if(spellTab){spellTab.classList.toggle('hidden',!h.magical);spellTab.disabled=!h.magical;if(!h.magical&&spellTab.classList.contains('active'))$('.tab[data-tab="overview"]')?.click();}
     const litTab=$('.tab[data-tab="liturgies"]');if(litTab){litTab.classList.toggle('hidden',!h.karmal);litTab.disabled=!h.karmal;if(!h.karmal&&litTab.classList.contains('active'))$('.tab[data-tab="overview"]')?.click();}
     $('#heroName').textContent=h.name;$('#heroMeta').textContent=[h.race,h.culture,h.profession].filter(Boolean).join(' · ');
     $('#apTotal').textContent=h.ap.toLocaleString('de-DE');$('#apFree').textContent=h.freeAp.toLocaleString('de-DE');
@@ -1533,7 +1535,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return {name:h.name||raw?.name||`Held ${index+1}`,key:h.key||raw?.key||'',race:h.race,gender:h.gender,talentCount:talents.length,spellCount:spells.length,combatSetCount:sets.length,issues:cleanIssues};
   }
   function qualityAuditText(report){
-    const lines=[`HeldenMobil Qualitätsbericht v19.0`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
+    const lines=[`HeldenMobil Qualitätsbericht v19.0.1`,`Erstellt: ${new Date(report.generatedAt).toLocaleString('de-DE')}`,`Helden: ${report.summary.heroes} · Fehler: ${report.summary.errors} · Warnungen: ${report.summary.warnings} · Hinweise: ${report.summary.infos}`,''];
     for(const h of report.heroes){if(!h.issues.length)continue;lines.push(`## ${h.name}`);for(const i of h.issues)lines.push(`${i.severity.toUpperCase()} [${i.code}]${i.area?` ${i.area}:`:''} ${i.detail}`);lines.push('');}
     const reps=Object.entries(report.catalog.representations||{}).map(([k,v])=>`${k} (${v})`).join(', ');if(reps)lines.push(`Repräsentationen: ${reps}`);
     if(report.catalog.unknownTalents.length)lines.push(`Nicht klassifizierte Talente: ${report.catalog.unknownTalents.join(', ')}`);
@@ -1549,7 +1551,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function runQualityAudit(){
     const raws=Array.isArray(state.heroes)?state.heroes:[];if(!raws.length){$('#qualityAuditResult').innerHTML='<div class="empty-comp">Zuerst eine HLD laden.</div>';return;}
     const catalog={representations:new Map(),genders:new Map(),races:new Map(),unknownTalents:new Set(),unknownCombat:new Set(),unknownArmor:new Set()},heroes=raws.map((h,i)=>qualityAuditOne(h,i,catalog)),all=heroes.flatMap(h=>h.issues),summary={heroes:heroes.length,errors:all.filter(i=>i.severity==='error').length,warnings:all.filter(i=>i.severity==='warn').length,infos:all.filter(i=>i.severity==='info').length};
-    lastQualityAudit={version:'18.0.1',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
+    lastQualityAudit={version:'19.0.1',generatedAt:new Date().toISOString(),sourceFile:state.fileName||'',summary,heroes,catalog:{representations:qualityCounterObject(catalog.representations),genders:qualityCounterObject(catalog.genders),races:qualityCounterObject(catalog.races),unknownTalents:[...catalog.unknownTalents].sort((a,b)=>a.localeCompare(b,'de')),unknownCombat:[...catalog.unknownCombat].sort((a,b)=>a.localeCompare(b,'de')),unknownArmor:[...catalog.unknownArmor].sort((a,b)=>a.localeCompare(b,'de'))}};
     renderQualityAudit(lastQualityAudit);$('#copyQualityAudit').disabled=false;$('#exportQualityAudit').disabled=false;$('#qualityCopyState').textContent='';
   }
   async function copyQualityAudit(){if(!lastQualityAudit)return;const text=qualityAuditText(lastQualityAudit);try{await navigator.clipboard.writeText(text);$('#qualityCopyState').textContent='Bericht kopiert.';}catch(_){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();$('#qualityCopyState').textContent='Bericht kopiert.';}}
