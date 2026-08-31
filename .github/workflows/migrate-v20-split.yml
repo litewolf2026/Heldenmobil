@@ -1,0 +1,45 @@
+name: Migrate HeldenMobil v20 source split
+
+on:
+  push:
+    paths:
+      - '.github/workflows/migrate-v20-split.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Split source and add CI
+        run: python3 tools/migrate_v20_split.py
+
+      - name: Verify JavaScript syntax
+        run: |
+          node --check js/app.js
+          node --check vendor/jszip-3.10.1.min.js
+
+      - name: Run smoke tests
+        run: npm test
+
+      - name: Verify source split
+        run: |
+          grep -F 'Beta v20.0' index.html
+          grep -F '<script src="vendor/jszip-3.10.1.min.js"></script>' index.html
+          grep -F '<script src="js/app.js"></script>' index.html
+          test -f .github/workflows/ci.yml
+          test -f README.md
+
+      - name: Commit v20.0 and remove migration tooling
+        run: |
+          git config user.name 'HeldenMobil Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm tools/migrate_v20_split.py .github/workflows/migrate-v20-split.yml
+          git add index.html js/app.js vendor/jszip-3.10.1.min.js tests/smoke.mjs package.json .github/workflows/ci.yml README.md
+          git commit -m 'v20.0: split source and add regression CI'
+          git push
