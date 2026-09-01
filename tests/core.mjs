@@ -34,6 +34,7 @@ eq(companion.decideInitialSync({localExists:true,localUpdatedAt:'2026-08-31T08:0
 eq(companion.decideInitialSync({localExists:true,localUpdatedAt:'2026-08-31T08:05:00Z',remoteUpdatedAt:'2026-08-31T08:00:00Z',remoteEtag:'A',baseline}),'local','local-only change');
 eq(companion.decideCloudWrite({remoteExists:true,currentEtag:'B',baselineEtag:'A'}),'conflict','write must fail closed on changed etag');
 eq(companion.decideCloudWrite({force:true,remoteExists:true,currentEtag:'B',baselineEtag:'A'}),'write','explicit force overwrite');
+const snapshots=Array.from({length:12},(_,i)=>({id:`s${i}`,at:new Date(Date.parse('2026-08-31T08:00:00Z')+i*60000).toISOString(),data:{heroKey:'h',updatedAt:String(i)}}));const trimmed=companion.normalizeSnapshotList(snapshots,10);eq([trimmed.length,trimmed[0].id,trimmed.at(-1).id],[10,'s11','s2'],'snapshot history keeps newest ten');eq(companion.addSnapshot(trimmed,{id:'s12',at:'2026-08-31T08:12:00Z',data:{heroKey:'h'}},10)[0].id,'s12','new snapshot becomes newest');
 
 // v20.3 existing combat behavior frozen as regression tests
 const meta={Schwerter:{offset:2},Hiebwaffen:{offset:4}};
@@ -42,4 +43,4 @@ eq(combat.adjustCombatForBE(15,14,3),{at:14,pa:12},'odd eBE distribution');
 eq(combat.finalDamage([1,6,2],[11,4],15),[1,6,3],'TP/KK bonus');eq(combat.finalDamage([1,6,2],[11,4],10),[1,6,1],'TP/KK penalty');
 eq(combat.zoneFromD20(20).key,'kopf','zone head');eq(combat.zoneFromD20(15).key,'brust','zone chest');eq(combat.zoneFromD20(9).key,'linkerarm','zone left arm');eq(combat.zoneFromD20(10).key,'rechterarm','zone right arm');eq(combat.zoneFromD20(7).key,'bauch','zone abdomen');eq(combat.zoneFromD20(1).key,'linkesbein','zone left leg');eq(combat.zoneFromD20(2).key,'rechtesbein','zone right leg');
 
-console.log('HeldenMobil v20.1-v20.3 core regression tests passed');
+console.log('HeldenMobil v20.1-v20.3.1 core regression tests passed');

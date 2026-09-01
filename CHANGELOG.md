@@ -1,5 +1,13 @@
 # Changelog
 
+## v20.3.1
+
+- Bis zu 10 automatische lokale Sicherungsstände je Held ergänzt; vor Änderungen wird der vorherige persistierte Stand gesichert.
+- Sicherungen können in der Oberfläche manuell erzeugt, wiederhergestellt und als JSON exportiert werden.
+- Ein vollständiges Zurücksetzen legt vorher zwingend eine lokale Sicherung an.
+- Bei knappem Browser-Speicher werden zuerst alte Sicherungen verworfen, bevor ein aktueller Spielstand verloren gehen kann.
+- Zeitpunkt des letzten erfolgreichen OneDrive-Syncs ist in den Daten- und Sync-Informationen sichtbar.
+
 ## v20.3
 
 - Kampf-Kernberechnungen aus `app.js` entkoppelt und als Regressionstests eingefroren.
