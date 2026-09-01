@@ -1,0 +1,57 @@
+name: Release v20.3.2 IndexedDB backups
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-v20-3-2-indexed-backups.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Apply migration
+        run: python3 tools/migrate_v20_3_2_indexed_backups.py
+
+      - name: JavaScript syntax checks
+        run: |
+          node --check js/app.js
+          node --check js/companion-core.js
+          node --check js/hld-parser.js
+          node --check js/combat-core.js
+
+      - name: Regression suite
+        run: npm test
+
+      - name: Verify release contract
+        run: |
+          grep -q 'HeldenMobil Beta v20.3.2' index.html
+          grep -q "COMPANION_BACKUP_DB='HeldenMobilBackups'" js/app.js
+          grep -q 'COMPANION_BACKUP_LIMIT=5' js/app.js
+          grep -q 'indexedDB.open' js/app.js
+          grep -q '0/5 Stände' index.html
+          grep -q 'IndexedDB' index.html
+          grep -q '"version": "20.3.2"' package.json
+          git diff --check
+
+      - name: Commit release and remove one-shot tooling
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html js/app.js js/companion-core.js tests/smoke.mjs tests/core.mjs package.json README.md CHANGELOG.md
+          git rm tools/migrate_v20_3_2_indexed_backups.py .github/workflows/release-v20-3-2-indexed-backups.yml
+          git commit -m 'v20.3.2: move backups to IndexedDB [skip ci]'
+          git push
