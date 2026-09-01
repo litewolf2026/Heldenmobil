@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a1f">
-<title>HeldenMobil – HLD PoC v20.3.1</title>
+<title>HeldenMobil – HLD PoC v20.3.2</title>
 <style>
 :root{
   --bg:#0e1014;--panel:#171a1f;--panel2:#20242b;--line:#303641;--text:#eef1f5;--muted:#aeb7c5;
@@ -183,8 +183,8 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
 <body>
 <div class="app">
 <header>
-  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v20.3.1</div></div></div>
-  <div class="badge">Beta v20.3.1</div>
+  <div class="brand"><div class="sigil">⚔</div><div><h1>HeldenMobil</h1><div class="sub">DSA 4.1 · HLD + Begleitdaten v20.3.2</div></div></div>
+  <div class="badge">Beta v20.3.2</div>
 </header>
 
 <section class="workspace" id="workspace">
@@ -450,7 +450,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
       </div>
 
       <div class="comp-grid hero-data-only">
-        <div class="comp-card"><h4>Begleitdaten dieses Helden</h4><p class="subtle">Die HLD bleibt read-only. Abenteuer mit jeweiligem Spielstand, Inventar, Geld und Steigerungswünsche liegen in einem separaten, versionierten JSON-Datensatz.</p><div class="toolbar-row"><button class="action-btn primary" id="exportCompanion">JSON exportieren</button><label class="action-btn" for="importCompanion">JSON importieren</label><input id="importCompanion" type="file" accept="application/json,.json" hidden><button class="danger-btn" id="resetCompanion">Begleitdaten zurücksetzen</button></div><div class="data-box" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><strong>Lokale Sicherungen</strong><span id="backupCount" class="count">0/10 Stände</span></div><div class="subtle" style="margin-top:5px">HeldenMobil hält bis zu 10 ältere Stände dieses Helden im Browser. Sie schützen vor versehentlichen Änderungen, aber nicht vor dem Löschen der Browserdaten – dafür eine Sicherung zusätzlich als JSON exportieren.</div><div class="toolbar-row"><select id="backupSelect" class="comp-input" style="min-width:260px;flex:1"><option value="">Noch keine Sicherung</option></select><button type="button" class="action-btn" id="backupNow">Jetzt sichern</button><button type="button" class="action-btn" id="backupRestore" disabled>Wiederherstellen</button><button type="button" class="action-btn" id="backupExport" disabled>Sicherung exportieren</button></div><div id="backupMessage" class="cloud-message"></div></div><div id="dataMeta" class="data-box"></div></div>
+        <div class="comp-card"><h4>Begleitdaten dieses Helden</h4><p class="subtle">Die HLD bleibt read-only. Abenteuer mit jeweiligem Spielstand, Inventar, Geld und Steigerungswünsche liegen in einem separaten, versionierten JSON-Datensatz.</p><div class="toolbar-row"><button class="action-btn primary" id="exportCompanion">JSON exportieren</button><label class="action-btn" for="importCompanion">JSON importieren</label><input id="importCompanion" type="file" accept="application/json,.json" hidden><button class="danger-btn" id="resetCompanion">Begleitdaten zurücksetzen</button></div><div class="data-box" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><strong>Lokale Sicherungen</strong><span id="backupCount" class="count">0/5 Stände</span></div><div class="subtle" style="margin-top:5px">HeldenMobil hält bis zu 5 ältere Stände dieses Helden in IndexedDB. Das entlastet den knappen localStorage und schützt vor versehentlichen Änderungen, aber nicht vor dem Löschen der Browserdaten – dafür eine Sicherung zusätzlich als JSON exportieren.</div><div class="toolbar-row"><select id="backupSelect" class="comp-input" style="min-width:260px;flex:1"><option value="">Noch keine Sicherung</option></select><button type="button" class="action-btn" id="backupNow">Jetzt sichern</button><button type="button" class="action-btn" id="backupRestore" disabled>Wiederherstellen</button><button type="button" class="action-btn" id="backupExport" disabled>Sicherung exportieren</button></div><div id="backupMessage" class="cloud-message"></div></div><div id="dataMeta" class="data-box"></div></div>
         <div class="comp-card"><h4>OneDrive-Speicher</h4><div class="cloud-syncbox"><p class="subtle" style="margin:0">Die HLD wird nur gelesen. Die JSON-Begleitdaten dieses Helden liegen im App-Ordner von HeldenMobil und werden mit der lokalen Arbeitskopie abgeglichen.</p><div id="cloudDataState" class="data-box"><strong>Noch nicht verbunden</strong></div><div class="cloud-syncrow"><button class="action-btn" id="cloudDataChooseHld">Andere HLD wählen</button><button class="action-btn" id="cloudLoadData">Aus OneDrive laden</button><button class="action-btn primary" id="cloudSaveData">Jetzt speichern</button><label class="cloud-check"><input id="cloudAutoSync" type="checkbox" checked> automatisch speichern</label></div><div id="cloudSyncMessage" class="cloud-message"></div><div id="cloudConflict" class="cloud-conflict cloud-hidden"><strong>Synchronisationskonflikt</strong><div class="small-note" style="margin-top:4px">Die OneDrive-Datei hat sich seit dem letzten Laden geändert. Nichts wird automatisch überschrieben.</div><div class="toolbar-row"><button class="action-btn" id="cloudConflictLoad">OneDrive-Version laden</button><button class="danger-btn" id="cloudConflictOverwrite">Lokale Version überschreiben</button></div></div></div></div>
       </div>
 
@@ -473,7 +473,7 @@ h1{font-size:1.35rem;margin:0}.sub{color:var(--muted);font-size:.86rem;margin-to
     <div class="felt-wrap"><div class="dice-felt"><div id="diceStage" class="dice-stage"></div><div id="diceResult" class="dice-result"></div></div></div>
   </div>
 </div>
-<footer>HeldenMobil Beta v20.3.1 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
+<footer>HeldenMobil Beta v20.3.2 · HLD read-only · Begleitdaten + OneDrive-Sync · Spieltisch</footer>
 </div>
 
 <script src="vendor/jszip-3.10.1.min.js"></script>

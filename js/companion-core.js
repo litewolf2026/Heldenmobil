@@ -68,11 +68,11 @@
     delete x.magic.artifacts;return x;
   }
 
-  function normalizeSnapshotList(raw,max=10){
-    const limit=Math.max(1,Math.floor(Number(max)||10));
+  function normalizeSnapshotList(raw,max=5){
+    const limit=Math.max(1,Math.floor(Number(max)||5));
     return (Array.isArray(raw)?raw:[]).filter(x=>x&&typeof x==='object'&&x.data&&typeof x.data==='object').sort((a,b)=>timeValue(b.at)-timeValue(a.at)).slice(0,limit);
   }
-  function addSnapshot(raw,snapshot,max=10){
+  function addSnapshot(raw,snapshot,max=5){
     if(!snapshot||typeof snapshot!=='object'||!snapshot.data||typeof snapshot.data!=='object')return normalizeSnapshotList(raw,max);
     const list=normalizeSnapshotList(raw,max),id=String(snapshot.id||'');if(id&&list.some(x=>String(x.id||'')===id))return list;
     return normalizeSnapshotList([snapshot,...list],max);

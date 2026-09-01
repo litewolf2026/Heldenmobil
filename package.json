@@ -1,7 +1,7 @@
 {
   "name": "heldenmobil",
   "private": true,
-  "version": "20.3.1",
+  "version": "20.3.2",
   "scripts": {
     "test": "node tests/smoke.mjs && node tests/core.mjs"
   }

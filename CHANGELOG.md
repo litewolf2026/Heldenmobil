@@ -1,5 +1,13 @@
 # Changelog
 
+## v20.3.2
+
+- Lokale Sicherungshistorie pro Held von 10 auf 5 Stände reduziert.
+- Sicherungsstände in IndexedDB verschoben; der aktuelle Companion-Datensatz bleibt für die stabile v1-Endphase weiterhin im bewährten `localStorage`.
+- Bestehende v20.3.1-Sicherungen werden beim ersten Zugriff automatisch nach IndexedDB migriert und auf die fünf neuesten Stände begrenzt.
+- Falls IndexedDB nicht verfügbar ist, bleibt ein auf fünf Stände begrenzter `localStorage`-Fallback aktiv.
+- Wiederherstellen und vollständiges Zurücksetzen brechen ab, wenn der aktuelle Stand vorher nicht erfolgreich gesichert werden konnte.
+
 ## v20.3.1
 
 - Bis zu 10 automatische lokale Sicherungsstände je Held ergänzt; vor Änderungen wird der vorherige persistierte Stand gesichert.
